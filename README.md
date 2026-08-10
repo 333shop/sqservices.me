@@ -1,2 +1,2 @@
-# sqservices.io
+# sqservices.me
 Website
