@@ -5,45 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sqservices.me</title>
   <link rel="stylesheet" href="styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
 
-  <!-- Dev PP Button (always visible) -->
-  <button id="devBtn" class="dev-btn">Dev PP</button>
+  <!-- Dev PP Button -->
+  <button id="devBtn" class="dev-btn" title="Developer Panel">
+    <i data-lucide="shield"></i>
+    <span>Dev PP</span>
+  </button>
 
   <!-- ===================== PUBLIC SITE ===================== -->
   <div id="publicView">
     <div class="bg-glow"></div>
+    <div class="bg-grid"></div>
 
     <header class="header">
-      <div class="logo">sqservices.me</div>
+      <div class="logo">
+        <i data-lucide="code-2"></i>
+        <span>sqservices.me</span>
+      </div>
     </header>
 
     <main>
       <section class="hero">
-        <h1>Hire SQ to make your website look better</h1>
-        <p class="subtitle">Clean, modern, and professional websites — no AI-looking mess.</p>
+        <div class="hero-badge">Available for hire</div>
+        <h1>Hire SQ to make your<br>website look <span class="gradient-text">better</span></h1>
+        <p class="subtitle">Clean, modern, and professional websites. No AI-looking mess. Just solid code that actually works.</p>
+        <div class="hero-actions">
+          <button id="buyBtn" class="buy-btn primary">
+            <i data-lucide="ticket"></i>
+            Open a Ticket — $5
+          </button>
+        </div>
       </section>
 
       <section class="services">
-        <h2>What I do</h2>
+        <h2 class="section-label">What I do</h2>
         <div class="service-grid">
-          <div class="service-card">
-            <span class="tag">HTML</span>
-            <p>Semantic structure & accessibility</p>
+          <div class="service-card" style="--delay: 0">
+            <div class="service-icon"><i data-lucide="file-code"></i></div>
+            <h3>HTML</h3>
+            <p>Semantic structure, accessibility & clean markup</p>
           </div>
-          <div class="service-card">
-            <span class="tag">CSS</span>
-            <p>Modern layouts, animations & responsive design</p>
+          <div class="service-card" style="--delay: 1">
+            <div class="service-icon"><i data-lucide="palette"></i></div>
+            <h3>CSS</h3>
+            <p>Modern layouts, animations & fully responsive design</p>
           </div>
-          <div class="service-card">
-            <span class="tag">JS</span>
-            <p>Interactive features & smooth UX</p>
+          <div class="service-card" style="--delay: 2">
+            <div class="service-icon"><i data-lucide="braces"></i></div>
+            <h3>JavaScript</h3>
+            <p>Interactive features, smooth UX & dynamic behavior</p>
           </div>
-          <div class="service-card">
-            <span class="tag">Java</span>
-            <p>Backend logic & solid architecture</p>
+          <div class="service-card" style="--delay: 3">
+            <div class="service-icon"><i data-lucide="cpu"></i></div>
+            <h3>Java</h3>
+            <p>Backend logic, solid architecture & reliable systems</p>
           </div>
         </div>
       </section>
@@ -52,27 +71,36 @@
         <div class="price-card">
           <div class="price-label">Starting at</div>
           <div class="price">$5</div>
-          <p class="price-desc">Simple landing pages & fixes. Custom quotes for bigger projects.</p>
-          <button id="buyBtn" class="buy-btn">Buy / Open Ticket</button>
+          <p class="price-desc">Simple landing pages, fixes & small projects. Custom quotes for larger work.</p>
+          <ul class="price-features">
+            <li><i data-lucide="check"></i> Clean modern design</li>
+            <li><i data-lucide="check"></i> Mobile responsive</li>
+            <li><i data-lucide="check"></i> Fast delivery</li>
+          </ul>
+          <button id="buyBtn2" class="buy-btn primary">
+            <i data-lucide="ticket"></i>
+            Open Ticket
+          </button>
         </div>
       </section>
     </main>
 
     <footer class="footer">
-      <p>© 2026 sqservices.me</p>
+      <p>© 2026 sqservices.me — Built clean.</p>
     </footer>
   </div>
 
   <!-- ===================== TICKET MODAL ===================== -->
   <div id="ticketModal" class="modal hidden">
     <div class="modal-content">
-      <button class="close-btn" id="closeModal">&times;</button>
+      <button class="close-btn" id="closeModal"><i data-lucide="x"></i></button>
+      <div class="modal-icon"><i data-lucide="ticket"></i></div>
       <h2>Open a Ticket</h2>
-      <p class="modal-sub">Tell me what you need and I’ll get back to you on Discord.</p>
+      <p class="modal-sub">Describe what you need. A developer will pick it up.</p>
       <form id="ticketForm">
         <div class="form-group">
           <label for="name">Your Name</label>
-          <input type="text" id="name" required placeholder="John Doe" />
+          <input type="text" id="name" required placeholder="John Doe" autocomplete="name" />
         </div>
         <div class="form-group">
           <label for="contact">Email or Discord</label>
@@ -80,25 +108,57 @@
         </div>
         <div class="form-group">
           <label for="message">What do you need?</label>
-          <textarea id="message" rows="4" required placeholder="Describe the website or fix you want..."></textarea>
+          <textarea id="message" rows="4" required placeholder="Describe the website, fix, or feature..."></textarea>
         </div>
-        <button type="submit" class="submit-btn">Submit Ticket</button>
+        <button type="submit" class="submit-btn">
+          <i data-lucide="send"></i>
+          Submit Ticket
+        </button>
       </form>
-      <div id="ticketSuccess" class="success hidden">
-        <h3>Ticket sent</h3>
-        <p>Your ticket was sent. I’ll contact you soon.</p>
-      </div>
     </div>
   </div>
+
+  <!-- ===================== USER CHAT / WAITING ===================== -->
+  <div id="userChat" class="chat-panel hidden">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <i data-lucide="message-circle"></i>
+        <div>
+          <strong id="userChatTitle">Your Ticket</strong>
+          <span id="userChatStatus" class="chat-status">Waiting for developer...</span>
+        </div>
+      </div>
+      <button id="minimizeUserChat" class="icon-btn" title="Minimize">
+        <i data-lucide="minus"></i>
+      </button>
+    </div>
+    <div id="userChatMessages" class="chat-messages"></div>
+    <div class="chat-input-area">
+      <input type="text" id="userChatInput" placeholder="Type a message..." disabled />
+      <button id="userChatSend" class="send-btn" disabled>
+        <i data-lucide="send"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating My Ticket button -->
+  <button id="myTicketBtn" class="floating-ticket hidden">
+    <i data-lucide="message-circle"></i>
+    <span>My Ticket</span>
+  </button>
 
   <!-- ===================== CODE PROMPT ===================== -->
   <div id="codeModal" class="modal hidden">
     <div class="modal-content code-box">
+      <div class="modal-icon"><i data-lucide="lock"></i></div>
       <h2>Dev Access</h2>
       <p class="modal-sub">Enter the access code</p>
       <input type="password" id="codeInput" placeholder="•••••" maxlength="10" autocomplete="off" />
       <div id="codeError" class="error-msg hidden">Wrong code</div>
-      <button id="unlockBtn" class="buy-btn" style="width:100%;margin-top:1rem">Unlock</button>
+      <button id="unlockBtn" class="submit-btn" style="margin-top:1rem">
+        <i data-lucide="unlock"></i>
+        Unlock
+      </button>
     </div>
   </div>
 
@@ -107,44 +167,75 @@
     <div class="bg-glow"></div>
     <div class="dev-wrap">
       <div class="dev-header">
-        <h1>Ticket Dashboard</h1>
-        <button id="exitDev" class="exit-btn">Exit Dev Mode</button>
+        <div>
+          <h1>Ticket Dashboard</h1>
+          <p class="dev-sub">Manage and respond to tickets</p>
+        </div>
+        <button id="exitDev" class="exit-btn">
+          <i data-lucide="log-out"></i>
+          Exit Dev Mode
+        </button>
       </div>
 
       <div class="stats">
         <div class="stat-card">
+          <i data-lucide="inbox"></i>
           <span id="statTotal">0</span>
           <small>Total</small>
         </div>
-        <div class="stat-card">
+        <div class="stat-card open">
+          <i data-lucide="circle"></i>
           <span id="statOpen">0</span>
           <small>Open</small>
         </div>
-        <div class="stat-card">
+        <div class="stat-card helping">
+          <i data-lucide="headphones"></i>
           <span id="statHelping">0</span>
           <small>Helping</small>
         </div>
-        <div class="stat-card">
+        <div class="stat-card closed">
+          <i data-lucide="check-circle"></i>
           <span id="statClosed">0</span>
           <small>Closed</small>
         </div>
       </div>
 
       <div id="ticketList" class="ticket-list"></div>
-      <div id="emptyState" class="empty-state hidden">No tickets yet</div>
+      <div id="emptyState" class="empty-state hidden">
+        <i data-lucide="inbox"></i>
+        <p>No tickets yet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== DEV CHAT PANEL ===================== -->
+  <div id="devChat" class="chat-panel dev-chat hidden">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <i data-lucide="headphones"></i>
+        <div>
+          <strong id="devChatTitle">Ticket</strong>
+          <span id="devChatMeta" class="chat-status"></span>
+        </div>
+      </div>
+      <div class="chat-header-actions">
+        <button id="devChatCloseTicket" class="act-btn close">Close</button>
+        <button id="closeDevChat" class="icon-btn"><i data-lucide="x"></i></button>
+      </div>
+    </div>
+    <div id="devChatMessages" class="chat-messages"></div>
+    <div class="chat-input-area">
+      <input type="text" id="devChatInput" placeholder="Reply to customer..." />
+      <button id="devChatSend" class="send-btn">
+        <i data-lucide="send"></i>
+      </button>
     </div>
   </div>
 
   <script>
-    // ============================================
-    // PASTE YOUR DISCORD WEBHOOK HERE (optional)
-    // ============================================
-    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1536100019638374586/tVJB72R11VLl12wzNSsoBx1yXVgViXfDYGYSDAQLVsxvIx7CiuZTvF5x8pa95crNvcj4";
-    // ============================================
-
+    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN";
     const CODE = "90783";
 
-    // Elements
     const publicView = document.getElementById("publicView");
     const devView = document.getElementById("devView");
     const devBtn = document.getElementById("devBtn");
@@ -154,62 +245,97 @@
     const codeError = document.getElementById("codeError");
     const exitDev = document.getElementById("exitDev");
     const buyBtn = document.getElementById("buyBtn");
+    const buyBtn2 = document.getElementById("buyBtn2");
     const ticketModal = document.getElementById("ticketModal");
     const closeModal = document.getElementById("closeModal");
     const ticketForm = document.getElementById("ticketForm");
-    const ticketSuccess = document.getElementById("ticketSuccess");
+    const userChat = document.getElementById("userChat");
+    const userChatMessages = document.getElementById("userChatMessages");
+    const userChatInput = document.getElementById("userChatInput");
+    const userChatSend = document.getElementById("userChatSend");
+    const minimizeUserChat = document.getElementById("minimizeUserChat");
+    const myTicketBtn = document.getElementById("myTicketBtn");
     const ticketList = document.getElementById("ticketList");
     const emptyState = document.getElementById("emptyState");
+    const devChat = document.getElementById("devChat");
+    const devChatMessages = document.getElementById("devChatMessages");
+    const devChatInput = document.getElementById("devChatInput");
+    const devChatSend = document.getElementById("devChatSend");
+    const closeDevChat = document.getElementById("closeDevChat");
+    const devChatCloseTicket = document.getElementById("devChatCloseTicket");
 
-    // ---------- Storage helpers ----------
+    let currentUserTicketId = localStorage.getItem("sq_my_ticket") || null;
+    let currentDevTicketId = null;
+
     function getTickets() {
-      try {
-        return JSON.parse(localStorage.getItem("sq_tickets") || "[]");
-      } catch {
-        return [];
-      }
+      try { return JSON.parse(localStorage.getItem("sq_tickets") || "[]"); }
+      catch { return []; }
     }
-
     function saveTickets(tickets) {
       localStorage.setItem("sq_tickets", JSON.stringify(tickets));
     }
+    function getTicket(id) {
+      return getTickets().find(t => t.id === id);
+    }
+    function updateTicket(id, updates) {
+      const tickets = getTickets().map(t => t.id === id ? { ...t, ...updates } : t);
+      saveTickets(tickets);
+      return tickets.find(t => t.id === id);
+    }
 
-    // ---------- Public site ----------
-    buyBtn.addEventListener("click", () => {
+    function init() {
+      lucide.createIcons();
+      if (currentUserTicketId) {
+        const t = getTicket(currentUserTicketId);
+        if (t && t.status !== "closed") {
+          showUserChat(t, true);
+        } else {
+          currentUserTicketId = null;
+          localStorage.removeItem("sq_my_ticket");
+        }
+      }
+    }
+
+    function openTicketModal() {
       ticketModal.classList.remove("hidden");
-      ticketForm.classList.remove("hidden");
-      ticketSuccess.classList.add("hidden");
       ticketForm.reset();
-    });
+      lucide.createIcons();
+    }
+    buyBtn.addEventListener("click", openTicketModal);
+    buyBtn2.addEventListener("click", openTicketModal);
 
     closeModal.addEventListener("click", () => ticketModal.classList.add("hidden"));
-    ticketModal.addEventListener("click", (e) => {
+    ticketModal.addEventListener("click", e => {
       if (e.target === ticketModal) ticketModal.classList.add("hidden");
     });
 
-    ticketForm.addEventListener("submit", async (e) => {
+    ticketForm.addEventListener("submit", async e => {
       e.preventDefault();
       const name = document.getElementById("name").value.trim();
       const contact = document.getElementById("contact").value.trim();
       const message = document.getElementById("message").value.trim();
       const btn = ticketForm.querySelector(".submit-btn");
       btn.disabled = true;
-      btn.textContent = "Sending...";
+      btn.innerHTML = "Sending...";
 
       const ticket = {
         id: "T-" + Date.now().toString(36).toUpperCase(),
-        name,
-        contact,
-        message,
+        name, contact, message,
         status: "open",
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        messages: [
+          { from: "system", text: "Ticket created. Waiting for a developer to help you...", time: new Date().toISOString() },
+          { from: "user", text: message, time: new Date().toISOString() }
+        ]
       };
 
       const tickets = getTickets();
       tickets.unshift(ticket);
       saveTickets(tickets);
 
-      // Discord notify
+      currentUserTicketId = ticket.id;
+      localStorage.setItem("sq_my_ticket", ticket.id);
+
       try {
         if (!DISCORD_WEBHOOK.includes("YOUR_WEBHOOK")) {
           await fetch(DISCORD_WEBHOOK, {
@@ -230,32 +356,105 @@
             })
           });
         }
-      } catch (err) {
-        console.warn("Discord send failed", err);
-      }
+      } catch (err) { console.warn(err); }
 
-      ticketForm.classList.add("hidden");
-      ticketSuccess.classList.remove("hidden");
+      ticketModal.classList.add("hidden");
       btn.disabled = false;
-      btn.textContent = "Submit Ticket";
+      btn.innerHTML = '<i data-lucide="send"></i> Submit Ticket';
+      lucide.createIcons();
+      showUserChat(ticket);
     });
 
-    // ---------- Dev mode ----------
-    devBtn.addEventListener("click", () => {
-      if (sessionStorage.getItem("sq_dev") === "1") {
-        enterDev();
+    function showUserChat(ticket, startMinimized = false) {
+      document.getElementById("userChatTitle").textContent = ticket.id;
+      updateUserChatStatus(ticket);
+      renderUserMessages(ticket);
+      userChat.classList.remove("hidden");
+      myTicketBtn.classList.add("hidden");
+
+      if (ticket.status === "helping") {
+        userChatInput.disabled = false;
+        userChatSend.disabled = false;
       } else {
+        userChatInput.disabled = true;
+        userChatSend.disabled = true;
+      }
+
+      if (startMinimized) {
+        userChat.classList.add("hidden");
+        myTicketBtn.classList.remove("hidden");
+      }
+      lucide.createIcons();
+    }
+
+    function updateUserChatStatus(ticket) {
+      const el = document.getElementById("userChatStatus");
+      if (ticket.status === "open") {
+        el.textContent = "Waiting for a developer...";
+        el.className = "chat-status waiting";
+      } else if (ticket.status === "helping") {
+        el.textContent = "A developer is helping you";
+        el.className = "chat-status active";
+      } else {
+        el.textContent = "Ticket closed";
+        el.className = "chat-status closed";
+      }
+    }
+
+    function renderUserMessages(ticket) {
+      userChatMessages.innerHTML = "";
+      (ticket.messages || []).forEach(m => {
+        const div = document.createElement("div");
+        div.className = "msg " + (m.from === "user" ? "msg-user" : m.from === "dev" ? "msg-dev" : "msg-system");
+        div.innerHTML = '<div class="msg-bubble">' + escapeHtml(m.text) + '</div><div class="msg-time">' + formatTime(m.time) + '</div>';
+        userChatMessages.appendChild(div);
+      });
+      userChatMessages.scrollTop = userChatMessages.scrollHeight;
+    }
+
+    minimizeUserChat.addEventListener("click", () => {
+      userChat.classList.add("hidden");
+      myTicketBtn.classList.remove("hidden");
+      lucide.createIcons();
+    });
+
+    myTicketBtn.addEventListener("click", () => {
+      const t = getTicket(currentUserTicketId);
+      if (t) showUserChat(t);
+    });
+
+    userChatSend.addEventListener("click", sendUserMessage);
+    userChatInput.addEventListener("keydown", e => { if (e.key === "Enter") sendUserMessage(); });
+
+    function sendUserMessage() {
+      const text = userChatInput.value.trim();
+      if (!text || !currentUserTicketId) return;
+      const ticket = getTicket(currentUserTicketId);
+      if (!ticket || ticket.status !== "helping") return;
+
+      ticket.messages = ticket.messages || [];
+      ticket.messages.push({ from: "user", text, time: new Date().toISOString() });
+      updateTicket(currentUserTicketId, { messages: ticket.messages });
+      userChatInput.value = "";
+      renderUserMessages(getTicket(currentUserTicketId));
+      if (currentDevTicketId === currentUserTicketId) {
+        renderDevMessages(getTicket(currentUserTicketId));
+      }
+    }
+
+    devBtn.addEventListener("click", () => {
+      if (sessionStorage.getItem("sq_dev") === "1") enterDev();
+      else {
         codeModal.classList.remove("hidden");
         codeInput.value = "";
         codeError.classList.add("hidden");
         codeInput.focus();
+        lucide.createIcons();
       }
     });
 
     unlockBtn.addEventListener("click", tryCode);
-    codeInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") tryCode();
-    });
+    codeInput.addEventListener("keydown", e => { if (e.key === "Enter") tryCode(); });
 
     function tryCode() {
       if (codeInput.value.trim() === CODE) {
@@ -271,25 +470,32 @@
 
     function enterDev() {
       publicView.classList.add("hidden");
+      userChat.classList.add("hidden");
+      myTicketBtn.classList.add("hidden");
       devView.classList.remove("hidden");
       renderTickets();
+      lucide.createIcons();
     }
 
     exitDev.addEventListener("click", () => {
       devView.classList.add("hidden");
+      devChat.classList.add("hidden");
       publicView.classList.remove("hidden");
+      if (currentUserTicketId) {
+        const t = getTicket(currentUserTicketId);
+        if (t && t.status !== "closed") myTicketBtn.classList.remove("hidden");
+      }
+      lucide.createIcons();
     });
 
-    codeModal.addEventListener("click", (e) => {
+    codeModal.addEventListener("click", e => {
       if (e.target === codeModal) codeModal.classList.add("hidden");
     });
 
-    // ---------- Ticket actions ----------
     function renderTickets() {
       const tickets = getTickets();
       ticketList.innerHTML = "";
 
-      // Stats
       document.getElementById("statTotal").textContent = tickets.length;
       document.getElementById("statOpen").textContent = tickets.filter(t => t.status === "open").length;
       document.getElementById("statHelping").textContent = tickets.filter(t => t.status === "helping").length;
@@ -306,49 +512,170 @@
         card.className = "ticket-card status-" + t.status;
         card.innerHTML = `
           <div class="ticket-top">
-            <span class="ticket-id">${escape(t.id)}</span>
+            <span class="ticket-id">${escapeHtml(t.id)}</span>
             <span class="status-badge ${t.status}">${t.status}</span>
           </div>
-          <div class="ticket-name">${escape(t.name)}</div>
-          <div class="ticket-contact">${escape(t.contact)}</div>
-          <div class="ticket-msg">${escape(t.message)}</div>
+          <div class="ticket-name">${escapeHtml(t.name)}</div>
+          <div class="ticket-contact">${escapeHtml(t.contact)}</div>
+          <div class="ticket-msg">${escapeHtml(t.message)}</div>
           <div class="ticket-date">${new Date(t.createdAt).toLocaleString()}</div>
           <div class="ticket-actions">
-            ${t.status !== "helping" ? `<button data-id="${t.id}" data-action="helping" class="act-btn help">Help</button>` : ""}
-            ${t.status !== "closed" ? `<button data-id="${t.id}" data-action="closed" class="act-btn close">Close</button>` : ""}
-            ${t.status !== "open" ? `<button data-id="${t.id}" data-action="open" class="act-btn reopen">Reopen</button>` : ""}
-            <button data-id="${t.id}" data-action="delete" class="act-btn delete">Delete</button>
+            <button data-id="${t.id}" data-action="chat" class="act-btn help">
+              <i data-lucide="message-circle"></i> ${t.status === "helping" ? "Open Chat" : "Help"}
+            </button>
+            ${t.status !== "closed" ? `<button data-id="${t.id}" data-action="closed" class="act-btn close"><i data-lucide="check"></i> Close</button>` : ""}
+            ${t.status === "closed" ? `<button data-id="${t.id}" data-action="open" class="act-btn reopen"><i data-lucide="rotate-ccw"></i> Reopen</button>` : ""}
+            <button data-id="${t.id}" data-action="delete" class="act-btn delete"><i data-lucide="trash-2"></i></button>
           </div>
         `;
         ticketList.appendChild(card);
       });
 
-      // Action buttons
+      lucide.createIcons();
+
       ticketList.querySelectorAll(".act-btn").forEach(btn => {
         btn.addEventListener("click", () => {
           const id = btn.dataset.id;
           const action = btn.dataset.action;
-          let tickets = getTickets();
 
+          if (action === "chat") {
+            openDevChat(id);
+            return;
+          }
+
+          let tickets = getTickets();
           if (action === "delete") {
             tickets = tickets.filter(t => t.id !== id);
+            if (currentDevTicketId === id) {
+              devChat.classList.add("hidden");
+              currentDevTicketId = null;
+            }
           } else {
             tickets = tickets.map(t => {
-              if (t.id === id) t.status = action;
+              if (t.id === id) {
+                t.status = action;
+                if (action === "helping") {
+                  t.messages = t.messages || [];
+                  t.messages.push({
+                    from: "system",
+                    text: "A developer has joined and is now helping you.",
+                    time: new Date().toISOString()
+                  });
+                }
+              }
               return t;
             });
           }
           saveTickets(tickets);
           renderTickets();
+
+          if (id === currentUserTicketId) {
+            const updated = getTicket(id);
+            if (updated) {
+              updateUserChatStatus(updated);
+              renderUserMessages(updated);
+              if (updated.status === "helping") {
+                userChatInput.disabled = false;
+                userChatSend.disabled = false;
+              }
+            }
+          }
         });
       });
     }
 
-    function escape(str) {
+    function openDevChat(id) {
+      const ticket = getTicket(id);
+      if (!ticket) return;
+
+      if (ticket.status === "open") {
+        updateTicket(id, {
+          status: "helping",
+          messages: [
+            ...(ticket.messages || []),
+            { from: "system", text: "A developer has joined and is now helping you.", time: new Date().toISOString() }
+          ]
+        });
+        renderTickets();
+      }
+
+      currentDevTicketId = id;
+      const t = getTicket(id);
+      document.getElementById("devChatTitle").textContent = t.id;
+      document.getElementById("devChatMeta").textContent = t.name + " · " + t.contact;
+      renderDevMessages(t);
+      devChat.classList.remove("hidden");
+      lucide.createIcons();
+
+      if (id === currentUserTicketId) {
+        updateUserChatStatus(t);
+        renderUserMessages(t);
+        userChatInput.disabled = false;
+        userChatSend.disabled = false;
+      }
+    }
+
+    function renderDevMessages(ticket) {
+      devChatMessages.innerHTML = "";
+      (ticket.messages || []).forEach(m => {
+        const div = document.createElement("div");
+        div.className = "msg " + (m.from === "dev" ? "msg-user" : m.from === "user" ? "msg-dev" : "msg-system");
+        div.innerHTML = '<div class="msg-bubble">' + escapeHtml(m.text) + '</div><div class="msg-time">' + formatTime(m.time) + '</div>';
+        devChatMessages.appendChild(div);
+      });
+      devChatMessages.scrollTop = devChatMessages.scrollHeight;
+    }
+
+    closeDevChat.addEventListener("click", () => {
+      devChat.classList.add("hidden");
+      currentDevTicketId = null;
+    });
+
+    devChatCloseTicket.addEventListener("click", () => {
+      if (!currentDevTicketId) return;
+      updateTicket(currentDevTicketId, { status: "closed" });
+      renderTickets();
+      devChat.classList.add("hidden");
+      if (currentDevTicketId === currentUserTicketId) {
+        const t = getTicket(currentUserTicketId);
+        updateUserChatStatus(t);
+        userChatInput.disabled = true;
+        userChatSend.disabled = true;
+      }
+      currentDevTicketId = null;
+    });
+
+    devChatSend.addEventListener("click", sendDevMessage);
+    devChatInput.addEventListener("keydown", e => { if (e.key === "Enter") sendDevMessage(); });
+
+    function sendDevMessage() {
+      const text = devChatInput.value.trim();
+      if (!text || !currentDevTicketId) return;
+      const ticket = getTicket(currentDevTicketId);
+      if (!ticket) return;
+
+      ticket.messages = ticket.messages || [];
+      ticket.messages.push({ from: "dev", text, time: new Date().toISOString() });
+      updateTicket(currentDevTicketId, { messages: ticket.messages });
+      devChatInput.value = "";
+      renderDevMessages(getTicket(currentDevTicketId));
+
+      if (currentDevTicketId === currentUserTicketId) {
+        renderUserMessages(getTicket(currentUserTicketId));
+      }
+    }
+
+    function escapeHtml(str) {
       const d = document.createElement("div");
       d.textContent = str || "";
       return d.innerHTML;
     }
+    function formatTime(iso) {
+      try { return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); }
+      catch { return ""; }
+    }
+
+    init();
   </script>
 </body>
 </html>
