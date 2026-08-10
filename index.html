@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sqservices.me</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Dev PP Button (always visible) -->
+  <button id="devBtn" class="dev-btn">Dev PP</button>
+
+  <!-- ===================== PUBLIC SITE ===================== -->
+  <div id="publicView">
+    <div class="bg-glow"></div>
+
+    <header class="header">
+      <div class="logo">sqservices.me</div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <h1>Hire SQ to make your website look better</h1>
+        <p class="subtitle">Clean, modern, and professional websites — no AI-looking mess.</p>
+      </section>
+
+      <section class="services">
+        <h2>What I do</h2>
+        <div class="service-grid">
+          <div class="service-card">
+            <span class="tag">HTML</span>
+            <p>Semantic structure & accessibility</p>
+          </div>
+          <div class="service-card">
+            <span class="tag">CSS</span>
+            <p>Modern layouts, animations & responsive design</p>
+          </div>
+          <div class="service-card">
+            <span class="tag">JS</span>
+            <p>Interactive features & smooth UX</p>
+          </div>
+          <div class="service-card">
+            <span class="tag">Java</span>
+            <p>Backend logic & solid architecture</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="pricing">
+        <div class="price-card">
+          <div class="price-label">Starting at</div>
+          <div class="price">$5</div>
+          <p class="price-desc">Simple landing pages & fixes. Custom quotes for bigger projects.</p>
+          <button id="buyBtn" class="buy-btn">Buy / Open Ticket</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>© 2026 sqservices.me</p>
+    </footer>
+  </div>
+
+  <!-- ===================== TICKET MODAL ===================== -->
+  <div id="ticketModal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-btn" id="closeModal">&times;</button>
+      <h2>Open a Ticket</h2>
+      <p class="modal-sub">Tell me what you need and I’ll get back to you on Discord.</p>
+      <form id="ticketForm">
+        <div class="form-group">
+          <label for="name">Your Name</label>
+          <input type="text" id="name" required placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label for="contact">Email or Discord</label>
+          <input type="text" id="contact" required placeholder="you@email.com or username" />
+        </div>
+        <div class="form-group">
+          <label for="message">What do you need?</label>
+          <textarea id="message" rows="4" required placeholder="Describe the website or fix you want..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Submit Ticket</button>
+      </form>
+      <div id="ticketSuccess" class="success hidden">
+        <h3>Ticket sent</h3>
+        <p>Your ticket was sent. I’ll contact you soon.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== CODE PROMPT ===================== -->
+  <div id="codeModal" class="modal hidden">
+    <div class="modal-content code-box">
+      <h2>Dev Access</h2>
+      <p class="modal-sub">Enter the access code</p>
+      <input type="password" id="codeInput" placeholder="•••••" maxlength="10" autocomplete="off" />
+      <div id="codeError" class="error-msg hidden">Wrong code</div>
+      <button id="unlockBtn" class="buy-btn" style="width:100%;margin-top:1rem">Unlock</button>
+    </div>
+  </div>
+
+  <!-- ===================== DEV DASHBOARD ===================== -->
+  <div id="devView" class="hidden">
+    <div class="bg-glow"></div>
+    <div class="dev-wrap">
+      <div class="dev-header">
+        <h1>Ticket Dashboard</h1>
+        <button id="exitDev" class="exit-btn">Exit Dev Mode</button>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <span id="statTotal">0</span>
+          <small>Total</small>
+        </div>
+        <div class="stat-card">
+          <span id="statOpen">0</span>
+          <small>Open</small>
+        </div>
+        <div class="stat-card">
+          <span id="statHelping">0</span>
+          <small>Helping</small>
+        </div>
+        <div class="stat-card">
+          <span id="statClosed">0</span>
+          <small>Closed</small>
+        </div>
+      </div>
+
+      <div id="ticketList" class="ticket-list"></div>
+      <div id="emptyState" class="empty-state hidden">No tickets yet</div>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // PASTE YOUR DISCORD WEBHOOK HERE (optional)
+    // ============================================
+    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1536100019638374586/tVJB72R11VLl12wzNSsoBx1yXVgViXfDYGYSDAQLVsxvIx7CiuZTvF5x8pa95crNvcj4";
+    // ============================================
+
+    const CODE = "90783";
+
+    // Elements
+    const publicView = document.getElementById("publicView");
+    const devView = document.getElementById("devView");
+    const devBtn = document.getElementById("devBtn");
+    const codeModal = document.getElementById("codeModal");
+    const codeInput = document.getElementById("codeInput");
+    const unlockBtn = document.getElementById("unlockBtn");
+    const codeError = document.getElementById("codeError");
+    const exitDev = document.getElementById("exitDev");
+    const buyBtn = document.getElementById("buyBtn");
+    const ticketModal = document.getElementById("ticketModal");
+    const closeModal = document.getElementById("closeModal");
+    const ticketForm = document.getElementById("ticketForm");
+    const ticketSuccess = document.getElementById("ticketSuccess");
+    const ticketList = document.getElementById("ticketList");
+    const emptyState = document.getElementById("emptyState");
+
+    // ---------- Storage helpers ----------
+    function getTickets() {
+      try {
+        return JSON.parse(localStorage.getItem("sq_tickets") || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function saveTickets(tickets) {
+      localStorage.setItem("sq_tickets", JSON.stringify(tickets));
+    }
+
+    // ---------- Public site ----------
+    buyBtn.addEventListener("click", () => {
+      ticketModal.classList.remove("hidden");
+      ticketForm.classList.remove("hidden");
+      ticketSuccess.classList.add("hidden");
+      ticketForm.reset();
+    });
+
+    closeModal.addEventListener("click", () => ticketModal.classList.add("hidden"));
+    ticketModal.addEventListener("click", (e) => {
+      if (e.target === ticketModal) ticketModal.classList.add("hidden");
+    });
+
+    ticketForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const contact = document.getElementById("contact").value.trim();
+      const message = document.getElementById("message").value.trim();
+      const btn = ticketForm.querySelector(".submit-btn");
+      btn.disabled = true;
+      btn.textContent = "Sending...";
+
+      const ticket = {
+        id: "T-" + Date.now().toString(36).toUpperCase(),
+        name,
+        contact,
+        message,
+        status: "open",
+        createdAt: new Date().toISOString()
+      };
+
+      const tickets = getTickets();
+      tickets.unshift(ticket);
+      saveTickets(tickets);
+
+      // Discord notify
+      try {
+        if (!DISCORD_WEBHOOK.includes("YOUR_WEBHOOK")) {
+          await fetch(DISCORD_WEBHOOK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              embeds: [{
+                title: "New Ticket — sqservices.me",
+                color: 0x3b82f6,
+                fields: [
+                  { name: "ID", value: ticket.id, inline: true },
+                  { name: "Name", value: name, inline: true },
+                  { name: "Contact", value: contact },
+                  { name: "Message", value: message.slice(0, 800) }
+                ],
+                timestamp: ticket.createdAt
+              }]
+            })
+          });
+        }
+      } catch (err) {
+        console.warn("Discord send failed", err);
+      }
+
+      ticketForm.classList.add("hidden");
+      ticketSuccess.classList.remove("hidden");
+      btn.disabled = false;
+      btn.textContent = "Submit Ticket";
+    });
+
+    // ---------- Dev mode ----------
+    devBtn.addEventListener("click", () => {
+      if (sessionStorage.getItem("sq_dev") === "1") {
+        enterDev();
+      } else {
+        codeModal.classList.remove("hidden");
+        codeInput.value = "";
+        codeError.classList.add("hidden");
+        codeInput.focus();
+      }
+    });
+
+    unlockBtn.addEventListener("click", tryCode);
+    codeInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") tryCode();
+    });
+
+    function tryCode() {
+      if (codeInput.value.trim() === CODE) {
+        sessionStorage.setItem("sq_dev", "1");
+        codeModal.classList.add("hidden");
+        enterDev();
+      } else {
+        codeError.classList.remove("hidden");
+        codeInput.value = "";
+        codeInput.focus();
+      }
+    }
+
+    function enterDev() {
+      publicView.classList.add("hidden");
+      devView.classList.remove("hidden");
+      renderTickets();
+    }
+
+    exitDev.addEventListener("click", () => {
+      devView.classList.add("hidden");
+      publicView.classList.remove("hidden");
+    });
+
+    codeModal.addEventListener("click", (e) => {
+      if (e.target === codeModal) codeModal.classList.add("hidden");
+    });
+
+    // ---------- Ticket actions ----------
+    function renderTickets() {
+      const tickets = getTickets();
+      ticketList.innerHTML = "";
+
+      // Stats
+      document.getElementById("statTotal").textContent = tickets.length;
+      document.getElementById("statOpen").textContent = tickets.filter(t => t.status === "open").length;
+      document.getElementById("statHelping").textContent = tickets.filter(t => t.status === "helping").length;
+      document.getElementById("statClosed").textContent = tickets.filter(t => t.status === "closed").length;
+
+      if (tickets.length === 0) {
+        emptyState.classList.remove("hidden");
+        return;
+      }
+      emptyState.classList.add("hidden");
+
+      tickets.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "ticket-card status-" + t.status;
+        card.innerHTML = `
+          <div class="ticket-top">
+            <span class="ticket-id">${escape(t.id)}</span>
+            <span class="status-badge ${t.status}">${t.status}</span>
+          </div>
+          <div class="ticket-name">${escape(t.name)}</div>
+          <div class="ticket-contact">${escape(t.contact)}</div>
+          <div class="ticket-msg">${escape(t.message)}</div>
+          <div class="ticket-date">${new Date(t.createdAt).toLocaleString()}</div>
+          <div class="ticket-actions">
+            ${t.status !== "helping" ? `<button data-id="${t.id}" data-action="helping" class="act-btn help">Help</button>` : ""}
+            ${t.status !== "closed" ? `<button data-id="${t.id}" data-action="closed" class="act-btn close">Close</button>` : ""}
+            ${t.status !== "open" ? `<button data-id="${t.id}" data-action="open" class="act-btn reopen">Reopen</button>` : ""}
+            <button data-id="${t.id}" data-action="delete" class="act-btn delete">Delete</button>
+          </div>
+        `;
+        ticketList.appendChild(card);
+      });
+
+      // Action buttons
+      ticketList.querySelectorAll(".act-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          let tickets = getTickets();
+
+          if (action === "delete") {
+            tickets = tickets.filter(t => t.id !== id);
+          } else {
+            tickets = tickets.map(t => {
+              if (t.id === id) t.status = action;
+              return t;
+            });
+          }
+          saveTickets(tickets);
+          renderTickets();
+        });
+      });
+    }
+
+    function escape(str) {
+      const d = document.createElement("div");
+      d.textContent = str || "";
+      return d.innerHTML;
+    }
+  </script>
+</body>
+</html>
