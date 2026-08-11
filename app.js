@@ -31,6 +31,19 @@ function showView(name) {
   if (views[name]) views[name].classList.remove('hidden');
   const live = document.getElementById('live-viewer');
   if (live) live.remove();
+  // pause music when leaving landing
+  if (name !== 'landing') {
+    const audio = document.getElementById('bg-jazz');
+    if (audio && !audio.paused) {
+      audio.pause();
+      const btn = document.getElementById('btn-music');
+      const icon = document.getElementById('music-icon');
+      const label = document.getElementById('music-label');
+      if (btn) btn.classList.remove('playing');
+      if (icon) icon.className = 'fas fa-volume-mute';
+      if (label) label.textContent = 'Music';
+    }
+  }
 }
 
 function toast(msg, duration = 2400) {
@@ -99,6 +112,26 @@ async function fetchPublicSite(binId) {
   if (data && data.files) return data;
   if (data && data.data && data.data.files) return data.data;
   return data;
+}
+
+async function updatePublic(binId, files, displayName, owner) {
+  const payload = {
+    files,
+    displayName,
+    owner: owner || 'anon',
+    v: 1,
+    updated: Date.now()
+  };
+  const res = await fetch(PUBLIC_API + '/' + encodeURIComponent(binId), {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Update failed (' + res.status + ')');
+  return true;
 }
 
 function getUsers() {
@@ -482,19 +515,65 @@ const dropzone = $('#dropzone');
 const fileInput = $('#file-input');
 const fileInputMulti = $('#file-input-multi');
 
+function setUploadedFiles(files) {
+  state.uploadedFiles = files;
+  renderFileList();
+  updateDeployButton();
+  if (dropzone) {
+    dropzone.classList.toggle('has-files', files.length > 0);
+  }
+}
+
 if (dropzone) {
-  dropzone.addEventListener('click', () => fileInputMulti?.click());
-  $('#btn-pick-folder')?.addEventListener('click', e => { e.stopPropagation(); fileInput?.click(); });
-  $('#btn-pick-files')?.addEventListener('click', e => { e.stopPropagation(); fileInputMulti?.click(); });
-  ['dragenter', 'dragover'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add('dragover'); }));
-  ['dragleave', 'drop'].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.remove('dragover'); }));
-  dropzone.addEventListener('drop', e => {
-    if (e.dataTransfer.items) handleDataTransferItems(e.dataTransfer.items);
-    else handleFileList(e.dataTransfer.files);
+  dropzone.addEventListener('click', (e) => {
+    // don't trigger if clicking the action buttons
+    if (e.target.closest('.upload-actions')) return;
+    fileInputMulti?.click();
+  });
+
+  $('#btn-pick-folder')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInput?.click();
+  });
+
+  $('#btn-pick-files')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileInputMulti?.click();
+  });
+
+  ['dragenter', 'dragover'].forEach(ev => {
+    dropzone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    });
+  });
+  ['dragleave', 'drop'].forEach(ev => {
+    dropzone.addEventListener(ev, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    });
+  });
+
+  dropzone.addEventListener('drop', async (e) => {
+    const items = e.dataTransfer?.items;
+    if (items && items.length) {
+      await handleDataTransferItems(items);
+    } else if (e.dataTransfer?.files?.length) {
+      handleFileList(e.dataTransfer.files);
+    }
   });
 }
-fileInput?.addEventListener('change', () => handleFileList(fileInput.files));
-fileInputMulti?.addEventListener('change', () => handleFileList(fileInputMulti.files));
+
+fileInput?.addEventListener('change', () => {
+  if (fileInput.files?.length) handleFileList(fileInput.files);
+});
+fileInputMulti?.addEventListener('change', () => {
+  if (fileInputMulti.files?.length) handleFileList(fileInputMulti.files);
+});
 
 async function handleDataTransferItems(items) {
   const files = [];
@@ -503,39 +582,69 @@ async function handleDataTransferItems(items) {
     const entry = items[i].webkitGetAsEntry?.();
     if (entry) entries.push(entry);
   }
+  if (!entries.length) {
+    // fallback to files
+    const list = [];
+    for (let i = 0; i < items.length; i++) {
+      const f = items[i].getAsFile?.();
+      if (f) list.push(f);
+    }
+    if (list.length) handleFileList(list);
+    return;
+  }
   for (const entry of entries) await traverseEntry(entry, '', files);
-  state.uploadedFiles = files;
-  renderFileList();
-  updateDeployButton();
+  setUploadedFiles(files);
 }
+
 function traverseEntry(entry, path, files) {
-  return new Promise(resolve => {
-    if (entry.isFile) entry.file(file => { files.push({ path: path + file.name, file }); resolve(); });
-    else if (entry.isDirectory) {
-      entry.createReader().readEntries(async entries => {
-        for (const e of entries) await traverseEntry(e, path + entry.name + '/', files);
+  return new Promise((resolve) => {
+    if (entry.isFile) {
+      entry.file((file) => {
+        files.push({ path: (path + file.name).replace(/^\/+/, ''), file });
         resolve();
-      });
+      }, () => resolve());
+    } else if (entry.isDirectory) {
+      const reader = entry.createReader();
+      const readAll = () => {
+        reader.readEntries(async (entries) => {
+          if (!entries.length) return resolve();
+          for (const e of entries) {
+            await traverseEntry(e, path + entry.name + '/', files);
+          }
+          readAll(); // continue if more
+        }, () => resolve());
+      };
+      readAll();
     } else resolve();
   });
 }
+
 function handleFileList(fileList) {
   const files = [];
-  for (const file of fileList) files.push({ path: file.webkitRelativePath || file.name, file });
-  state.uploadedFiles = files;
-  renderFileList();
-  updateDeployButton();
+  for (const file of fileList) {
+    const p = (file.webkitRelativePath || file.name).replace(/^\/+/, '');
+    files.push({ path: p, file });
+  }
+  setUploadedFiles(files);
 }
+
 function renderFileList() {
   const list = $('#file-list');
   if (!list) return;
   list.innerHTML = '';
-  state.uploadedFiles.slice(0, 30).forEach(({ path }) => {
+  if (!state.uploadedFiles.length) return;
+  state.uploadedFiles.slice(0, 40).forEach(({ path }) => {
     const row = document.createElement('div');
     row.className = 'file-item-row';
-    row.innerHTML = '<i class="fas ' + iconFor(path) + '"></i> ' + path;
+    row.innerHTML = '<i class="fas ' + iconFor(path) + '"></i><span>' + path + '</span>';
     list.appendChild(row);
   });
+  if (state.uploadedFiles.length > 40) {
+    const more = document.createElement('div');
+    more.className = 'file-item-row';
+    more.textContent = '… and ' + (state.uploadedFiles.length - 40) + ' more';
+    list.appendChild(more);
+  }
 }
 
 $('#btn-deploy')?.addEventListener('click', startDeploy);
@@ -558,15 +667,27 @@ async function startDeploy() {
 
   state.files = {};
   if (state.sourceType === 'upload') {
-    for (const { path, file } of state.uploadedFiles) {
-      if (file.type.startsWith('image/') || file.type.startsWith('font/') || file.size > 500000) continue;
-      try {
-        const text = await file.text();
-        let clean = path.replace(/^[^/]+\//, '') || path;
-        state.files[clean] = text;
-      } catch (e) {}
+    const paths = state.uploadedFiles.map(x => x.path);
+    let stripPrefix = '';
+    if (paths.length && paths.every(p => p.includes('/'))) {
+      const first = paths[0].split('/')[0];
+      if (paths.every(p => p.startsWith(first + '/'))) stripPrefix = first + '/';
     }
-    if (Object.keys(state.files).length === 0) state.files['index.html'] = blankHTML(state.siteName);
+    for (const { path: fpath, file } of state.uploadedFiles) {
+      const isBinary = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|eot|mp3|mp4|webm|pdf|zip|gz|rar)$/i.test(fpath);
+      if (isBinary || file.size > 800000) continue;
+      try {
+        const content = await file.text();
+        let clean = stripPrefix && fpath.startsWith(stripPrefix) ? fpath.slice(stripPrefix.length) : fpath;
+        clean = clean.replace(/^\.\//, '') || 'index.html';
+        state.files[clean] = content;
+      } catch (e) {
+        console.warn('skip', fpath, e);
+      }
+    }
+    if (Object.keys(state.files).length === 0) {
+      state.files['index.html'] = blankHTML(state.siteName);
+    }
   } else if (state.sourceType === 'paste') {
     state.files['index.html'] = $('#paste-html').value.trim();
   } else {
@@ -663,7 +784,14 @@ function openEditor() {
   $('#editors-container').innerHTML = '';
   renderFileTree();
   const startFile = state.files['index.html'] ? 'index.html' : Object.keys(state.files)[0];
-  if (startFile) openFile(startFile);
+  if (startFile) {
+    openFile(startFile);
+    // CodeMirror needs a tick to size correctly after view is shown
+    setTimeout(() => {
+      Object.values(state.editors).forEach(cm => { try { cm.refresh(); } catch(e) {} });
+      updatePreview();
+    }, 50);
+  }
 }
 
 function renderFileTree() {
@@ -759,8 +887,35 @@ $('#btn-new-file')?.addEventListener('click', () => {
   toast('File created');
 });
 
-$('#btn-save')?.addEventListener('click', () => { saveProject(); toast('Saved'); });
-$('#btn-publish')?.addEventListener('click', () => { saveProject(); toast('Published → sqservices.me/' + state.siteId); });
+$('#btn-save')?.addEventListener('click', () => {
+  saveProject();
+  toast('Saved locally');
+});
+
+$('#btn-publish')?.addEventListener('click', async () => {
+  if (!state.siteId || !state.files) return toast('Nothing to publish');
+  const btn = $('#btn-publish');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing'; }
+  try {
+    await updatePublic(state.siteId, state.files, state.siteName, state.user?.username);
+    saveProject();
+    toast('Published — anyone can open the link');
+  } catch (err) {
+    console.error(err);
+    // if update fails (expired blob), create a new public bin
+    try {
+      const newId = await publishToPublic(state.files, state.siteName, state.user?.username);
+      state.siteId = newId;
+      saveProject();
+      $('#editor-url').textContent = 'sqservices.me/' + newId;
+      $('#editor-url').href = buildLiveURL(newId);
+      toast('Published as new link: sqservices.me/' + newId);
+    } catch (e2) {
+      toast('Publish failed — try again');
+    }
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-rocket"></i> Publish'; }
+});
 
 let previewTimer = null;
 function updatePreviewDebounced() {
@@ -820,6 +975,7 @@ window.addEventListener('popstate', () => {
 })();
 
 
+
 /* ========== BACKGROUND MUSIC ========== */
 (function setupMusic() {
   const audio = document.getElementById('bg-jazz');
@@ -829,6 +985,7 @@ window.addEventListener('popstate', () => {
   if (!audio || !btn) return;
 
   let playing = false;
+  audio.volume = 0.4;
 
   btn.addEventListener('click', async () => {
     try {
@@ -839,19 +996,30 @@ window.addEventListener('popstate', () => {
         if (icon) icon.className = 'fas fa-volume-mute';
         if (label) label.textContent = 'Music';
       } else {
-        audio.volume = 0.35;
+        // load if needed
+        if (audio.readyState < 2) {
+          audio.load();
+        }
         await audio.play();
         playing = true;
         btn.classList.add('playing');
-        if (icon) icon.className = 'fas fa-volume-up';
+        if (icon) icon.className = 'fas fa-music';
         if (label) label.textContent = 'Playing';
       }
     } catch (e) {
-      toast('Click again to enable music');
+      console.warn('Music play failed', e);
+      toast('Music blocked — click again or check browser autoplay settings');
     }
   });
 
-  // Pause music when leaving landing
-  const origShowView = showView;
-  // soft: just pause when not on landing
+  audio.addEventListener('error', () => {
+    toast('Music file could not load');
+    playing = false;
+    btn.classList.remove('playing');
+  });
+
+  audio.addEventListener('ended', () => {
+    // loop attribute should handle, but just in case
+    if (playing) audio.play().catch(() => {});
+  });
 })();
