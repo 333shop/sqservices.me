@@ -9,7 +9,6 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body>
-
   <div class="bg-glow"></div>
   <div class="bg-grid"></div>
 
@@ -36,22 +35,22 @@
     <section class="services">
       <h2 class="section-label">What I do</h2>
       <div class="service-grid">
-        <div class="service-card">
+        <div class="service-card" style="--delay:0">
           <div class="service-icon"><i data-lucide="file-code"></i></div>
           <h3>HTML</h3>
           <p>Semantic structure, accessibility & clean markup</p>
         </div>
-        <div class="service-card">
+        <div class="service-card" style="--delay:1">
           <div class="service-icon"><i data-lucide="palette"></i></div>
           <h3>CSS</h3>
           <p>Modern layouts, animations & fully responsive design</p>
         </div>
-        <div class="service-card">
+        <div class="service-card" style="--delay:2">
           <div class="service-icon"><i data-lucide="braces"></i></div>
           <h3>JavaScript</h3>
           <p>Interactive features, smooth UX & dynamic behavior</p>
         </div>
-        <div class="service-card">
+        <div class="service-card" style="--delay:3">
           <div class="service-icon"><i data-lucide="cpu"></i></div>
           <h3>Java</h3>
           <p>Backend logic, solid architecture & reliable systems</p>
@@ -86,7 +85,7 @@
       <button class="close-btn" id="closeModal"><i data-lucide="x"></i></button>
       <div class="modal-icon"><i data-lucide="ticket"></i></div>
       <h2>Open a Ticket</h2>
-      <p class="modal-sub">Tell me what you need. I’ll get notified on Discord.</p>
+      <p class="modal-sub">Tell me what you need and you’ll be taken to the chat.</p>
       <form id="ticketForm">
         <div class="form-group">
           <label>Your Name</label>
@@ -101,43 +100,33 @@
           <textarea id="message" rows="4" required placeholder="Describe the website or fix..."></textarea>
         </div>
         <button type="submit" class="submit-btn" id="submitBtn">
-          <i data-lucide="send"></i> Submit Ticket
+          <i data-lucide="send"></i> Start Chat
         </button>
       </form>
-      <div id="successMsg" class="success hidden">
-        <h3>Ticket Sent!</h3>
-        <p>I’ll contact you on Discord soon.</p>
-      </div>
     </div>
   </div>
 
   <script>
     // ============================================
-    // PASTE YOUR DISCORD WEBHOOK URL HERE
+    // pls donʼt do anything thanks.
     // ============================================
-    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN";
+    const DISCORD_WEBHOOK = "https://discord.com/api/webhooks/1536541884451651725/TS0AORiWQ-L-yxwQDdpwXpurSuyCul8fms2MrUpRMt4a8GZ7qiOFU__T61bScqHIli_z";
     // ============================================
 
-    const buyBtn = document.getElementById("buyBtn");
-    const buyBtn2 = document.getElementById("buyBtn2");
     const modal = document.getElementById("ticketModal");
-    const closeModal = document.getElementById("closeModal");
     const form = document.getElementById("ticketForm");
-    const successMsg = document.getElementById("successMsg");
     const submitBtn = document.getElementById("submitBtn");
+
+    document.getElementById("buyBtn").onclick = openModal;
+    document.getElementById("buyBtn2").onclick = openModal;
+    document.getElementById("closeModal").onclick = () => modal.classList.add("hidden");
+    modal.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
 
     function openModal() {
       modal.classList.remove("hidden");
-      form.classList.remove("hidden");
-      successMsg.classList.add("hidden");
       form.reset();
       lucide.createIcons();
     }
-
-    buyBtn.onclick = openModal;
-    buyBtn2.onclick = openModal;
-    closeModal.onclick = () => modal.classList.add("hidden");
-    modal.onclick = (e) => { if (e.target === modal) modal.classList.add("hidden"); };
 
     form.onsubmit = async (e) => {
       e.preventDefault();
@@ -147,10 +136,23 @@
       const message = document.getElementById("message").value.trim();
 
       submitBtn.disabled = true;
-      submitBtn.innerHTML = "Sending...";
+      submitBtn.innerHTML = "Creating chat...";
 
       const ticketId = "T-" + Date.now().toString(36).toUpperCase();
+      const chatUrl = window.location.origin + window.location.pathname.replace("index.html", "") + "chat.html?id=" + ticketId;
 
+      // Save ticket info so the chat page can use it
+      const ticketData = {
+        id: ticketId,
+        name,
+        contact,
+        message,
+        created: new Date().toISOString()
+      };
+      localStorage.setItem("sq_ticket_" + ticketId, JSON.stringify(ticketData));
+      localStorage.setItem("sq_current_ticket", ticketId);
+
+      // Send to Discord
       try {
         await fetch(DISCORD_WEBHOOK, {
           method: "POST",
@@ -163,24 +165,20 @@
                 { name: "Ticket ID", value: ticketId, inline: true },
                 { name: "Name", value: name, inline: true },
                 { name: "Contact", value: contact },
-                { name: "Message", value: message }
+                { name: "Message", value: message },
+                { name: "Chat Link", value: `[Open Chat](${chatUrl})` }
               ],
               timestamp: new Date().toISOString(),
-              footer: { text: "Use /claim " + ticketId + " to take this ticket" }
+              footer: { text: "Click the chat link to talk to the customer" }
             }]
           })
         });
-
-        form.classList.add("hidden");
-        successMsg.classList.remove("hidden");
       } catch (err) {
-        alert("Failed to send ticket. Please try again.");
-        console.error(err);
+        console.warn("Webhook failed", err);
       }
 
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i data-lucide="send"></i> Submit Ticket';
-      lucide.createIcons();
+      // Redirect to chat page
+      window.location.href = chatUrl;
     };
 
     lucide.createIcons();
