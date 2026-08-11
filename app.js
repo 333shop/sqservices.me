@@ -1,4 +1,4 @@
-/* ========== STATE  ========== */
+/* ========== STATE ========== */
 const state = {
   user: null,
   siteName: '',   // friendly name shown to user
@@ -69,6 +69,27 @@ function randomCode(len = 6) {
   for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
   return s;
 }
+
+function getMode(path) {
+  const p = (path || '').toLowerCase();
+  if (p.endsWith('.css')) return 'css';
+  if (p.endsWith('.js') || p.endsWith('.mjs') || p.endsWith('.cjs') || p.endsWith('.ts') || p.endsWith('.json')) return 'javascript';
+  if (p.endsWith('.html') || p.endsWith('.htm') || p.endsWith('.svg') || p.endsWith('.xml')) return 'htmlmixed';
+  return 'htmlmixed';
+}
+
+function iconFor(path) {
+  const p = (path || '').toLowerCase();
+  if (/\.(html?|xml|svg)$/.test(p)) return 'fa-file-code';
+  if (p.endsWith('.css')) return 'fa-file-code';
+  if (/\.(js|mjs|cjs|ts|json)$/.test(p)) return 'fa-file-code';
+  if (/\.(png|jpe?g|gif|webp|ico|bmp)$/.test(p)) return 'fa-file-image';
+  if (/\.(mp4|webm|mov)$/.test(p)) return 'fa-file-video';
+  if (/\.(mp3|wav|ogg)$/.test(p)) return 'fa-file-audio';
+  if (p.endsWith('.md') || p.endsWith('.txt')) return 'fa-file-alt';
+  return 'fa-file';
+}
+
 
 
 /* ========== PUBLIC STORAGE (works for everyone) ========== */
@@ -349,7 +370,7 @@ function showLiveSite(siteId) {
       return;
     }
 
-    wrapper.innerHTML = '<iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+    wrapper.innerHTML = '<iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation allow-downloads" allow="fullscreen; autoplay; encrypted-media"></iframe>';
     document.getElementById('live-frame').srcdoc = buildFullHTML(files, true);
   })();
 }
@@ -675,7 +696,7 @@ async function startDeploy() {
     }
     for (const { path: fpath, file } of state.uploadedFiles) {
       const isBinary = /\.(png|jpe?g|gif|webp|ico|woff2?|ttf|eot|mp3|mp4|webm|pdf|zip|gz|rar)$/i.test(fpath);
-      if (isBinary || file.size > 800000) continue;
+      if (isBinary || file.size > 2000000) continue;
       try {
         const content = await file.text();
         let clean = stripPrefix && fpath.startsWith(stripPrefix) ? fpath.slice(stripPrefix.length) : fpath;
@@ -767,49 +788,78 @@ $('#btn-view-site')?.addEventListener('click', () => {
 function openEditor() {
   if (!requireAuth()) return;
   showView('editor');
-  $('#editor-sitename').textContent = state.siteName;
-  const url = buildLiveURL(state.siteId);
-  $('#editor-url').textContent = 'sqservices.me/' + state.siteId;
-  $('#editor-url').href = buildLiveURL(state.siteId);
-  $('#editor-url').onclick = e => {
-    e.preventDefault();
-    history.pushState({ site: state.siteId }, '', '/' + state.siteId);
-    showLiveSite(state.siteId);
-  };
 
+  const nameEl = $('#editor-sitename');
+  const urlEl = $('#editor-url');
+  if (nameEl) nameEl.textContent = state.siteName || state.siteId || 'site';
+  if (urlEl) {
+    urlEl.textContent = 'sqservices.me/' + state.siteId;
+    urlEl.href = buildLiveURL(state.siteId);
+    urlEl.onclick = (e) => {
+      e.preventDefault();
+      history.pushState({ site: state.siteId }, '', '/' + state.siteId);
+      showLiveSite(state.siteId);
+    };
+  }
+
+  // reset UI
   state.openTabs = [];
   state.activeTab = null;
   state.editors = {};
-  $('#tabs').innerHTML = '';
-  $('#editors-container').innerHTML = '';
+  const tabs = $('#tabs');
+  const container = $('#editors-container');
+  if (tabs) tabs.innerHTML = '';
+  if (container) container.innerHTML = '';
+
   renderFileTree();
-  const startFile = state.files['index.html'] ? 'index.html' : Object.keys(state.files)[0];
-  if (startFile) {
-    openFile(startFile);
-    // CodeMirror needs a tick to size correctly after view is shown
-    setTimeout(() => {
-      Object.values(state.editors).forEach(cm => { try { cm.refresh(); } catch(e) {} });
-      updatePreview();
-    }, 50);
+
+  const paths = Object.keys(state.files || {});
+  if (!paths.length) {
+    state.files = { 'index.html': blankHTML(state.siteName || 'site') };
+    renderFileTree();
   }
+
+  const startFile = state.files['index.html'] ? 'index.html' : Object.keys(state.files)[0];
+  if (startFile) openFile(startFile);
+
+  // force layout after paint
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      Object.keys(state.editors).forEach((p) => {
+        try {
+          state.editors[p].refresh();
+          state.editors[p].setSize('100%', '100%');
+        } catch (e) {}
+      });
+      updatePreview();
+    });
+  });
 }
 
 function renderFileTree() {
   const tree = $('#file-tree');
   if (!tree) return;
   tree.innerHTML = '';
-  Object.keys(state.files).sort().forEach(path => {
+  const paths = Object.keys(state.files || {}).sort();
+  if (!paths.length) {
+    tree.innerHTML = '<div class="tree-item" style="opacity:0.5;cursor:default">No files yet</div>';
+    return;
+  }
+  paths.forEach((path) => {
     const item = document.createElement('div');
     item.className = 'tree-item file';
     item.dataset.path = path;
-    item.innerHTML = '<i class="fas ' + iconFor(path) + '"></i> ' + path;
+    item.innerHTML = '<i class="fas ' + iconFor(path) + '"></i> <span>' + path + '</span>';
     item.addEventListener('click', () => openFile(path));
     tree.appendChild(item);
   });
 }
 
 function openFile(path) {
-  if (!state.files[path]) return;
+  if (!state.files || state.files[path] === undefined) {
+    toast('File not found: ' + path);
+    return;
+  }
   if (!state.openTabs.includes(path)) {
     state.openTabs.push(path);
     createTab(path);
@@ -819,42 +869,105 @@ function openFile(path) {
 }
 
 function createTab(path) {
+  const tabs = $('#tabs');
+  if (!tabs) return;
   const tab = document.createElement('div');
   tab.className = 'tab';
   tab.dataset.path = path;
-  tab.innerHTML = '<span>' + path + '</span><i class="fas fa-times close"></i>';
-  tab.addEventListener('click', e => {
-    if (e.target.classList.contains('close')) closeTab(path);
-    else setActiveTab(path);
+  tab.innerHTML = '<span>' + path + '</span><i class="fas fa-times close" title="Close"></i>';
+  tab.addEventListener('click', (e) => {
+    if (e.target.classList.contains('close')) {
+      e.stopPropagation();
+      closeTab(path);
+    } else {
+      setActiveTab(path);
+    }
   });
-  $('#tabs').appendChild(tab);
+  tabs.appendChild(tab);
 }
 
 function createEditor(path) {
+  const container = $('#editors-container');
+  if (!container) return;
+
   const wrap = document.createElement('div');
   wrap.className = 'editor-instance';
   wrap.dataset.path = path;
-  $('#editors-container').appendChild(wrap);
+  container.appendChild(wrap);
+
+  // If CodeMirror missing, fallback textarea
+  if (typeof CodeMirror === 'undefined') {
+    const ta = document.createElement('textarea');
+    ta.value = state.files[path] || '';
+    ta.style.cssText = 'width:100%;height:100%;background:#0d1117;color:#e6edf3;border:0;padding:16px;font-family:monospace;font-size:13px;resize:none;outline:none;';
+    ta.addEventListener('input', () => {
+      state.files[path] = ta.value;
+      updatePreviewDebounced();
+    });
+    wrap.appendChild(ta);
+    state.editors[path] = {
+      refresh() {},
+      setSize() {},
+      getValue() { return ta.value; },
+      setValue(v) { ta.value = v; }
+    };
+    return;
+  }
+
   const cm = CodeMirror(wrap, {
     value: state.files[path] || '',
     mode: getMode(path),
     theme: 'material-darker',
     lineNumbers: true,
-    tabSize: 2
+    lineWrapping: false,
+    tabSize: 2,
+    indentWithTabs: false,
+    autofocus: false,
+    viewportMargin: Infinity
   });
+
   cm.on('change', () => {
     state.files[path] = cm.getValue();
     updatePreviewDebounced();
   });
+
   state.editors[path] = cm;
+
+  // size after attached
+  setTimeout(() => {
+    try {
+      cm.setSize('100%', '100%');
+      cm.refresh();
+    } catch (e) {}
+  }, 30);
 }
 
 function setActiveTab(path) {
   state.activeTab = path;
-  $$('.tab').forEach(t => t.classList.toggle('active', t.dataset.path === path));
-  $$('.tree-item').forEach(t => t.classList.toggle('active', t.dataset.path === path));
-  $$('.editor-instance').forEach(e => e.classList.toggle('active', e.dataset.path === path));
-  if (state.editors[path]) setTimeout(() => state.editors[path].refresh(), 10);
+
+  document.querySelectorAll('.tab').forEach((t) => {
+    t.classList.toggle('active', t.dataset.path === path);
+  });
+  document.querySelectorAll('.tree-item').forEach((t) => {
+    t.classList.toggle('active', t.dataset.path === path);
+  });
+  document.querySelectorAll('.editor-instance').forEach((el) => {
+    const on = el.dataset.path === path;
+    el.classList.toggle('active', on);
+    el.style.display = on ? 'block' : 'none';
+  });
+
+  const cm = state.editors[path];
+  if (cm) {
+    setTimeout(() => {
+      try {
+        cm.refresh();
+        cm.setSize('100%', '100%');
+        cm.focus();
+      } catch (e) {}
+    }, 20);
+  }
+
   updatePreview();
 }
 
@@ -862,13 +975,18 @@ function closeTab(path) {
   const idx = state.openTabs.indexOf(path);
   if (idx === -1) return;
   state.openTabs.splice(idx, 1);
+
+  document.querySelectorAll('.tab').forEach(t => { if (t.dataset.path === path) t.remove(); });
+  document.querySelectorAll('.editor-instance').forEach(el => { if (el.dataset.path === path) el.remove(); });
   delete state.editors[path];
-  $('.tab[data-path="' + path + '"]')?.remove();
-  $('.editor-instance[data-path="' + path + '"]')?.remove();
+
   if (state.activeTab === path) {
     const next = state.openTabs[Math.max(0, idx - 1)] || state.openTabs[0];
     if (next) setActiveTab(next);
-    else { state.activeTab = null; updatePreview(); }
+    else {
+      state.activeTab = null;
+      updatePreview();
+    }
   }
 }
 
