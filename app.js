@@ -1,7 +1,8 @@
 /* ========== STATE ========== */
 const state = {
   user: null,
-  siteName: '',
+  siteName: '',   // friendly name shown to user
+  siteId: '',     // unique id used in URL (name-randomcode)
   files: {},
   openTabs: [],
   activeTab: null,
@@ -47,6 +48,13 @@ function sanitizeName(name) {
 
 function sanitizeUser(name) {
   return (name || '').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+}
+
+function randomCode(len = 6) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
 }
 
 function getMode(path) {
@@ -103,18 +111,23 @@ function userKey() {
   return state.user ? 'sq_projects_' + state.user.username : null;
 }
 function saveProject() {
-  if (!state.user || !state.siteName) return;
+  if (!state.user || !state.siteId) return;
   const key = userKey();
   const projects = JSON.parse(localStorage.getItem(key) || '{}');
-  projects[state.siteName] = {
+  projects[state.siteId] = {
     files: { ...state.files },
     owner: state.user.username,
+    displayName: state.siteName,
     updated: Date.now()
   };
   localStorage.setItem(key, JSON.stringify(projects));
 
   const publicIndex = JSON.parse(localStorage.getItem('sq_public') || '{}');
-  publicIndex[state.siteName] = { owner: state.user.username, updated: Date.now() };
+  publicIndex[state.siteId] = {
+    owner: state.user.username,
+    displayName: state.siteName,
+    updated: Date.now()
+  };
   localStorage.setItem('sq_public', JSON.stringify(publicIndex));
 }
 function loadProject(name, username) {
@@ -125,9 +138,9 @@ function getUserProjects() {
   if (!state.user) return {};
   return JSON.parse(localStorage.getItem(userKey()) || '{}');
 }
-function getPublicOwner(siteName) {
+function getPublicMeta(siteId) {
   const publicIndex = JSON.parse(localStorage.getItem('sq_public') || '{}');
-  return publicIndex[siteName]?.owner || null;
+  return publicIndex[siteId] || null;
 }
 
 /* ========== URL ========== */
@@ -142,12 +155,12 @@ function getSiteNameFromURL() {
   if (params.get('site')) return sanitizeName(params.get('site'));
   return null;
 }
-function buildLiveURL(siteName) {
-  return location.origin + '/' + siteName;
+function buildLiveURL(siteId) {
+  return location.origin + '/' + siteId;
 }
 
 /* ========== HTML BUILDER ========== */
-function buildFullHTML(files) {
+function buildFullHTML(files, withCredits) {
   let html = files['index.html'] || files['index.htm'] ||
     '<!DOCTYPE html><html><body><h1>No index.html</h1></body></html>';
 
@@ -172,19 +185,73 @@ function buildFullHTML(files) {
       }
     }
   });
+
+  // Credits badge (only on public live view)
+  if (withCredits) {
+    const credits = `
+<style>
+  .sq-credits {
+    position: fixed;
+    bottom: 14px;
+    right: 14px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 999px;
+    padding: 6px 14px 6px 6px;
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    color: #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .sq-credits:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+  }
+  .sq-credits img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  .sq-credits span {
+    opacity: 0.85;
+  }
+  .sq-credits strong {
+    font-weight: 600;
+    color: #93c5fd;
+  }
+</style>
+<a class="sq-credits" href="https://sqservices.me" target="_blank" rel="noopener">
+  <img src="https://cdn.discordapp.com/avatars/1289708914656542784/880738d917981661b5d2d2a199858a5d.webp?size=2048" alt="" />
+  <span>Made by <strong>furryfemboybigcock</strong></span>
+</a>`;
+    if (html.includes('</body>')) {
+      html = html.replace('</body>', credits + '</body>');
+    } else {
+      html += credits;
+    }
+  }
+
   return html;
 }
 
 /* ========== PUBLIC LIVE (pure, no buttons) ========== */
-function showLiveSite(siteName) {
-  const owner = getPublicOwner(siteName);
-  if (!owner) {
+function showLiveSite(siteId) {
+  const meta = getPublicMeta(siteId);
+  if (!meta) {
     history.replaceState({}, '', '/');
     showView('landing');
     toast('Site not found');
     return;
   }
-  const project = loadProject(siteName, owner);
+  const project = loadProject(siteId, meta.owner);
   if (!project) {
     history.replaceState({}, '', '/');
     showView('landing');
@@ -193,14 +260,14 @@ function showLiveSite(siteName) {
   }
 
   Object.values(views).forEach(v => { if (v) v.classList.add('hidden'); });
-  const old = document.getElementById('live-viewer');
-  if (old) old.remove();
+  const oldEl = document.getElementById('live-viewer');
+  if (oldEl) oldEl.remove();
 
   const wrapper = document.createElement('div');
   wrapper.id = 'live-viewer';
   wrapper.innerHTML = '<iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
   document.body.appendChild(wrapper);
-  document.getElementById('live-frame').srcdoc = buildFullHTML(project.files);
+  document.getElementById('live-frame').srcdoc = buildFullHTML(project.files, true);
 }
 
 /* ========== AUTH UI ========== */
@@ -269,50 +336,54 @@ function showDashboard() {
 
 function renderSitesList() {
   const projects = getUserProjects();
-  const names = Object.keys(projects).sort((a, b) => projects[b].updated - projects[a].updated);
+  const ids = Object.keys(projects).sort((a, b) => projects[b].updated - projects[a].updated);
   const list = $('#sites-list');
   const empty = $('#no-sites');
-  if (names.length === 0) {
+  if (ids.length === 0) {
     list.innerHTML = '';
     empty.classList.remove('hidden');
     return;
   }
   empty.classList.add('hidden');
-  list.innerHTML = names.map(name => `
+  list.innerHTML = ids.map(id => {
+    const p = projects[id];
+    const display = p.displayName || id;
+    return `
     <div class="site-card">
       <div class="site-card-left">
-        <div class="site-card-name">${name}</div>
-        <div class="site-card-url">sqservices.me/${name}</div>
+        <div class="site-card-name">${display}</div>
+        <div class="site-card-url">sqservices.me/${id}</div>
       </div>
       <div class="site-card-actions">
-        <button class="btn btn-ghost btn-sm" data-action="view" data-site="${name}">
+        <button class="btn btn-ghost btn-sm" data-action="view" data-site="${id}">
           <i class="fas fa-external-link-alt"></i> View
         </button>
-        <button class="btn btn-primary btn-sm" data-action="edit" data-site="${name}">
+        <button class="btn btn-primary btn-sm" data-action="edit" data-site="${id}">
           <i class="fas fa-pen"></i> Edit
         </button>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   list.querySelectorAll('button').forEach(btn => {
     btn.addEventListener('click', () => {
-      const name = btn.dataset.site;
+      const id = btn.dataset.site;
       if (btn.dataset.action === 'view') {
-        history.pushState({ site: name }, '', '/' + name);
-        showLiveSite(name);
+        history.pushState({ site: id }, '', '/' + id);
+        showLiveSite(id);
       } else {
-        openSiteInEditor(name);
+        openSiteInEditor(id);
       }
     });
   });
 }
 
-function openSiteInEditor(name) {
+function openSiteInEditor(id) {
   if (!requireAuth()) return;
-  const project = loadProject(name, state.user.username);
+  const project = loadProject(id, state.user.username);
   if (!project) return toast('Site not found');
-  state.siteName = name;
+  state.siteId = id;
+  state.siteName = project.displayName || id;
   state.files = project.files;
   openEditor();
 }
@@ -423,10 +494,8 @@ async function startDeploy() {
   state.siteName = sanitizeName($('#site-name').value);
   if (!state.siteName) return;
 
-  const existingOwner = getPublicOwner(state.siteName);
-  if (existingOwner && existingOwner !== state.user.username) {
-    return toast('This site name is already taken');
-  }
+  // unique URL: name + random codes so anyone can reuse the same name
+  state.siteId = state.siteName + '-' + randomCode(6);
 
   showView('loading');
   const bar = $('#progress-bar');
@@ -484,24 +553,24 @@ function blankCSS() {
 
 /* ========== READY ========== */
 function showReady() {
-  const display = 'sqservices.me/' + state.siteName;
-  const url = buildLiveURL(state.siteName);
+  const display = 'sqservices.me/' + state.siteId;
+  const url = buildLiveURL(state.siteId);
   $('#live-url').textContent = display;
   $('#live-url').href = url;
   $('#live-url').onclick = e => {
     e.preventDefault();
-    history.pushState({ site: state.siteName }, '', '/' + state.siteName);
-    showLiveSite(state.siteName);
+    history.pushState({ site: state.siteId }, '', '/' + state.siteId);
+    showLiveSite(state.siteId);
   };
   showView('ready');
 }
 $('#btn-copy-url')?.addEventListener('click', () => {
-  navigator.clipboard.writeText(buildLiveURL(state.siteName)).then(() => toast('Link copied'));
+  navigator.clipboard.writeText(buildLiveURL(state.siteId)).then(() => toast('Link copied'));
 });
 $('#btn-open-editor')?.addEventListener('click', openEditor);
 $('#btn-view-site')?.addEventListener('click', () => {
-  history.pushState({ site: state.siteName }, '', '/' + state.siteName);
-  showLiveSite(state.siteName);
+  history.pushState({ site: state.siteId }, '', '/' + state.siteId);
+  showLiveSite(state.siteId);
 });
 
 /* ========== EDITOR ========== */
@@ -509,13 +578,13 @@ function openEditor() {
   if (!requireAuth()) return;
   showView('editor');
   $('#editor-sitename').textContent = state.siteName;
-  const url = buildLiveURL(state.siteName);
-  $('#editor-url').textContent = 'sqservices.me/' + state.siteName;
+  const url = buildLiveURL(state.siteId);
+  $('#editor-url').textContent = 'sqservices.me/' + state.siteId;
   $('#editor-url').href = url;
   $('#editor-url').onclick = e => {
     e.preventDefault();
-    history.pushState({ site: state.siteName }, '', '/' + state.siteName);
-    showLiveSite(state.siteName);
+    history.pushState({ site: state.siteId }, '', '/' + state.siteId);
+    showLiveSite(state.siteId);
   };
 
   state.openTabs = [];
@@ -622,7 +691,7 @@ $('#btn-new-file')?.addEventListener('click', () => {
 });
 
 $('#btn-save')?.addEventListener('click', () => { saveProject(); toast('Saved'); });
-$('#btn-publish')?.addEventListener('click', () => { saveProject(); toast('Published → sqservices.me/' + state.siteName); });
+$('#btn-publish')?.addEventListener('click', () => { saveProject(); toast('Published → sqservices.me/' + state.siteId); });
 
 let previewTimer = null;
 function updatePreviewDebounced() {
@@ -631,21 +700,22 @@ function updatePreviewDebounced() {
 }
 function updatePreview() {
   const frame = $('#preview-frame');
-  if (frame) frame.srcdoc = buildFullHTML(state.files);
+  if (frame) frame.srcdoc = buildFullHTML(state.files, false);
 }
 $('#btn-refresh-preview')?.addEventListener('click', updatePreview);
 
 /* ========== RECENT ========== */
 function renderRecentSites() {
   const publicIndex = JSON.parse(localStorage.getItem('sq_public') || '{}');
-  const names = Object.keys(publicIndex).sort((a, b) => publicIndex[b].updated - publicIndex[a].updated);
+  const ids = Object.keys(publicIndex).sort((a, b) => publicIndex[b].updated - publicIndex[a].updated);
   const container = $('#recent-sites');
   if (!container) return;
-  if (names.length === 0) { container.innerHTML = ''; return; }
+  if (ids.length === 0) { container.innerHTML = ''; return; }
   container.innerHTML = '<p class="muted" style="margin-top:48px;margin-bottom:12px;font-size:0.85rem;">Recently published</p><div class="recent-list">' +
-    names.slice(0, 6).map(name =>
-      '<a class="recent-item" href="/' + name + '" data-site="' + name + '"><i class="fas fa-globe"></i><span>sqservices.me/' + name + '</span></a>'
-    ).join('') + '</div>';
+    ids.slice(0, 6).map(id => {
+      const display = publicIndex[id].displayName || id;
+      return '<a class="recent-item" href="/' + id + '" data-site="' + id + '"><i class="fas fa-globe"></i><span>sqservices.me/' + id + '</span></a>';
+    }).join('') + '</div>';
   container.querySelectorAll('.recent-item').forEach(el => {
     el.addEventListener('click', e => {
       e.preventDefault();
