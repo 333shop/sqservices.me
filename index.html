@@ -6,8 +6,20 @@
   <title>sqservices.me – Free Hosting</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
+  <!-- Loading -->
+  <div id="loading" class="loading-overlay hidden">
+    <div class="loader">
+      <div class="spinner"></div>
+      <p id="loading-text">Loading...</p>
+    </div>
+  </div>
+
+  <!-- Public Viewer -->
+  <div id="viewer" class="hidden"></div>
+
   <!-- Landing -->
   <div id="landing" class="page active">
     <div class="bg-overlay"></div>
@@ -18,8 +30,7 @@
           <span>sqservices.me</span>
         </div>
         <h1 class="fade-in">sqservices.me is the best free hosting services.</h1>
-        <p class="subtitle fade-in delay-1">Deploy any static site in seconds. No credit card. No limits.</p>
-
+        <p class="subtitle fade-in delay-1">Deploy any static site in seconds. Real public links. Update anytime.</p>
         <div class="auth-buttons fade-in delay-2">
           <button class="btn btn-primary" onclick="showPage('login')">
             <i class="fas fa-sign-in-alt"></i> Login
@@ -36,14 +47,14 @@
   <div id="login" class="page">
     <div class="auth-card">
       <h2><i class="fas fa-lock"></i> Login</h2>
-      <form onsubmit="handleAuth(event, 'dashboard')">
+      <form onsubmit="handleLogin(event)">
         <div class="input-group">
           <i class="fas fa-envelope"></i>
-          <input type="email" placeholder="Email" required />
+          <input type="email" id="login-email" placeholder="Email" required />
         </div>
         <div class="input-group">
           <i class="fas fa-key"></i>
-          <input type="password" placeholder="Password" required />
+          <input type="password" id="login-password" placeholder="Password" required />
         </div>
         <button type="submit" class="btn btn-primary full">Login</button>
       </form>
@@ -56,18 +67,14 @@
   <div id="signup" class="page">
     <div class="auth-card">
       <h2><i class="fas fa-user-plus"></i> Create Account</h2>
-      <form onsubmit="handleAuth(event, 'dashboard')">
-        <div class="input-group">
-          <i class="fas fa-user"></i>
-          <input type="text" placeholder="Username" required />
-        </div>
+      <form onsubmit="handleSignup(event)">
         <div class="input-group">
           <i class="fas fa-envelope"></i>
-          <input type="email" placeholder="Email" required />
+          <input type="email" id="signup-email" placeholder="Email" required />
         </div>
         <div class="input-group">
           <i class="fas fa-key"></i>
-          <input type="password" placeholder="Password" required />
+          <input type="password" id="signup-password" placeholder="Password (min 6 chars)" required minlength="6" />
         </div>
         <button type="submit" class="btn btn-primary full">Sign Up</button>
       </form>
@@ -76,68 +83,103 @@
     </div>
   </div>
 
-  <!-- Dashboard / Hosting -->
+  <!-- Dashboard -->
   <div id="dashboard" class="page">
     <div class="dashboard-header">
       <div class="logo small">
         <i class="fas fa-server"></i> sqservices.me
       </div>
-      <button class="btn btn-outline small" onclick="logout()">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </button>
+      <div class="header-actions">
+        <button class="btn btn-outline small" onclick="showMySites()">
+          <i class="fas fa-folder"></i> My Sites
+        </button>
+        <button class="btn btn-outline small" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
     </div>
 
     <div class="host-container">
+      <!-- Start -->
       <div id="start-screen" class="host-card">
         <i class="fas fa-rocket big-icon"></i>
         <h2>Start Hosting</h2>
-        <p>Upload your site or paste the code and go live in seconds.</p>
+        <p>Upload files or paste code. Get a real public link instantly.</p>
         <button class="btn btn-primary" onclick="showHostForm()">
           <i class="fas fa-play"></i> Start
         </button>
       </div>
 
+      <!-- Host Form -->
       <div id="host-form" class="host-card hidden">
-        <h2><i class="fas fa-cloud-upload-alt"></i> Deploy your site</h2>
+        <h2><i class="fas fa-cloud-upload-alt"></i> <span id="form-title">Deploy your site</span></h2>
 
         <div class="tabs">
-          <button class="tab active" onclick="switchTab('paste')">Paste Code</button>
-          <button class="tab" onclick="switchTab('upload')">Upload Files</button>
+          <button class="tab active" onclick="switchTab('paste')">
+            <i class="fas fa-code"></i> Paste Code
+          </button>
+          <button class="tab" onclick="switchTab('upload')">
+            <i class="fas fa-folder-open"></i> Upload Files
+          </button>
         </div>
 
-        <!-- Paste -->
         <div id="paste-tab" class="tab-content">
-          <textarea id="code-input" placeholder="Paste your full HTML here (include <style> and <script> if needed)..."></textarea>
+          <textarea id="code-input" placeholder="Paste your complete HTML here..."></textarea>
         </div>
 
-        <!-- Upload -->
         <div id="upload-tab" class="tab-content hidden">
           <div class="upload-zone" id="drop-zone">
-            <i class="fas fa-folder-open"></i>
-            <p>Drag & drop HTML / CSS / JS files here<br>or click to select</p>
-            <input type="file" id="file-input" multiple accept=".html,.css,.js,.htm" />
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & drop .html .css .js files<br>or click to browse</p>
+            <input type="file" id="file-input" multiple accept=".html,.htm,.css,.js" />
           </div>
           <ul id="file-list"></ul>
         </div>
 
-        <button class="btn btn-primary full" onclick="deploySite()">
-          <i class="fas fa-bolt"></i> Host Now
+        <input type="hidden" id="editing-id" value="" />
+
+        <button class="btn btn-primary full" id="deploy-btn" onclick="deploySite()">
+          <i class="fas fa-bolt"></i> <span id="deploy-text">Host Now</span>
         </button>
+        <button class="btn btn-outline full mt" onclick="cancelHost()">Cancel</button>
       </div>
 
       <!-- Success -->
       <div id="success-screen" class="host-card hidden">
         <i class="fas fa-check-circle big-icon success"></i>
         <h2>Your site is live!</h2>
-        <p>Share this link with your friends:</p>
+        <p>This link works for anyone in the world.</p>
+
         <div class="url-box">
           <a id="live-url" href="#" target="_blank"></a>
-          <button class="copy-btn" onclick="copyUrl()">
+          <button class="copy-btn" onclick="copyUrl()" title="Copy">
             <i class="fas fa-copy"></i>
           </button>
         </div>
-        <button class="btn btn-outline" onclick="resetHost()">
+
+        <div class="success-actions">
+          <button class="btn btn-primary" onclick="openLiveSite()">
+            <i class="fas fa-external-link-alt"></i> Open Site
+          </button>
+          <button class="btn btn-outline" onclick="downloadHTML()">
+            <i class="fas fa-download"></i> Download HTML
+          </button>
+          <button class="btn btn-outline" onclick="editCurrent()">
+            <i class="fas fa-edit"></i> Edit / Update
+          </button>
+        </div>
+
+        <button class="btn btn-outline mt" onclick="resetHost()">
           <i class="fas fa-plus"></i> Host another site
+        </button>
+      </div>
+
+      <!-- My Sites -->
+      <div id="my-sites" class="host-card hidden">
+        <h2><i class="fas fa-folder-open"></i> My Sites</h2>
+        <div id="sites-list"></div>
+        <button class="btn btn-outline full mt" onclick="backToStart()">
+          <i class="fas fa-arrow-left"></i> Back
         </button>
       </div>
     </div>
