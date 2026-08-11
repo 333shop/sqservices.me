@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sqservices.me</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== LANDING ========== -->
+  <section id="landing" class="view">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="topbar-right" id="landing-auth-btns">
+        <button class="btn btn-ghost btn-sm" id="btn-show-login">Log in</button>
+        <button class="btn btn-primary btn-sm" id="btn-show-signup">Sign up</button>
+      </div>
+    </header>
+    <main class="hero">
+      <h1>Host your own website</h1>
+      <p class="subtitle">Create an account, upload your files, and go live at <strong>sqservices.me/yourname</strong></p>
+      <button class="btn btn-primary" id="btn-get-started">
+        Get Started <i class="fas fa-arrow-right"></i>
+      </button>
+      <button class="btn btn-ghost btn-sm music-toggle" id="btn-music" title="Toggle music">
+        <i class="fas fa-volume-mute" id="music-icon"></i>
+        <span id="music-label">Music</span>
+      </button>
+      <div id="recent-sites" class="recent-sites"></div>
+
+      <!-- Soft jazz background (muted by default) -->
+      <audio id="bg-jazz" loop preload="auto">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" type="audio/mpeg" />
+      </audio>
+    </main>
+  </section>
+
+  <!-- ========== AUTH (Login / Signup) ========== -->
+  <section id="auth" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+    </header>
+    <div class="setup-wrap">
+      <div class="card auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Log in</button>
+          <button class="auth-tab" data-tab="signup">Sign up</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="login-form" class="auth-form">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="login-user" placeholder="yourname" autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-login">Log in</button>
+          <p class="auth-switch muted">Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
+        </div>
+
+        <!-- Signup form -->
+        <div id="signup-form" class="auth-form hidden">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="signup-user" placeholder="yourname" autocomplete="username" maxlength="24" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="signup-pass" placeholder="At least 4 characters" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label>Confirm password</label>
+            <input type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password" />
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-signup">Create account</button>
+          <p class="auth-switch muted">Already have an account? <a href="#" id="switch-to-login">Log in</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DASHBOARD ========== -->
+  <section id="dashboard" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="topbar-right">
+        <span class="user-badge" id="user-badge"></span>
+        <button class="btn btn-ghost btn-sm" id="btn-logout">Log out</button>
+      </div>
+    </header>
+    <div class="dashboard-wrap">
+      <div class="dash-header">
+        <h2>Your sites</h2>
+        <button class="btn btn-primary" id="btn-new-site">
+          <i class="fas fa-plus"></i> New site
+        </button>
+      </div>
+      <div id="sites-list" class="sites-list"></div>
+      <div id="no-sites" class="no-sites hidden">
+        <i class="fas fa-globe"></i>
+        <p>You don't have any sites yet</p>
+        <button class="btn btn-primary" id="btn-new-site-empty">Create your first site</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== SETUP ========== -->
+  <section id="setup" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" id="btn-back-dash">← Back</button>
+      </div>
+    </header>
+    <div class="setup-wrap">
+      <div class="card">
+        <h2>Create your site</h2>
+        <p class="muted">Choose how you want to start</p>
+
+        <div class="form-group">
+          <label>Site name</label>
+          <div class="input-with-prefix">
+            <span class="prefix">sqservices.me/</span>
+            <input type="text" id="site-name" placeholder="my-site" maxlength="40" autocomplete="off" />
+          </div>
+          <small class="hint">Only letters, numbers and hyphens</small>
+        </div>
+
+        <div class="source-options">
+          <button class="source-btn active" data-source="upload">
+            <i class="fas fa-folder-open"></i>
+            <span>Upload folder / files</span>
+          </button>
+          <button class="source-btn" data-source="paste">
+            <i class="fas fa-code"></i>
+            <span>Paste HTML</span>
+          </button>
+          <button class="source-btn" data-source="blank">
+            <i class="fas fa-file"></i>
+            <span>Start blank</span>
+          </button>
+        </div>
+
+        <div id="upload-area" class="source-panel">
+          <div class="dropzone" id="dropzone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & drop a folder or files here</p>
+            <p class="muted small">or click to browse</p>
+            <input type="file" id="file-input" multiple webkitdirectory directory style="display:none" />
+            <input type="file" id="file-input-multi" multiple style="display:none" />
+          </div>
+          <div class="file-list" id="file-list"></div>
+          <div class="upload-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-pick-folder">Pick Folder</button>
+            <button class="btn btn-ghost btn-sm" id="btn-pick-files">Pick Files</button>
+          </div>
+        </div>
+
+        <div id="paste-area" class="source-panel hidden">
+          <textarea id="paste-html" placeholder="Paste your full HTML here..."></textarea>
+        </div>
+
+        <div id="blank-area" class="source-panel hidden">
+          <p class="muted">A clean starter template will be created for you.</p>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="btn-deploy" disabled>
+          Deploy site <i class="fas fa-rocket"></i>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== LOADING ========== -->
+  <section id="loading" class="view hidden">
+    <div class="loader-wrap">
+      <div class="spinner"></div>
+      <h2 id="loading-title">Preparing your site…</h2>
+      <p id="loading-msg" class="muted">Reading files</p>
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== READY ========== -->
+  <section id="ready" class="view hidden">
+    <div class="ready-wrap">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+      <h2>Your site is live</h2>
+      <p class="muted">Share this link with anyone</p>
+      <div class="url-card">
+        <a id="live-url" href="#">sqservices.me/</a>
+        <button class="btn btn-ghost btn-sm" id="btn-copy-url" title="Copy">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      <div class="ready-actions">
+        <button class="btn btn-primary" id="btn-open-editor">
+          Open Editor <i class="fas fa-code"></i>
+        </button>
+        <button class="btn btn-ghost" id="btn-view-site">
+          View Live Site
+        </button>
+        <button class="btn btn-ghost" id="btn-go-dashboard">
+          Dashboard
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== EDITOR ========== -->
+  <section id="editor" class="view hidden">
+    <header class="editor-topbar">
+      <div class="brand small">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="site-info">
+        <span id="editor-sitename">my-site</span>
+        <a id="editor-url" href="#" class="muted">sqservices.me/my-site</a>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-new-file" title="New file">
+          <i class="fas fa-plus"></i> New file
+        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-save" title="Save">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-publish">
+          <i class="fas fa-rocket"></i> Publish
+        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-editor-back">
+          Dashboard
+        </button>
+      </div>
+    </header>
+
+    <div class="editor-body">
+      <aside class="sidebar">
+        <div class="sidebar-header">Files</div>
+        <div class="file-tree" id="file-tree"></div>
+      </aside>
+
+      <div class="main-pane">
+        <div class="tabs" id="tabs"></div>
+        <div class="split">
+          <div class="code-pane">
+            <div id="editors-container"></div>
+          </div>
+          <div class="preview-pane">
+            <div class="preview-header">
+              <span>Live Preview</span>
+              <button class="btn btn-ghost btn-xs" id="btn-refresh-preview" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation allow-downloads"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
