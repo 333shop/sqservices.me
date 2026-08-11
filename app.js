@@ -70,6 +70,17 @@ function randomCode(len = 6) {
   return s;
 }
 
+function simpleHash(str) {
+  str = String(str || '');
+  let h = 5381;
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) + h) + str.charCodeAt(i);
+    h = h | 0;
+  }
+  return 'h' + Math.abs(h).toString(36);
+}
+
+
 function getMode(path) {
   const p = (path || '').toLowerCase();
   if (p.endsWith('.css')) return 'css';
@@ -395,10 +406,10 @@ $('#btn-get-started')?.addEventListener('click', () => {
   else { showView('auth'); switchAuthTab('signup'); }
 });
 
-$('#btn-signup')?.addEventListener('click', () => {
-  const username = sanitizeUser($('#signup-user').value);
-  const pass = $('#signup-pass').value;
-  const pass2 = $('#signup-pass2').value;
+function doSignup() {
+  const username = sanitizeUser($('#signup-user')?.value || '');
+  const pass = $('#signup-pass')?.value || '';
+  const pass2 = $('#signup-pass2')?.value || '';
   if (username.length < 3) return toast('Username must be at least 3 characters');
   if (pass.length < 4) return toast('Password must be at least 4 characters');
   if (pass !== pass2) return toast('Passwords do not match');
@@ -409,18 +420,34 @@ $('#btn-signup')?.addEventListener('click', () => {
   setSession({ username });
   toast('Account created');
   showDashboard();
-});
+}
 
-$('#btn-login')?.addEventListener('click', () => {
-  const username = sanitizeUser($('#login-user').value);
-  const pass = $('#login-pass').value;
+function doLogin() {
+  const username = sanitizeUser($('#login-user')?.value || '');
+  const pass = $('#login-pass')?.value || '';
+  if (!username || !pass) return toast('Enter username and password');
   const users = getUsers();
   if (!users[username] || users[username].pass !== simpleHash(pass)) {
     return toast('Wrong username or password');
   }
   setSession({ username });
-  toast('Welcome back');
+  toast('Welcome back, ' + username);
   showDashboard();
+}
+
+$('#btn-signup')?.addEventListener('click', doSignup);
+$('#btn-login')?.addEventListener('click', doLogin);
+
+// Enter key submits
+['login-user', 'login-pass'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+});
+['signup-user', 'signup-pass', 'signup-pass2'].forEach(id => {
+  document.getElementById(id)?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') doSignup();
+  });
 });
 
 $('#btn-logout')?.addEventListener('click', () => {
@@ -1141,3 +1168,16 @@ window.addEventListener('popstate', () => {
     if (playing) audio.play().catch(() => {});
   });
 })();
+
+
+/* Brand click -> home */
+document.querySelectorAll('.brand').forEach(el => {
+  el.style.cursor = 'pointer';
+  el.addEventListener('click', () => {
+    const live = document.getElementById('live-viewer');
+    if (live) live.remove();
+    history.pushState({}, '', '/');
+    if (state.user) showDashboard();
+    else { showView('landing'); renderRecentSites(); }
+  });
+});
