@@ -1030,3 +1030,94 @@ html, body {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+/* ===== FIXES & POLISH ===== */
+.editor-topbar {
+  flex-wrap: wrap;
+  row-gap: 10px;
+  min-height: 52px;
+}
+
+.editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.editor-actions .btn {
+  white-space: nowrap;
+}
+
+.site-info {
+  flex: 1 1 auto;
+}
+
+/* Make dropzone more obvious when files selected */
+.dropzone.has-files {
+  border-color: var(--success);
+  background: rgba(34, 197, 94, 0.08);
+}
+
+.file-list {
+  margin-top: 12px;
+  max-height: 160px;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  background: var(--bg-3);
+}
+
+.file-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  border-radius: 6px;
+}
+
+.file-item-row i {
+  color: var(--accent);
+  width: 16px;
+}
+
+/* Music button more visible */
+.music-toggle {
+  margin-top: 20px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.music-toggle.playing {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* CodeMirror fill */
+.CodeMirror {
+  height: 100% !important;
+  font-size: 13.5px;
+}
+
+.editor-instance {
+  height: 100%;
+}
+
+/* Live viewer iframe */
+#live-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #0f172a;
+}
+
+#live-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: #fff;
+}
