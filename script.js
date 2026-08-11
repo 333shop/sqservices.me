@@ -1,6 +1,6 @@
 // ====================== CONFIG ======================
 // REPLACE THESE TWO VALUES WITH YOUR REAL SUPABASE CREDENTIALS
-const SUPABASE_URL = 'mcavvwlaehqxovfybcfm.supabase.co';
+const SUPABASE_URL = 'https://mcavvwlaehqxovfybcfm.supabase.co';
 const SUPABASE_ANON_KEY = 'mcavvwlaehqxovfybcfm';
 
 // Create client safely
