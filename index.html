@@ -11,6 +11,131 @@
 </head>
 <body>
 
+  <script>
+  // Emergency auth — works even if app.js fails to load
+  (function () {
+    function hash(str) {
+      str = String(str || '');
+      var h = 5381;
+      for (var i = 0; i < str.length; i++) {
+        h = ((h << 5) + h) + str.charCodeAt(i);
+        h = h | 0;
+      }
+      return 'h' + Math.abs(h).toString(36);
+    }
+    function sanitize(name) {
+      return String(name || '').toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24);
+    }
+    function toast(msg) {
+      var el = document.getElementById('toast');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'toast';
+        el.className = 'toast';
+        document.body.appendChild(el);
+      }
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      el.style.display = 'block';
+      clearTimeout(el._t);
+      el._t = setTimeout(function () { el.classList.add('hidden'); }, 2800);
+    }
+    function show(id) {
+      ['landing','auth','dashboard','setup','loading','ready','editor'].forEach(function (n) {
+        var el = document.getElementById(n);
+        if (el) el.classList.add('hidden');
+      });
+      var live = document.getElementById('live-viewer');
+      if (live) live.remove();
+      var el = document.getElementById(id);
+      if (el) el.classList.remove('hidden');
+    }
+    function getUsers() {
+      try { return JSON.parse(localStorage.getItem('sq_users') || '{}'); } catch (e) { return {}; }
+    }
+    function saveUsers(u) {
+      localStorage.setItem('sq_users', JSON.stringify(u));
+    }
+
+    window.sqSignup = function () {
+      try {
+        var username = sanitize((document.getElementById('signup-user') || {}).value);
+        var pass = (document.getElementById('signup-pass') || {}).value || '';
+        var pass2 = (document.getElementById('signup-pass2') || {}).value || '';
+        if (username.length < 3) return toast('Username must be at least 3 characters');
+        if (pass.length < 4) return toast('Password must be at least 4 characters');
+        if (pass !== pass2) return toast('Passwords do not match');
+        var users = getUsers();
+        if (users[username]) return toast('Username already taken');
+        users[username] = { pass: hash(pass), created: Date.now() };
+        saveUsers(users);
+        localStorage.setItem('sq_session', JSON.stringify({ username: username }));
+        toast('Account created');
+        show('dashboard');
+        var badge = document.getElementById('user-badge');
+        if (badge) badge.textContent = '@' + username;
+        var empty = document.getElementById('no-sites');
+        if (empty) empty.classList.remove('hidden');
+        // let app.js take over if present
+        if (window.state) window.state.user = { username: username };
+        if (typeof showDashboard === 'function') try { showDashboard(); } catch (e) {}
+      } catch (err) {
+        alert('Signup failed: ' + err.message);
+      }
+    };
+
+    window.sqLogin = function () {
+      try {
+        var username = sanitize((document.getElementById('login-user') || {}).value);
+        var pass = (document.getElementById('login-pass') || {}).value || '';
+        if (!username || !pass) return toast('Enter username and password');
+        var users = getUsers();
+        if (!users[username] || users[username].pass !== hash(pass)) {
+          return toast('Wrong username or password');
+        }
+        localStorage.setItem('sq_session', JSON.stringify({ username: username }));
+        toast('Welcome back, ' + username);
+        show('dashboard');
+        var badge = document.getElementById('user-badge');
+        if (badge) badge.textContent = '@' + username;
+        if (window.state) window.state.user = { username: username };
+        if (typeof showDashboard === 'function') try { showDashboard(); } catch (e) {}
+      } catch (err) {
+        alert('Login failed: ' + err.message);
+      }
+    };
+
+    // Tab switching without app.js
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.auth-tab').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var tab = btn.getAttribute('data-tab');
+          document.querySelectorAll('.auth-tab').forEach(function (b) {
+            b.classList.toggle('active', b.getAttribute('data-tab') === tab);
+          });
+          var login = document.getElementById('login-form');
+          var signup = document.getElementById('signup-form');
+          if (login) login.classList.toggle('hidden', tab !== 'login');
+          if (signup) signup.classList.toggle('hidden', tab !== 'signup');
+        });
+      });
+      var swSignup = document.getElementById('switch-to-signup');
+      var swLogin = document.getElementById('switch-to-login');
+      if (swSignup) swSignup.addEventListener('click', function (e) {
+        e.preventDefault();
+        var btn = document.querySelector('.auth-tab[data-tab="signup"]');
+        if (btn) btn.click();
+      });
+      if (swLogin) swLogin.addEventListener('click', function (e) {
+        e.preventDefault();
+        var btn = document.querySelector('.auth-tab[data-tab="login"]');
+        if (btn) btn.click();
+      });
+    });
+  })();
+  </script>
+
+
   <!-- ========== LANDING ========== -->
   <section id="landing" class="view">
     <header class="topbar">
@@ -71,7 +196,7 @@
             <label>Password</label>
             <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
           </div>
-          <button class="btn btn-primary btn-full" id="btn-login" type="button">Log in</button>
+          <button class="btn btn-primary btn-full" id="btn-login" type="button" onclick="window.sqLogin&&window.sqLogin();return false;">Log in</button>
           <p class="auth-switch muted">Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
         </div>
 
@@ -89,7 +214,7 @@
             <label>Confirm password</label>
             <input type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password" />
           </div>
-          <button class="btn btn-primary btn-full" id="btn-signup" type="button">Create account</button>
+          <button class="btn btn-primary btn-full" id="btn-signup" type="button" onclick="window.sqSignup&&window.sqSignup();return false;">Create account</button>
           <p class="auth-switch muted">Already have an account? <a href="#" id="switch-to-login">Log in</a></p>
         </div>
       </div>
