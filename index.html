@@ -1,689 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>sqservices.me</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --bg: #0a1628;
-      --bg-2: #0f1f36;
-      --bg-3: #152a45;
-      --accent: #3b82f6;
-      --accent-hover: #2563eb;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --border: #1e3a5f;
-      --success: #22c55e;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ========== LANDING ========== */
-    #landing {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 28px 40px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .logo {
-      font-size: 1.45rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      color: var(--text);
-    }
-
-    .logo i {
-      color: var(--accent);
-      margin-right: 4px;
-    }
-
-    .hero {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px 20px;
-    }
-
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3.2rem);
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      line-height: 1.15;
-      margin-bottom: 16px;
-      max-width: 700px;
-    }
-
-    .hero h1 span {
-      color: var(--accent);
-    }
-
-    .hero p {
-      color: var(--text-muted);
-      font-size: 1.15rem;
-      margin-bottom: 40px;
-      max-width: 480px;
-    }
-
-    .btn {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 14px 36px;
-      font-size: 1.05rem;
-      font-weight: 600;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35);
-    }
-
-    .btn:active {
-      transform: translateY(0);
-    }
-
-    /* ========== SETUP UI ========== */
-    #setup {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-    }
-
-    .setup-container {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 20px;
-    }
-
-    .card {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 40px;
-      width: 100%;
-      max-width: 480px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-    }
-
-    .card h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .card .sub {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      margin-bottom: 32px;
-    }
-
-    .form-group {
-      margin-bottom: 22px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.875rem;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: var(--text-muted);
-    }
-
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      background: var(--bg-3);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 13px 16px;
-      color: var(--text);
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--accent);
-    }
-
-    .form-group input::placeholder {
-      color: #64748b;
-    }
-
-    .btn-full {
-      width: 100%;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
-    /* ========== LOADING ========== */
-    #loading {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .loader {
-      width: 64px;
-      height: 64px;
-      border: 4px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 28px;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    #loading h2 {
-      font-size: 1.4rem;
-      margin-bottom: 8px;
-    }
-
-    #loading p {
-      color: var(--text-muted);
-      font-size: 0.95rem;
-    }
-
-    .progress-bar {
-      width: 240px;
-      height: 4px;
-      background: var(--border);
-      border-radius: 4px;
-      margin-top: 28px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--accent);
-      border-radius: 4px;
-      transition: width 0.3s ease;
-    }
-
-    /* ========== READY ========== */
-    #ready {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .check-circle {
-      width: 80px;
-      height: 80px;
-      background: rgba(34, 197, 94, 0.15);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 24px;
-      animation: pop 0.4s ease;
-    }
-
-    .check-circle i {
-      font-size: 2.2rem;
-      color: var(--success);
-    }
-
-    @keyframes pop {
-      0% { transform: scale(0.5); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    #ready h2 {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-    }
-
-    #ready p {
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-
-    .url-box {
-      background: var(--bg-2);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 16px 24px;
-      margin: 24px 0 32px;
-      font-size: 1.15rem;
-      font-weight: 600;
-      color: var(--accent);
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .url-box a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .url-box a:hover {
-      text-decoration: underline;
-    }
-
-    /* ========== DASHBOARD ========== */
-    #dashboard {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-    }
-
-    .dash-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 28px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg-2);
-    }
-
-    .dash-header .site-name {
-      font-weight: 600;
-      font-size: 1.05rem;
-    }
-
-    .dash-header .site-url {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin-left: 12px;
-    }
-
-    .dash-body {
-      flex: 1;
-      display: flex;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      width: 260px;
-      background: var(--bg-2);
-      border-right: 1px solid var(--border);
-      padding: 20px 0;
-      overflow-y: auto;
-    }
-
-    .sidebar-title {
-      padding: 0 20px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
-    }
-
-    .file-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      transition: all 0.15s;
-    }
-
-    .file-item:hover,
-    .file-item.active {
-      background: var(--bg-3);
-      color: var(--text);
-    }
-
-    .file-item i {
-      width: 18px;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .file-item.folder i {
-      color: #f59e0b;
-    }
-
-    .file-item.file i {
-      color: var(--accent);
-    }
-
-    .editor-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      background: #0d1117;
-    }
-
-    .editor-tabs {
-      display: flex;
-      background: var(--bg-2);
-      border-bottom: 1px solid var(--border);
-      padding: 0 12px;
-    }
-
-    .tab {
-      padding: 12px 18px;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      border-bottom: 2px solid transparent;
-      cursor: pointer;
-    }
-
-    .tab.active {
-      color: var(--text);
-      border-bottom-color: var(--accent);
-    }
-
-    .code-editor {
-      flex: 1;
-      padding: 24px;
-      font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: #e2e8f0;
-      overflow: auto;
-      white-space: pre;
-    }
-
-    .code-editor .line {
-      display: flex;
-    }
-
-    .code-editor .num {
-      width: 40px;
-      color: #475569;
-      user-select: none;
-      text-align: right;
-      padding-right: 20px;
-    }
-
-    .code-editor .kw { color: #c084fc; }
-    .code-editor .str { color: #86efac; }
-    .code-editor .cm { color: #64748b; }
-    .code-editor .tg { color: #7dd3fc; }
-    .code-editor .at { color: #fbbf24; }
-
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 20px;
-      background: var(--bg-2);
-      border-top: 1px solid var(--border);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .fade-in {
-      animation: fadeIn 0.35s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-
-  <!-- LANDING -->
-  <section id="landing">
-    <header>
-      <div class="logo">
-        <i class="fas fa-code"></i> sqservices.me
+  <!-- ========== LANDING ========== -->
+  <section id="landing" class="view">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
       </div>
     </header>
-    <div class="hero">
-      <h1>sqservices.me<br><span>host your own website</span></h1>
-      <p>Deploy any GitHub repo, folder, or file in seconds. Clean, fast, and free.</p>
-      <button class="btn" onclick="showSetup()">
+    <main class="hero">
+      <h1>Host your own website</h1>
+      <p class="subtitle">Upload a folder, drop files, or paste HTML. Instantly live at <strong>sqservices.me/yourname</strong></p>
+      <button class="btn btn-primary" id="btn-get-started">
         Get Started <i class="fas fa-arrow-right"></i>
       </button>
-    </div>
+    </main>
   </section>
 
-  <!-- SETUP -->
-  <section id="setup">
-    <header>
-      <div class="logo">
-        <i class="fas fa-code"></i> sqservices.me
+  <!-- ========== SETUP ========== -->
+  <section id="setup" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
       </div>
     </header>
-    <div class="setup-container">
-      <div class="card fade-in">
-        <h2>Deploy your site</h2>
-        <p class="sub">Connect a GitHub repo, folder, or single file.</p>
-
-        <div class="form-group">
-          <label>Source type</label>
-          <select id="sourceType">
-            <option value="repo">GitHub Repository</option>
-            <option value="folder">GitHub Folder</option>
-            <option value="file">Single File</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>GitHub URL or path</label>
-          <input type="text" id="sourceInput" placeholder="https://github.com/user/repo or user/repo">
-        </div>
+    <div class="setup-wrap">
+      <div class="card">
+        <h2>Create your site</h2>
+        <p class="muted">Choose how you want to start</p>
 
         <div class="form-group">
           <label>Site name</label>
-          <input type="text" id="siteName" placeholder="my-awesome-site">
+          <div class="input-with-prefix">
+            <span class="prefix">sqservices.me/</span>
+            <input type="text" id="site-name" placeholder="my-site" maxlength="40" autocomplete="off" />
+          </div>
+          <small class="hint">Only letters, numbers and hyphens</small>
         </div>
 
-        <button class="btn btn-full" onclick="startDeploy()">
-          Deploy <i class="fas fa-rocket"></i>
+        <div class="source-options">
+          <button class="source-btn active" data-source="upload">
+            <i class="fas fa-folder-open"></i>
+            <span>Upload folder / files</span>
+          </button>
+          <button class="source-btn" data-source="paste">
+            <i class="fas fa-code"></i>
+            <span>Paste HTML</span>
+          </button>
+          <button class="source-btn" data-source="blank">
+            <i class="fas fa-file"></i>
+            <span>Start blank</span>
+          </button>
+        </div>
+
+        <!-- Upload area -->
+        <div id="upload-area" class="source-panel">
+          <div class="dropzone" id="dropzone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & drop a folder or files here</p>
+            <p class="muted small">or click to browse</p>
+            <input type="file" id="file-input" multiple webkitdirectory directory style="display:none" />
+            <input type="file" id="file-input-multi" multiple style="display:none" />
+          </div>
+          <div class="file-list" id="file-list"></div>
+          <div class="upload-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-pick-folder">Pick Folder</button>
+            <button class="btn btn-ghost btn-sm" id="btn-pick-files">Pick Files</button>
+          </div>
+        </div>
+
+        <!-- Paste area -->
+        <div id="paste-area" class="source-panel hidden">
+          <textarea id="paste-html" placeholder="Paste your full HTML here..."></textarea>
+        </div>
+
+        <!-- Blank info -->
+        <div id="blank-area" class="source-panel hidden">
+          <p class="muted">A clean starter template will be created for you.</p>
+        </div>
+
+        <button class="btn btn-primary btn-full" id="btn-deploy" disabled>
+          Deploy site <i class="fas fa-rocket"></i>
         </button>
       </div>
     </div>
   </section>
 
-  <!-- LOADING -->
-  <section id="loading">
-    <div class="loader"></div>
-    <h2>Deploying your site…</h2>
-    <p id="loadingText">Cloning repository</p>
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-  </section>
-
-  <!-- READY -->
-  <section id="ready">
-    <div class="check-circle">
-      <i class="fas fa-check"></i>
-    </div>
-    <h2>Your site is live!</h2>
-    <p>Everything is ready. Here’s your link:</p>
-    <div class="url-box">
-      <i class="fas fa-link"></i>
-      <a id="finalUrl" href="#" target="_blank">sqservices.me/</a>
-    </div>
-    <button class="btn" onclick="openDashboard()">
-      Open Editor <i class="fas fa-code"></i>
-    </button>
-  </section>
-
-  <!-- DASHBOARD -->
-  <section id="dashboard">
-    <div class="dash-header">
-      <div>
-        <span class="site-name" id="dashSiteName">my-site</span>
-        <span class="site-url" id="dashSiteUrl">sqservices.me/my-site</span>
-      </div>
-      <button class="btn" style="padding: 8px 18px; font-size: 0.9rem;" onclick="alert('Changes saved (demo)')">
-        <i class="fas fa-save"></i> Save
-      </button>
-    </div>
-    <div class="dash-body">
-      <div class="sidebar">
-        <div class="sidebar-title">Files</div>
-        <div class="file-item folder active" onclick="selectFile(this, 'index.html')">
-          <i class="fas fa-folder"></i> root
-        </div>
-        <div class="file-item file" style="padding-left: 36px;" onclick="selectFile(this, 'index.html')">
-          <i class="fas fa-file-code"></i> index.html
-        </div>
-        <div class="file-item file" style="padding-left: 36px;" onclick="selectFile(this, 'style.css')">
-          <i class="fas fa-file-code"></i> style.css
-        </div>
-        <div class="file-item file" style="padding-left: 36px;" onclick="selectFile(this, 'script.js')">
-          <i class="fas fa-file-code"></i> script.js
-        </div>
-        <div class="file-item folder" onclick="selectFile(this)">
-          <i class="fas fa-folder"></i> assets
-        </div>
-        <div class="file-item file" style="padding-left: 36px;" onclick="selectFile(this)">
-          <i class="fas fa-file-image"></i> logo.png
-        </div>
-      </div>
-      <div class="editor-area">
-        <div class="editor-tabs">
-          <div class="tab active" id="activeTab">index.html</div>
-        </div>
-        <div class="code-editor" id="codeView">
-          <div class="line"><span class="num">1</span><span class="cm">&lt;!-- Your site lives here --&gt;</span></div>
-          <div class="line"><span class="num">2</span><span class="tg">&lt;!DOCTYPE html&gt;</span></div>
-          <div class="line"><span class="num">3</span><span class="tg">&lt;html</span> <span class="at">lang</span>=<span class="str">"en"</span><span class="tg">&gt;</span></div>
-          <div class="line"><span class="num">4</span>  <span class="tg">&lt;head&gt;</span></div>
-          <div class="line"><span class="num">5</span>    <span class="tg">&lt;meta</span> <span class="at">charset</span>=<span class="str">"UTF-8"</span><span class="tg">&gt;</span></div>
-          <div class="line"><span class="num">6</span>    <span class="tg">&lt;title&gt;</span>My Site<span class="tg">&lt;/title&gt;</span></div>
-          <div class="line"><span class="num">7</span>  <span class="tg">&lt;/head&gt;</span></div>
-          <div class="line"><span class="num">8</span>  <span class="tg">&lt;body&gt;</span></div>
-          <div class="line"><span class="num">9</span>    <span class="tg">&lt;h1&gt;</span>Welcome to sqservices.me<span class="tg">&lt;/h1&gt;</span></div>
-          <div class="line"><span class="num">10</span>  <span class="tg">&lt;/body&gt;</span></div>
-          <div class="line"><span class="num">11</span><span class="tg">&lt;/html&gt;</span></div>
-        </div>
-        <div class="status-bar">
-          <span>UTF-8</span>
-          <span>HTML</span>
-          <span>Ln 1, Col 1</span>
-        </div>
+  <!-- ========== LOADING ========== -->
+  <section id="loading" class="view hidden">
+    <div class="loader-wrap">
+      <div class="spinner"></div>
+      <h2 id="loading-title">Preparing your site…</h2>
+      <p id="loading-msg" class="muted">Reading files</p>
+      <div class="progress">
+        <div class="progress-bar" id="progress-bar"></div>
       </div>
     </div>
   </section>
 
-  <script>
-    let siteName = '';
+  <!-- ========== READY ========== -->
+  <section id="ready" class="view hidden">
+    <div class="ready-wrap">
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+      <h2>Your site is live</h2>
+      <p class="muted">Share this link with anyone</p>
+      <div class="url-card">
+        <a id="live-url" href="#" target="_blank">sqservices.me/</a>
+        <button class="btn btn-ghost btn-sm" id="btn-copy-url" title="Copy">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+      <div class="ready-actions">
+        <button class="btn btn-primary" id="btn-open-editor">
+          Open Editor <i class="fas fa-code"></i>
+        </button>
+        <button class="btn btn-ghost" id="btn-view-site">
+          View Live Site
+        </button>
+      </div>
+    </div>
+  </section>
 
-    function hideAll() {
-      ['landing', 'setup', 'loading', 'ready', 'dashboard'].forEach(id => {
-        document.getElementById(id).style.display = 'none';
-      });
-    }
+  <!-- ========== EDITOR / DASHBOARD ========== -->
+  <section id="editor" class="view hidden">
+    <header class="editor-topbar">
+      <div class="brand small">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="site-info">
+        <span id="editor-sitename">my-site</span>
+        <a id="editor-url" href="#" target="_blank" class="muted">sqservices.me/my-site</a>
+      </div>
+      <div class="editor-actions">
+        <button class="btn btn-ghost btn-sm" id="btn-new-file" title="New file">
+          <i class="fas fa-plus"></i> New file
+        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-save" title="Save">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <button class="btn btn-primary btn-sm" id="btn-publish">
+          <i class="fas fa-rocket"></i> Publish
+        </button>
+      </div>
+    </header>
 
-    function showSetup() {
-      hideAll();
-      document.getElementById('setup').style.display = 'flex';
-    }
+    <div class="editor-body">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-header">
+          <span>Files</span>
+        </div>
+        <div class="file-tree" id="file-tree"></div>
+      </aside>
 
-    function startDeploy() {
-      const source = document.getElementById('sourceInput').value.trim();
-      siteName = document.getElementById('siteName').value.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-') || 'my-site';
+      <!-- Main editor + preview -->
+      <div class="main-pane">
+        <div class="tabs" id="tabs"></div>
+        <div class="split">
+          <div class="code-pane">
+            <div id="editors-container"></div>
+          </div>
+          <div class="preview-pane">
+            <div class="preview-header">
+              <span>Live Preview</span>
+              <button class="btn btn-ghost btn-xs" id="btn-refresh-preview" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+              </button>
+            </div>
+            <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      if (!source) {
-        alert('Please enter a GitHub URL or path');
-        return;
-      }
+  <!-- Toast -->
+  <div id="toast" class="toast hidden"></div>
 
-      hideAll();
-      document.getElementById('loading').style.display = 'flex';
-
-      const steps = [
-        { text: 'Cloning repository…', pct: 20 },
-        { text: 'Analyzing files…', pct: 45 },
-        { text: 'Building static site…', pct: 70 },
-        { text: 'Uploading to edge network…', pct: 90 },
-        { text: 'Finalizing…', pct: 100 }
-      ];
-
-      let i = 0;
-      const fill = document.getElementById('progressFill');
-      const text = document.getElementById('loadingText');
-
-      function next() {
-        if (i >= steps.length) {
-          setTimeout(showReady, 400);
-          return;
-        }
-        text.textContent = steps[i].text;
-        fill.style.width = steps[i].pct + '%';
-        i++;
-        setTimeout(next, 700 + Math.random() * 400);
-      }
-      next();
-    }
-
-    function showReady() {
-      hideAll();
-      const url = `sqservices.me/${siteName}`;
-      document.getElementById('finalUrl').textContent = url;
-      document.getElementById('finalUrl').href = 'https://' + url;
-      document.getElementById('ready').style.display = 'flex';
-    }
-
-    function openDashboard() {
-      hideAll();
-      document.getElementById('dashSiteName').textContent = siteName;
-      document.getElementById('dashSiteUrl').textContent = `sqservices.me/${siteName}`;
-      document.getElementById('dashboard').style.display = 'flex';
-    }
-
-    function selectFile(el, name) {
-      document.querySelectorAll('.file-item').forEach(f => f.classList.remove('active'));
-      el.classList.add('active');
-      if (name) {
-        document.getElementById('activeTab').textContent = name;
-      }
-    }
-  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
