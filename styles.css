@@ -1016,3 +1016,17 @@ html, body {
     gap: 12px;
   }
 }
+
+/* Music toggle on landing */
+.music-toggle {
+  margin-top: 18px;
+  opacity: 0.75;
+}
+.music-toggle:hover {
+  opacity: 1;
+}
+.music-toggle.playing {
+  opacity: 1;
+  border-color: var(--accent);
+  color: var(--accent);
+}
