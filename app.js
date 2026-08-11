@@ -2,11 +2,12 @@
 const state = {
   siteName: '',
   files: {},          // { path: content }
-  openTabs: [],       // array of paths
+  openTabs: [],
   activeTab: null,
-  editors: {},        // path -> CodeMirror instance
+  editors: {},
   sourceType: 'upload',
-  uploadedFiles: []
+  uploadedFiles: [],
+  mode: 'app'         // 'app' | 'live'
 };
 
 /* ========== DOM REFS ========== */
@@ -18,17 +19,24 @@ const views = {
   setup: $('#setup'),
   loading: $('#loading'),
   ready: $('#ready'),
-  editor: $('#editor')
+  editor: $('#editor'),
+  live: null            // created dynamically
 };
 
 /* ========== HELPERS ========== */
 function showView(name) {
-  Object.values(views).forEach(v => v.classList.add('hidden'));
-  views[name].classList.remove('hidden');
+  Object.values(views).forEach(v => {
+    if (v) v.classList.add('hidden');
+  });
+  if (views[name]) views[name].classList.remove('hidden');
+  // hide live viewer if switching back to app
+  const liveEl = document.getElementById('live-viewer');
+  if (liveEl && name !== 'live') liveEl.remove();
 }
 
 function toast(msg, duration = 2400) {
   const el = $('#toast');
+  if (!el) return;
   el.textContent = msg;
   el.classList.remove('hidden');
   clearTimeout(el._timer);
@@ -36,7 +44,7 @@ function toast(msg, duration = 2400) {
 }
 
 function sanitizeName(name) {
-  return name
+  return (name || '')
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '-')
     .replace(/-+/g, '-')
@@ -52,7 +60,7 @@ function getMode(path) {
 }
 
 function iconFor(path) {
-  if (path.endsWith('.html') || path.endsWith('.htm')) return 'fa-file-code';
+  if (/\.(html|htm)$/i.test(path)) return 'fa-file-code';
   if (path.endsWith('.css')) return 'fa-file-code';
   if (path.endsWith('.js')) return 'fa-file-code';
   if (path.endsWith('.json')) return 'fa-file-code';
@@ -60,11 +68,55 @@ function iconFor(path) {
   return 'fa-file';
 }
 
-/* ========== STORAGE (local "hosting") ========== */
+/* ========== URL / ROUTING ========== */
+function getSiteNameFromURL() {
+  // 1. Pathname: /my-site  or /my-site/
+  const path = location.pathname.replace(/^\/+|\/+$/g, '');
+  // ignore common static file paths
+  if (path && !path.includes('.') && path !== 'index.html' && path !== '404.html') {
+    return sanitizeName(path);
+  }
+
+  // 2. Hash: #/my-site  or #my-site
+  const hash = location.hash.replace(/^#\/?/, '');
+  if (hash && !hash.includes('=')) {
+    return sanitizeName(hash);
+  }
+
+  // 3. Query: ?site=my-site
+  const params = new URLSearchParams(location.search);
+  if (params.get('site')) {
+    return sanitizeName(params.get('site'));
+  }
+
+  return null;
+}
+
+function buildLiveURL(siteName) {
+  // Prefer clean path. Works with 404.html fallback on most static hosts.
+  const origin = location.origin;
+  const base = location.pathname.endsWith('/') 
+    ? location.pathname 
+    : location.pathname.replace(/\/[^/]*$/, '/');
+
+  // If we are already on a clean path host, use path
+  // Always generate clean looking URL
+  return `${origin}/${siteName}`;
+}
+
+function navigateToLive(siteName) {
+  // Update the browser URL without reload so the link becomes real
+  const url = `/${siteName}`;
+  history.pushState({ site: siteName }, '', url);
+  showLiveSite(siteName);
+}
+
+/* ========== STORAGE ========== */
 function saveProject() {
+  if (!state.siteName) return;
   const projects = JSON.parse(localStorage.getItem('sq_projects') || '{}');
   projects[state.siteName] = {
-    files: state.files,
+    files: { ...state.files },
     updated: Date.now()
   };
   localStorage.setItem('sq_projects', JSON.stringify(projects));
@@ -75,7 +127,147 @@ function loadProject(name) {
   return projects[name] || null;
 }
 
+function getAllProjects() {
+  return JSON.parse(localStorage.getItem('sq_projects') || '{}');
+}
+
+/* ========== BUILD HTML FOR PREVIEW / LIVE ========== */
+function buildFullHTML(files) {
+  let html = files['index.html'] || files['index.htm'] || 
+    '<!DOCTYPE html><html><body><h1>No index.html</h1></body></html>';
+
+  // Inline CSS
+  Object.keys(files).forEach(path => {
+    if (path.endsWith('.css')) {
+      const re = new RegExp(`<link[^>]*(href=["'][^"']*${path.replace('.', '\\.')}[^"']*["'])[^>]*>`, 'i');
+      if (re.test(html)) {
+        html = html.replace(re, `<style>/* ${path} */\n${files[path]}</style>`);
+      } else if (path === 'style.css' || path === 'styles.css') {
+        // inject before </head>
+        html = html.replace('</head>', `<style>/* ${path} */\n${files[path]}</style></head>`);
+      }
+    }
+  });
+
+  // Inline JS
+  Object.keys(files).forEach(path => {
+    if (path.endsWith('.js')) {
+      const re = new RegExp(`<script[^>]*src=["'][^"']*${path.replace('.', '\\.')}[^"']*["'][^>]*>\\s*<\\/script>`, 'i');
+      if (re.test(html)) {
+        html = html.replace(re, `<script>/* ${path} */\n${files[path]}<\/script>`);
+      } else if (path === 'script.js' || path === 'app.js') {
+        html = html.replace('</body>', `<script>/* ${path} */\n${files[path]}<\/script></body>`);
+      }
+    }
+  });
+
+  return html;
+}
+
+/* ========== LIVE SITE VIEWER ========== */
+function showLiveSite(siteName) {
+  const project = loadProject(siteName);
+  if (!project) {
+    // Site not found → go home
+    history.replaceState({}, '', '/');
+    showView('landing');
+    toast('Site not found: ' + siteName);
+    return;
+  }
+
+  state.siteName = siteName;
+  state.files = project.files;
+  state.mode = 'live';
+
+  // Hide all app views
+  Object.values(views).forEach(v => { if (v) v.classList.add('hidden'); });
+
+  // Remove old live viewer if any
+  const old = document.getElementById('live-viewer');
+  if (old) old.remove();
+
+  const html = buildFullHTML(project.files);
+
+  // Create a full-page iframe that looks like a real site
+  const wrapper = document.createElement('div');
+  wrapper.id = 'live-viewer';
+  wrapper.innerHTML = `
+    <div class="live-bar">
+      <div class="live-bar-left">
+        <i class="fas fa-globe"></i>
+        <span>sqservices.me/${siteName}</span>
+      </div>
+      <div class="live-bar-right">
+        <button class="btn btn-ghost btn-sm" id="btn-edit-live">
+          <i class="fas fa-pen"></i> Edit
+        </button>
+        <button class="btn btn-ghost btn-sm" id="btn-back-home">
+          <i class="fas fa-home"></i> Home
+        </button>
+      </div>
+    </div>
+    <iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+  `;
+  document.body.appendChild(wrapper);
+
+  const frame = document.getElementById('live-frame');
+  frame.srcdoc = html;
+
+  document.getElementById('btn-edit-live').onclick = () => {
+    document.getElementById('live-viewer').remove();
+    history.pushState({}, '', '/');
+    openEditor();
+  };
+
+  document.getElementById('btn-back-home').onclick = () => {
+    document.getElementById('live-viewer').remove();
+    history.pushState({}, '', '/');
+    showView('landing');
+    renderRecentSites();
+  };
+}
+
 /* ========== LANDING ========== */
+function renderRecentSites() {
+  const projects = getAllProjects();
+  const names = Object.keys(projects).sort((a, b) => projects[b].updated - projects[a].updated);
+  let container = document.getElementById('recent-sites');
+  if (!container) {
+    // inject into landing
+    const hero = document.querySelector('.hero');
+    if (!hero) return;
+    container = document.createElement('div');
+    container.id = 'recent-sites';
+    container.className = 'recent-sites';
+    hero.appendChild(container);
+  }
+
+  if (names.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+
+  container.innerHTML = `
+    <p class="muted" style="margin-top:48px;margin-bottom:12px;font-size:0.85rem;">Your sites</p>
+    <div class="recent-list">
+      ${names.slice(0, 8).map(name => `
+        <a class="recent-item" href="/${name}" data-site="${name}">
+          <i class="fas fa-globe"></i>
+          <span>sqservices.me/${name}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+
+  container.querySelectorAll('.recent-item').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const name = el.dataset.site;
+      navigateToLive(name);
+    });
+  });
+}
+
 $('#btn-get-started').addEventListener('click', () => {
   showView('setup');
   $('#site-name').focus();
@@ -108,7 +300,7 @@ function updateDeployButton() {
   } else if (state.sourceType === 'paste') {
     hasContent = $('#paste-html').value.trim().length > 10;
   } else {
-    hasContent = true; // blank
+    hasContent = true;
   }
 
   $('#btn-deploy').disabled = !(hasName && hasContent);
@@ -241,24 +433,20 @@ async function startDeploy() {
     { pct: 100, text: 'Almost done…' }
   ];
 
-  // Build file map
   state.files = {};
 
   if (state.sourceType === 'upload') {
     for (const { path, file } of state.uploadedFiles) {
       if (file.type.startsWith('image/') || file.type.startsWith('font/') || file.size > 500000) {
-        // skip binary for simplicity or store as placeholder
         continue;
       }
       try {
         const text = await file.text();
-        // normalize path (remove leading folder name if single root)
         let clean = path.replace(/^[^/]+\//, '') || path;
         state.files[clean] = text;
       } catch (e) {}
     }
     if (Object.keys(state.files).length === 0) {
-      // fallback blank
       state.files['index.html'] = blankHTML(state.siteName);
     }
   } else if (state.sourceType === 'paste') {
@@ -269,7 +457,6 @@ async function startDeploy() {
     state.files['script.js'] = '// Your JavaScript here\nconsole.log("Hello from sqservices.me");\n';
   }
 
-  // Ensure index.html exists
   if (!state.files['index.html'] && !state.files['index.htm']) {
     const firstHtml = Object.keys(state.files).find(k => k.endsWith('.html'));
     if (firstHtml) {
@@ -279,11 +466,10 @@ async function startDeploy() {
     }
   }
 
-  // Animate loading
   for (const step of steps) {
     bar.style.width = step.pct + '%';
     msg.textContent = step.text;
-    await sleep(550 + Math.random() * 350);
+    await sleep(500 + Math.random() * 300);
   }
 
   saveProject();
@@ -347,30 +533,45 @@ p {
 
 /* ========== READY ========== */
 function showReady() {
-  const url = `sqservices.me/${state.siteName}`;
-  $('#live-url').textContent = url;
-  $('#live-url').href = '#'; // client-side only
+  const url = buildLiveURL(state.siteName);
+  const display = `sqservices.me/${state.siteName}`;
+
+  $('#live-url').textContent = display;
+  $('#live-url').href = url;
+  $('#live-url').onclick = (e) => {
+    e.preventDefault();
+    navigateToLive(state.siteName);
+  };
+
   showView('ready');
 }
 
 $('#btn-copy-url').addEventListener('click', () => {
-  const url = `https://sqservices.me/${state.siteName}`;
-  navigator.clipboard.writeText(url).then(() => toast('Link copied'));
+  const url = buildLiveURL(state.siteName);
+  navigator.clipboard.writeText(url).then(() => toast('Link copied!'));
 });
 
-$('#btn-open-editor').addEventListener('click', openEditor);
-$('#btn-view-site').addEventListener('click', () => {
+$('#btn-open-editor').addEventListener('click', () => {
+  history.pushState({}, '', '/');
   openEditor();
-  setTimeout(() => updatePreview(), 300);
+});
+
+$('#btn-view-site').addEventListener('click', () => {
+  navigateToLive(state.siteName);
 });
 
 /* ========== EDITOR ========== */
 function openEditor() {
   showView('editor');
   $('#editor-sitename').textContent = state.siteName;
+  const liveUrl = buildLiveURL(state.siteName);
   $('#editor-url').textContent = `sqservices.me/${state.siteName}`;
+  $('#editor-url').href = liveUrl;
+  $('#editor-url').onclick = (e) => {
+    e.preventDefault();
+    navigateToLive(state.siteName);
+  };
 
-  // Reset tabs & editors
   state.openTabs = [];
   state.activeTab = null;
   state.editors = {};
@@ -379,7 +580,6 @@ function openEditor() {
 
   renderFileTree();
 
-  // Open index.html by default
   const startFile = state.files['index.html'] ? 'index.html' : Object.keys(state.files)[0];
   if (startFile) openFile(startFile);
 }
@@ -402,7 +602,6 @@ function renderFileTree() {
 function openFile(path) {
   if (!state.files[path]) return;
 
-  // Add tab if not open
   if (!state.openTabs.includes(path)) {
     state.openTabs.push(path);
     createTab(path);
@@ -532,39 +731,32 @@ function updatePreviewDebounced() {
 
 function updatePreview() {
   const frame = $('#preview-frame');
-  let html = state.files['index.html'] || state.files['index.htm'] || '<p style="padding:2rem;font-family:sans-serif">No index.html found</p>';
-
-  // Inline CSS and JS for reliable preview
-  const css = state.files['style.css'] || state.files['styles.css'] || '';
-  const js = state.files['script.js'] || state.files['app.js'] || '';
-
-  if (css && !html.includes('style.css') && !html.includes('<style')) {
-    html = html.replace('</head>', `<style>${css}</style></head>`);
-  } else if (css) {
-    html = html.replace(/<link[^>]*style\.css[^>]*>/i, `<style>${css}</style>`);
-    html = html.replace(/<link[^>]*styles\.css[^>]*>/i, `<style>${css}</style>`);
-  }
-
-  if (js) {
-    html = html.replace(/<script[^>]*src=["']script\.js["'][^>]*><\/script>/i, `<script>${js}<\/script>`);
-    html = html.replace(/<script[^>]*src=["']app\.js["'][^>]*><\/script>/i, `<script>${js}<\/script>`);
-  }
-
-  // Inject other CSS/JS files referenced by name if present
-  Object.keys(state.files).forEach(path => {
-    if (path.endsWith('.css') && path !== 'style.css' && path !== 'styles.css') {
-      const re = new RegExp(`<link[^>]*${path}[^>]*>`, 'i');
-      if (re.test(html)) {
-        html = html.replace(re, `<style>${state.files[path]}</style>`);
-      }
-    }
-  });
-
-  frame.srcdoc = html;
+  if (!frame) return;
+  frame.srcdoc = buildFullHTML(state.files);
 }
 
 $('#btn-refresh-preview').addEventListener('click', updatePreview);
 
-/* ========== BOOT ========== */
-// If someone visits with ?site=name we could load it, but for now pure SPA
-showView('landing');
+/* ========== BOOT + HISTORY ========== */
+window.addEventListener('popstate', () => {
+  const name = getSiteNameFromURL();
+  if (name) {
+    showLiveSite(name);
+  } else {
+    const live = document.getElementById('live-viewer');
+    if (live) live.remove();
+    showView('landing');
+    renderRecentSites();
+  }
+});
+
+// Initial load
+(function boot() {
+  const name = getSiteNameFromURL();
+  if (name) {
+    showLiveSite(name);
+  } else {
+    showView('landing');
+    renderRecentSites();
+  }
+})();
