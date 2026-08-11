@@ -9,7 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <!-- Loading -->
+
+  <!-- Loading Overlay -->
   <div id="loading" class="loading-overlay hidden">
     <div class="loader">
       <div class="spinner"></div>
@@ -17,10 +18,10 @@
     </div>
   </div>
 
-  <!-- Public Viewer -->
+  <!-- Public Viewer (for ?site= links) -->
   <div id="viewer" class="hidden"></div>
 
-  <!-- Landing -->
+  <!-- ==================== LANDING ==================== -->
   <div id="landing" class="page active">
     <div class="bg-overlay"></div>
     <div class="container">
@@ -29,13 +30,14 @@
           <i class="fas fa-server"></i>
           <span>sqservices.me</span>
         </div>
-        <h1 class="fade-in">sqservices.me is the best free hosting services.</h1>
-        <p class="subtitle fade-in delay-1">Deploy any static site in seconds. Real public links. Update anytime.</p>
-        <div class="auth-buttons fade-in delay-2">
-          <button class="btn btn-primary" onclick="showPage('login')">
+        <h1>sqservices.me is the best free hosting services.</h1>
+        <p class="subtitle">Deploy any static site in seconds. Real public links. Update anytime.</p>
+
+        <div class="auth-buttons">
+          <button type="button" class="btn btn-primary" id="btn-login">
             <i class="fas fa-sign-in-alt"></i> Login
           </button>
-          <button class="btn btn-outline" onclick="showPage('signup')">
+          <button type="button" class="btn btn-outline" id="btn-signup">
             <i class="fas fa-user-plus"></i> Sign Up
           </button>
         </div>
@@ -43,11 +45,11 @@
     </div>
   </div>
 
-  <!-- Login -->
+  <!-- ==================== LOGIN ==================== -->
   <div id="login" class="page">
     <div class="auth-card">
       <h2><i class="fas fa-lock"></i> Login</h2>
-      <form onsubmit="handleLogin(event)">
+      <form id="login-form">
         <div class="input-group">
           <i class="fas fa-envelope"></i>
           <input type="email" id="login-email" placeholder="Email" required />
@@ -58,16 +60,18 @@
         </div>
         <button type="submit" class="btn btn-primary full">Login</button>
       </form>
-      <p class="switch">Don't have an account? <a href="#" onclick="showPage('signup')">Sign Up</a></p>
-      <button class="back-btn" onclick="showPage('landing')"><i class="fas fa-arrow-left"></i> Back</button>
+      <p class="switch">Don't have an account? <a href="#" id="to-signup">Sign Up</a></p>
+      <button type="button" class="back-btn" id="back-from-login">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
     </div>
   </div>
 
-  <!-- Sign Up -->
+  <!-- ==================== SIGN UP ==================== -->
   <div id="signup" class="page">
     <div class="auth-card">
       <h2><i class="fas fa-user-plus"></i> Create Account</h2>
-      <form onsubmit="handleSignup(event)">
+      <form id="signup-form">
         <div class="input-group">
           <i class="fas fa-envelope"></i>
           <input type="email" id="signup-email" placeholder="Email" required />
@@ -78,34 +82,36 @@
         </div>
         <button type="submit" class="btn btn-primary full">Sign Up</button>
       </form>
-      <p class="switch">Already have an account? <a href="#" onclick="showPage('login')">Login</a></p>
-      <button class="back-btn" onclick="showPage('landing')"><i class="fas fa-arrow-left"></i> Back</button>
+      <p class="switch">Already have an account? <a href="#" id="to-login">Login</a></p>
+      <button type="button" class="back-btn" id="back-from-signup">
+        <i class="fas fa-arrow-left"></i> Back
+      </button>
     </div>
   </div>
 
-  <!-- Dashboard -->
+  <!-- ==================== DASHBOARD ==================== -->
   <div id="dashboard" class="page">
     <div class="dashboard-header">
       <div class="logo small">
         <i class="fas fa-server"></i> sqservices.me
       </div>
       <div class="header-actions">
-        <button class="btn btn-outline small" onclick="showMySites()">
+        <button type="button" class="btn btn-outline small" id="btn-mysites">
           <i class="fas fa-folder"></i> My Sites
         </button>
-        <button class="btn btn-outline small" onclick="handleLogout()">
+        <button type="button" class="btn btn-outline small" id="btn-logout">
           <i class="fas fa-sign-out-alt"></i> Logout
         </button>
       </div>
     </div>
 
     <div class="host-container">
-      <!-- Start -->
+      <!-- Start Screen -->
       <div id="start-screen" class="host-card">
         <i class="fas fa-rocket big-icon"></i>
         <h2>Start Hosting</h2>
         <p>Upload files or paste code. Get a real public link instantly.</p>
-        <button class="btn btn-primary" onclick="showHostForm()">
+        <button type="button" class="btn btn-primary" id="btn-start">
           <i class="fas fa-play"></i> Start
         </button>
       </div>
@@ -115,10 +121,10 @@
         <h2><i class="fas fa-cloud-upload-alt"></i> <span id="form-title">Deploy your site</span></h2>
 
         <div class="tabs">
-          <button class="tab active" onclick="switchTab('paste')">
+          <button type="button" class="tab active" data-tab="paste">
             <i class="fas fa-code"></i> Paste Code
           </button>
-          <button class="tab" onclick="switchTab('upload')">
+          <button type="button" class="tab" data-tab="upload">
             <i class="fas fa-folder-open"></i> Upload Files
           </button>
         </div>
@@ -138,10 +144,10 @@
 
         <input type="hidden" id="editing-id" value="" />
 
-        <button class="btn btn-primary full" id="deploy-btn" onclick="deploySite()">
+        <button type="button" class="btn btn-primary full" id="btn-deploy">
           <i class="fas fa-bolt"></i> <span id="deploy-text">Host Now</span>
         </button>
-        <button class="btn btn-outline full mt" onclick="cancelHost()">Cancel</button>
+        <button type="button" class="btn btn-outline full mt" id="btn-cancel">Cancel</button>
       </div>
 
       <!-- Success -->
@@ -152,24 +158,24 @@
 
         <div class="url-box">
           <a id="live-url" href="#" target="_blank"></a>
-          <button class="copy-btn" onclick="copyUrl()" title="Copy">
+          <button type="button" class="copy-btn" id="btn-copy">
             <i class="fas fa-copy"></i>
           </button>
         </div>
 
         <div class="success-actions">
-          <button class="btn btn-primary" onclick="openLiveSite()">
+          <button type="button" class="btn btn-primary" id="btn-open">
             <i class="fas fa-external-link-alt"></i> Open Site
           </button>
-          <button class="btn btn-outline" onclick="downloadHTML()">
+          <button type="button" class="btn btn-outline" id="btn-download">
             <i class="fas fa-download"></i> Download HTML
           </button>
-          <button class="btn btn-outline" onclick="editCurrent()">
+          <button type="button" class="btn btn-outline" id="btn-edit">
             <i class="fas fa-edit"></i> Edit / Update
           </button>
         </div>
 
-        <button class="btn btn-outline mt" onclick="resetHost()">
+        <button type="button" class="btn btn-outline mt" id="btn-another">
           <i class="fas fa-plus"></i> Host another site
         </button>
       </div>
@@ -178,7 +184,7 @@
       <div id="my-sites" class="host-card hidden">
         <h2><i class="fas fa-folder-open"></i> My Sites</h2>
         <div id="sites-list"></div>
-        <button class="btn btn-outline full mt" onclick="backToStart()">
+        <button type="button" class="btn btn-outline full mt" id="btn-back-sites">
           <i class="fas fa-arrow-left"></i> Back
         </button>
       </div>
