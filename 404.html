@@ -29,7 +29,16 @@
       <button class="btn btn-primary" id="btn-get-started">
         Get Started <i class="fas fa-arrow-right"></i>
       </button>
+      <button class="btn btn-ghost btn-sm music-toggle" id="btn-music" title="Toggle music">
+        <i class="fas fa-volume-mute" id="music-icon"></i>
+        <span id="music-label">Music</span>
+      </button>
       <div id="recent-sites" class="recent-sites"></div>
+
+      <!-- Soft jazz background (muted by default) -->
+      <audio id="bg-jazz" loop preload="none">
+        <source src="https://archive.org/download/78_in-the-mood_glenn-miller-and-his-orchestra-joe-garland_gbia0015423a/In%20The%20Mood%20-%20Glenn%20Miller%20and%20His%20Orchestra.mp3" type="audio/mpeg" />
+      </audio>
     </main>
   </section>
 
@@ -281,6 +290,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
