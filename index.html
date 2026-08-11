@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+
   <!-- ========== LANDING ========== -->
   <section id="landing" class="view">
     <header class="topbar">
@@ -17,14 +18,97 @@
         <i class="fas fa-code"></i>
         <span>sqservices.me</span>
       </div>
+      <div class="topbar-right" id="landing-auth-btns">
+        <button class="btn btn-ghost btn-sm" id="btn-show-login">Log in</button>
+        <button class="btn btn-primary btn-sm" id="btn-show-signup">Sign up</button>
+      </div>
     </header>
     <main class="hero">
       <h1>Host your own website</h1>
-      <p class="subtitle">Upload a folder, drop files, or paste HTML. Instantly live at <strong>sqservices.me/yourname</strong></p>
+      <p class="subtitle">Create an account, upload your files, and go live at <strong>sqservices.me/yourname</strong></p>
       <button class="btn btn-primary" id="btn-get-started">
         Get Started <i class="fas fa-arrow-right"></i>
       </button>
+      <div id="recent-sites" class="recent-sites"></div>
     </main>
+  </section>
+
+  <!-- ========== AUTH (Login / Signup) ========== -->
+  <section id="auth" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+    </header>
+    <div class="setup-wrap">
+      <div class="card auth-card">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="login">Log in</button>
+          <button class="auth-tab" data-tab="signup">Sign up</button>
+        </div>
+
+        <!-- Login form -->
+        <div id="login-form" class="auth-form">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="login-user" placeholder="yourname" autocomplete="username" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-login">Log in</button>
+          <p class="auth-switch muted">Don't have an account? <a href="#" id="switch-to-signup">Sign up</a></p>
+        </div>
+
+        <!-- Signup form -->
+        <div id="signup-form" class="auth-form hidden">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="signup-user" placeholder="yourname" autocomplete="username" maxlength="24" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="signup-pass" placeholder="At least 4 characters" autocomplete="new-password" />
+          </div>
+          <div class="form-group">
+            <label>Confirm password</label>
+            <input type="password" id="signup-pass2" placeholder="Repeat password" autocomplete="new-password" />
+          </div>
+          <button class="btn btn-primary btn-full" id="btn-signup">Create account</button>
+          <p class="auth-switch muted">Already have an account? <a href="#" id="switch-to-login">Log in</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== DASHBOARD ========== -->
+  <section id="dashboard" class="view hidden">
+    <header class="topbar">
+      <div class="brand">
+        <i class="fas fa-code"></i>
+        <span>sqservices.me</span>
+      </div>
+      <div class="topbar-right">
+        <span class="user-badge" id="user-badge"></span>
+        <button class="btn btn-ghost btn-sm" id="btn-logout">Log out</button>
+      </div>
+    </header>
+    <div class="dashboard-wrap">
+      <div class="dash-header">
+        <h2>Your sites</h2>
+        <button class="btn btn-primary" id="btn-new-site">
+          <i class="fas fa-plus"></i> New site
+        </button>
+      </div>
+      <div id="sites-list" class="sites-list"></div>
+      <div id="no-sites" class="no-sites hidden">
+        <i class="fas fa-globe"></i>
+        <p>You don't have any sites yet</p>
+        <button class="btn btn-primary" id="btn-new-site-empty">Create your first site</button>
+      </div>
+    </div>
   </section>
 
   <!-- ========== SETUP ========== -->
@@ -33,6 +117,9 @@
       <div class="brand">
         <i class="fas fa-code"></i>
         <span>sqservices.me</span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn btn-ghost btn-sm" id="btn-back-dash">← Back</button>
       </div>
     </header>
     <div class="setup-wrap">
@@ -64,7 +151,6 @@
           </button>
         </div>
 
-        <!-- Upload area -->
         <div id="upload-area" class="source-panel">
           <div class="dropzone" id="dropzone">
             <i class="fas fa-cloud-upload-alt"></i>
@@ -80,12 +166,10 @@
           </div>
         </div>
 
-        <!-- Paste area -->
         <div id="paste-area" class="source-panel hidden">
           <textarea id="paste-html" placeholder="Paste your full HTML here..."></textarea>
         </div>
 
-        <!-- Blank info -->
         <div id="blank-area" class="source-panel hidden">
           <p class="muted">A clean starter template will be created for you.</p>
         </div>
@@ -118,7 +202,7 @@
       <h2>Your site is live</h2>
       <p class="muted">Share this link with anyone</p>
       <div class="url-card">
-        <a id="live-url" href="#" target="_blank">sqservices.me/</a>
+        <a id="live-url" href="#">sqservices.me/</a>
         <button class="btn btn-ghost btn-sm" id="btn-copy-url" title="Copy">
           <i class="fas fa-copy"></i>
         </button>
@@ -130,11 +214,14 @@
         <button class="btn btn-ghost" id="btn-view-site">
           View Live Site
         </button>
+        <button class="btn btn-ghost" id="btn-go-dashboard">
+          Dashboard
+        </button>
       </div>
     </div>
   </section>
 
-  <!-- ========== EDITOR / DASHBOARD ========== -->
+  <!-- ========== EDITOR ========== -->
   <section id="editor" class="view hidden">
     <header class="editor-topbar">
       <div class="brand small">
@@ -143,7 +230,7 @@
       </div>
       <div class="site-info">
         <span id="editor-sitename">my-site</span>
-        <a id="editor-url" href="#" target="_blank" class="muted">sqservices.me/my-site</a>
+        <a id="editor-url" href="#" class="muted">sqservices.me/my-site</a>
       </div>
       <div class="editor-actions">
         <button class="btn btn-ghost btn-sm" id="btn-new-file" title="New file">
@@ -155,19 +242,18 @@
         <button class="btn btn-primary btn-sm" id="btn-publish">
           <i class="fas fa-rocket"></i> Publish
         </button>
+        <button class="btn btn-ghost btn-sm" id="btn-editor-back">
+          Dashboard
+        </button>
       </div>
     </header>
 
     <div class="editor-body">
-      <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-header">
-          <span>Files</span>
-        </div>
+        <div class="sidebar-header">Files</div>
         <div class="file-tree" id="file-tree"></div>
       </aside>
 
-      <!-- Main editor + preview -->
       <div class="main-pane">
         <div class="tabs" id="tabs"></div>
         <div class="split">
@@ -188,7 +274,6 @@
     </div>
   </section>
 
-  <!-- Toast -->
   <div id="toast" class="toast hidden"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
