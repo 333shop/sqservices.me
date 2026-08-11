@@ -57,32 +57,50 @@ function randomCode(len = 6) {
   return s;
 }
 
-function getMode(path) {
-  if (path.endsWith('.css')) return 'css';
-  if (path.endsWith('.js')) return 'javascript';
-  if (path.endsWith('.html') || path.endsWith('.htm')) return 'htmlmixed';
-  return 'htmlmixed';
-}
 
-function iconFor(path) {
-  if (/\.(html|htm)$/i.test(path)) return 'fa-file-code';
-  if (path.endsWith('.css')) return 'fa-file-code';
-  if (path.endsWith('.js')) return 'fa-file-code';
-  if (path.endsWith('.json')) return 'fa-file-code';
-  if (/\.(png|jpg|jpeg|gif|svg|webp)$/i.test(path)) return 'fa-file-image';
-  return 'fa-file';
-}
+/* ========== PUBLIC STORAGE (works for everyone) ========== */
+const PUBLIC_API = 'https://jsonblob.com/api/jsonBlob';
 
-function simpleHash(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h) + str.charCodeAt(i);
-    h |= 0;
+async function publishToPublic(files, displayName, owner) {
+  const payload = {
+    files,
+    displayName,
+    owner: owner || 'anon',
+    v: 1,
+    created: Date.now()
+  };
+  const res = await fetch(PUBLIC_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('Publish failed (' + res.status + ')');
+
+  // ID comes from header
+  let id = res.headers.get('X-jsonblob-id') || res.headers.get('x-jsonblob-id');
+  if (!id) {
+    const loc = res.headers.get('Location') || res.headers.get('location') || '';
+    const parts = loc.split('/');
+    id = parts[parts.length - 1];
   }
-  return 'h' + Math.abs(h).toString(36);
+  if (!id) throw new Error('No blob id returned');
+  return id;
 }
 
-/* ========== AUTH ========== */
+async function fetchPublicSite(binId) {
+  const res = await fetch(PUBLIC_API + '/' + encodeURIComponent(binId), {
+    headers: { 'Accept': 'application/json' }
+  });
+  if (!res.ok) return null;
+  const data = await res.json();
+  if (data && data.files) return data;
+  if (data && data.data && data.data.files) return data.data;
+  return data;
+}
+
 function getUsers() {
   return JSON.parse(localStorage.getItem('sq_users') || '{}');
 }
@@ -244,30 +262,63 @@ function buildFullHTML(files, withCredits) {
 
 /* ========== PUBLIC LIVE (pure, no buttons) ========== */
 function showLiveSite(siteId) {
-  const meta = getPublicMeta(siteId);
-  if (!meta) {
-    history.replaceState({}, '', '/');
-    showView('landing');
-    toast('Site not found');
-    return;
-  }
-  const project = loadProject(siteId, meta.owner);
-  if (!project) {
-    history.replaceState({}, '', '/');
-    showView('landing');
-    toast('Site not found');
-    return;
-  }
-
+  // Show loading state briefly
   Object.values(views).forEach(v => { if (v) v.classList.add('hidden'); });
   const oldEl = document.getElementById('live-viewer');
   if (oldEl) oldEl.remove();
 
   const wrapper = document.createElement('div');
   wrapper.id = 'live-viewer';
-  wrapper.innerHTML = '<iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+  wrapper.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#0f172a;color:#94a3b8;font-family:system-ui">Loading site…</div>';
   document.body.appendChild(wrapper);
-  document.getElementById('live-frame').srcdoc = buildFullHTML(project.files, true);
+
+  (async () => {
+    let files = null;
+
+    // 1. Try public API (works for everyone)
+    try {
+      const remote = await fetchPublicSite(siteId);
+      if (remote && remote.files) {
+        files = remote.files;
+      }
+    } catch (e) {
+      console.warn('Public fetch failed', e);
+    }
+
+    // 2. Fallback localStorage (same browser / owner)
+    if (!files) {
+      const meta = getPublicMeta(siteId);
+      if (meta) {
+        const project = loadProject(siteId, meta.owner);
+        if (project && project.files) files = project.files;
+      }
+    }
+
+    // 3. Hash fallback (old links)
+    if (!files && location.hash.startsWith('#d=')) {
+      try {
+        const raw = location.hash.slice(3);
+        let json;
+        if (typeof LZString !== 'undefined') {
+          json = LZString.decompressFromEncodedURIComponent(raw);
+        }
+        if (!json) json = decodeURIComponent(escape(atob(raw)));
+        const decoded = JSON.parse(json);
+        if (decoded && decoded.files) files = decoded.files;
+      } catch (e) {}
+    }
+
+    if (!files) {
+      wrapper.remove();
+      history.replaceState({}, '', '/');
+      showView('landing');
+      toast('Site not found');
+      return;
+    }
+
+    wrapper.innerHTML = '<iframe id="live-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>';
+    document.getElementById('live-frame').srcdoc = buildFullHTML(files, true);
+  })();
 }
 
 /* ========== AUTH UI ========== */
@@ -494,17 +545,14 @@ async function startDeploy() {
   state.siteName = sanitizeName($('#site-name').value);
   if (!state.siteName) return;
 
-  // unique URL: name + random codes so anyone can reuse the same name
-  state.siteId = state.siteName + '-' + randomCode(6);
-
   showView('loading');
   const bar = $('#progress-bar');
   const msg = $('#loading-msg');
   const steps = [
-    { pct: 20, text: 'Validating files…' },
-    { pct: 45, text: 'Building project…' },
-    { pct: 70, text: 'Optimizing…' },
-    { pct: 90, text: 'Publishing…' },
+    { pct: 15, text: 'Validating files…' },
+    { pct: 35, text: 'Building project…' },
+    { pct: 55, text: 'Optimizing…' },
+    { pct: 75, text: 'Uploading to public host…' },
     { pct: 100, text: 'Done' }
   ];
 
@@ -533,11 +581,31 @@ async function startDeploy() {
     else state.files['index.html'] = blankHTML(state.siteName);
   }
 
-  for (const step of steps) {
-    if (bar) bar.style.width = step.pct + '%';
-    if (msg) msg.textContent = step.text;
-    await sleep(450 + Math.random() * 250);
+  for (let i = 0; i < 3; i++) {
+    if (bar) bar.style.width = steps[i].pct + '%';
+    if (msg) msg.textContent = steps[i].text;
+    await sleep(400 + Math.random() * 200);
   }
+
+  // Upload to public storage so ANYONE can open the link
+  if (bar) bar.style.width = '75%';
+  if (msg) msg.textContent = 'Uploading to public host…';
+
+  try {
+    const binId = await publishToPublic(state.files, state.siteName, state.user.username);
+    // URL uses the public bin id — this is what friends open
+    state.siteId = binId;
+  } catch (err) {
+    console.error(err);
+    // fallback local-only id so owner can still use it
+    state.siteId = state.siteName + '-' + randomCode(6);
+    toast('Public upload failed — link may only work on this device');
+  }
+
+  if (bar) bar.style.width = '100%';
+  if (msg) msg.textContent = 'Done';
+  await sleep(300);
+
   saveProject();
   showReady();
 }
@@ -553,8 +621,8 @@ function blankCSS() {
 
 /* ========== READY ========== */
 function showReady() {
-  const display = 'sqservices.me/' + state.siteId;
   const url = buildLiveURL(state.siteId);
+  const display = 'sqservices.me/' + state.siteId;
   $('#live-url').textContent = display;
   $('#live-url').href = url;
   $('#live-url').onclick = e => {
@@ -565,7 +633,8 @@ function showReady() {
   showView('ready');
 }
 $('#btn-copy-url')?.addEventListener('click', () => {
-  navigator.clipboard.writeText(buildLiveURL(state.siteId)).then(() => toast('Link copied'));
+  const url = buildLiveURL(state.siteId);
+  navigator.clipboard.writeText(url).then(() => toast('Share link copied — works for everyone'));
 });
 $('#btn-open-editor')?.addEventListener('click', openEditor);
 $('#btn-view-site')?.addEventListener('click', () => {
@@ -580,7 +649,7 @@ function openEditor() {
   $('#editor-sitename').textContent = state.siteName;
   const url = buildLiveURL(state.siteId);
   $('#editor-url').textContent = 'sqservices.me/' + state.siteId;
-  $('#editor-url').href = url;
+  $('#editor-url').href = buildLiveURL(state.siteId);
   $('#editor-url').onclick = e => {
     e.preventDefault();
     history.pushState({ site: state.siteId }, '', '/' + state.siteId);
@@ -748,4 +817,41 @@ window.addEventListener('popstate', () => {
     showView('landing');
     renderRecentSites();
   }
+})();
+
+
+/* ========== BACKGROUND MUSIC ========== */
+(function setupMusic() {
+  const audio = document.getElementById('bg-jazz');
+  const btn = document.getElementById('btn-music');
+  const icon = document.getElementById('music-icon');
+  const label = document.getElementById('music-label');
+  if (!audio || !btn) return;
+
+  let playing = false;
+
+  btn.addEventListener('click', async () => {
+    try {
+      if (playing) {
+        audio.pause();
+        playing = false;
+        btn.classList.remove('playing');
+        if (icon) icon.className = 'fas fa-volume-mute';
+        if (label) label.textContent = 'Music';
+      } else {
+        audio.volume = 0.35;
+        await audio.play();
+        playing = true;
+        btn.classList.add('playing');
+        if (icon) icon.className = 'fas fa-volume-up';
+        if (label) label.textContent = 'Playing';
+      }
+    } catch (e) {
+      toast('Click again to enable music');
+    }
+  });
+
+  // Pause music when leaving landing
+  const origShowView = showView;
+  // soft: just pause when not on landing
 })();
