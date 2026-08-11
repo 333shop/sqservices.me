@@ -736,6 +736,87 @@ html, body {
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+/* ========== LIVE VIEWER ========== */
+#live-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+}
+
+.live-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.live-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.live-bar-left i {
+  color: var(--accent);
+}
+
+.live-bar-right {
+  display: flex;
+  gap: 8px;
+}
+
+#live-frame {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
+/* Recent sites on landing */
+.recent-sites {
+  width: 100%;
+  max-width: 480px;
+}
+
+.recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.15s;
+}
+
+.recent-item:hover {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--bg-3);
+}
+
+.recent-item i {
+  color: var(--accent);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .preview-pane {
@@ -748,3 +829,4 @@ html, body {
     width: 200px;
   }
 }
+
