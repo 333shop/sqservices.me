@@ -1,4 +1,4 @@
-/* ========== STATE ========== */
+/* ========== STATE  ========== */
 const state = {
   user: null,
   siteName: '',   // friendly name shown to user
