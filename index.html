@@ -1,46 +1,208 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wyvern</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wyvern</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(160deg, #0a1628 0%, #06101c 40%, #02060c 100%);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #e8f0ff;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Subtle animated background glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 20%, rgba(30, 80, 180, 0.12) 0%, transparent 45%),
+                  radial-gradient(circle at 70% 80%, rgba(20, 50, 120, 0.08) 0%, transparent 50%);
+      animation: bgPulse 12s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      0% { opacity: 0.7; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    /* Top left brand */
+    .brand {
+      position: absolute;
+      top: 28px;
+      left: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 10;
+      animation: slideInLeft 0.9s ease-out;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      /* Helps a bit if the GIF still has some black edges */
+      mix-blend-mode: lighten;
+      filter: drop-shadow(0 0 8px rgba(80, 140, 255, 0.4));
+    }
+
+    .brand-name {
+      font-size: 1.65rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      background: linear-gradient(90deg, #7eb6ff, #4a9eff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 0 20px rgba(100, 160, 255, 0.3);
+    }
+
+    /* Center content */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 5;
+      animation: fadeUp 1.1s ease-out 0.2s both;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.2rem, 6vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.25;
+      margin-bottom: 18px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 0%, #a8d0ff 50%, #6ab0ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: #9bb8e0;
+      max-width: 520px;
+      margin-bottom: 40px;
+      opacity: 0.9;
+    }
+
+    .features {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(20, 50, 100, 0.25);
+      border: 1px solid rgba(80, 140, 255, 0.2);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      color: #c5dcff;
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .feature:nth-child(2) { animation-delay: 0.6s; }
+    .feature:nth-child(3) { animation-delay: 1.2s; }
+
+    .feature:hover {
+      background: rgba(40, 90, 180, 0.35);
+      border-color: rgba(100, 170, 255, 0.45);
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(30, 80, 180, 0.25);
+    }
+
+    .feature i {
+      font-size: 1.2rem;
+      color: #5aa8ff;
+    }
+
+    /* Animations */
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .brand {
+        top: 20px;
+        left: 20px;
+      }
+      .brand img { width: 40px; height: 40px; }
+      .brand-name { font-size: 1.35rem; }
+      .features { gap: 14px; }
+      .feature { padding: 10px 16px; font-size: 0.9rem; }
+    }
+  </style>
 </head>
 <body>
-  <div class="bg"></div>
 
-  <nav class="nav">
-    <div class="brand">
-      <img src="logo.gif" alt="Wyvern">
-      <span>Wyvern</span>
+  <!-- Top left brand -->
+  <div class="brand">
+    <!-- Replace logo.gif with your transparent version -->
+    <img src="logo.gif" alt="Wyvern Logo">
+    <span class="brand-name">Wyvern</span>
+  </div>
+
+  <!-- Center content -->
+  <div class="hero">
+    <h1>Wyvern is the best<br>cheat service</h1>
+    <p>Premium performance. Undetected. Built for winners.</p>
+
+    <div class="features">
+      <div class="feature">
+        <i class="fas fa-bolt"></i>
+        <span>Lightning Fast</span>
+      </div>
+      <div class="feature">
+        <i class="fas fa-shield-alt"></i>
+        <span>Undetected</span>
+      </div>
+      <div class="feature">
+        <i class="fas fa-star"></i>
+        <span>Top Rated</span>
+      </div>
     </div>
-  </nav>
+  </div>
 
-  <section class="hero">
-    <h1>Wyvern is the best<br><span>cheat services</span> out there</h1>
-    <p>Unique software that provides great functionality and easy customization, with a fast and friendly support team.</p>
-  </section>
-
-  <section class="showcase">
-    <div class="showcase-track">
-
-      <!-- First set - put your files in /media folder -->
-      <div class="card"><img src="media/1.jpg" alt="Gameplay"></div>
-      <div class="card"><img src="media/2.jpg" alt="Gameplay"></div>
-      <div class="card"><video src="media/3.mp4" autoplay muted loop playsinline></video></div>
-      <div class="card"><img src="media/4.jpg" alt="Gameplay"></div>
-      <div class="card"><video src="media/5.mp4" autoplay muted loop playsinline></video></div>
-      <div class="card"><img src="media/6.jpg" alt="Gameplay"></div>
-
-      <!-- Duplicate set (must be identical for perfect loop) -->
-      <div class="card"><img src="media/1.jpg" alt="Gameplay"></div>
-      <div class="card"><img src="media/2.jpg" alt="Gameplay"></div>
-      <div class="card"><video src="media/3.mp4" autoplay muted loop playsinline></video></div>
-      <div class="card"><img src="media/4.jpg" alt="Gameplay"></div>
-      <div class="card"><video src="media/5.mp4" autoplay muted loop playsinline></video></div>
-      <div class="card"><img src="media/6.jpg" alt="Gameplay"></div>
-
-    </div>
-  </section>
 </body>
 </html>
