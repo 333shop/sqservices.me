@@ -1,5 +1,5 @@
 /* ===== CONFIG ===== */
-const WORKER_URL = "https://twilight-block-37e2.julianisok2.workers.dev";
+const WORKER_URL = "https://round-salad-817b.julianisok2.workers.dev/";
 
 /* ===== UTILITIES ===== */
 function generateId() {
