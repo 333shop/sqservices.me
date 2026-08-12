@@ -1,0 +1,122 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: #060a12;
+  color: #fff;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 100% 70% at 50% -10%, rgba(40, 90, 180, 0.28), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 90%, rgba(20, 50, 120, 0.18), transparent),
+    radial-gradient(ellipse 50% 40% at 15% 70%, rgba(15, 40, 90, 0.15), transparent),
+    linear-gradient(180deg, #060a12 0%, #0a1222 45%, #060a12 100%);
+  z-index: 0;
+}
+
+.bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.55) 100%);
+  pointer-events: none;
+}
+
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  pointer-events: none;
+}
+
+.nav {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  padding: 26px 52px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  mix-blend-mode: screen;
+  filter: brightness(1.15);
+}
+
+.brand span {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+}
+
+.hero {
+  position: relative;
+  z-index: 5;
+  min-height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.hero h1 {
+  font-size: clamp(2.9rem, 7.5vw, 4.8rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  margin-bottom: 22px;
+  max-width: 920px;
+  text-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hero h1 span {
+  background: linear-gradient(120deg, #5eb1ff, #2b8fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.18rem;
+  color: rgba(255, 255, 255, 0.62);
+  max-width: 580px;
+  line-height: 1.65;
+  font-weight: 400;
+}
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 20px 24px;
+  }
+
+  .brand img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+}
