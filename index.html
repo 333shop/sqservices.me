@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wyvern</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+background:#0a0e17;
+color:#fff;
+min-height:100vh;
+overflow-x:hidden
+}
+.bg{
+position:fixed;
+inset:0;
+background:
+radial-gradient(ellipse 120% 80% at 50% 20%,rgba(30,60,120,0.35),transparent 70%),
+radial-gradient(ellipse 80% 60% at 80% 80%,rgba(20,40,90,0.25),transparent),
+linear-gradient(180deg,#0a0e17 0%,#0d1525 40%,#0a0e17 100%);
+z-index:0
+}
+.bg::after{
+content:"";
+position:absolute;
+inset:0;
+background:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+opacity:0.03;
+pointer-events:none
+}
+.nav{
+position:relative;
+z-index:10;
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:22px 48px;
+background:rgba(8,12,22,0.55);
+backdrop-filter:blur(12px);
+border-bottom:1px solid rgba(255,255,255,0.04)
+}
+.brand{
+display:flex;
+align-items:center;
+gap:14px
+}
+.brand img{
+width:42px;
+height:42px;
+object-fit:contain
+}
+.brand span{
+font-size:1.35rem;
+font-weight:700;
+letter-spacing:0.04em;
+color:#fff
+}
+.nav-links{
+display:flex;
+gap:36px;
+list-style:none
+}
+.nav-links a{
+color:rgba(255,255,255,0.7);
+text-decoration:none;
+font-size:0.95rem;
+font-weight:500;
+transition:color .2s
+}
+.nav-links a:hover{color:#fff}
+.hero{
+position:relative;
+z-index:5;
+min-height:calc(100vh - 86px);
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+padding:40px 24px
+}
+.hero h1{
+font-size:clamp(2.8rem,7vw,4.6rem);
+font-weight:800;
+letter-spacing:-0.03em;
+line-height:1.1;
+margin-bottom:24px;
+max-width:900px
+}
+.hero h1 span{
+color:#3b9eff
+}
+.hero p{
+font-size:1.15rem;
+color:rgba(255,255,255,0.65);
+max-width:620px;
+line-height:1.6;
+margin-bottom:42px
+}
+.btn{
+display:inline-block;
+background:#1a9fff;
+color:#fff;
+text-decoration:none;
+font-weight:700;
+font-size:0.95rem;
+letter-spacing:0.06em;
+padding:16px 42px;
+border-radius:6px;
+transition:background .2s,transform .15s,box-shadow .2s;
+box-shadow:0 8px 28px rgba(26,159,255,0.3)
+}
+.btn:hover{
+background:#0d8aef;
+transform:translateY(-2px);
+box-shadow:0 12px 32px rgba(26,159,255,0.4)
+}
+@media(max-width:768px){
+.nav{padding:18px 24px}
+.nav-links{display:none}
+.hero h1{font-size:2.4rem}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<nav class="nav">
+<div class="brand">
+<img src="https://cdn.discordapp.com/attachments/1493118734645330083/1536957332301283338/wyvenrlogodirek.gif?ex=6a7d4a8f&is=6a7bf90f&hm=2f064f47908fe5b70634684b1cb6f5e0bf7d887193defa1aa95a4ed588254822&" alt="Wyvern">
+<span>Wyvern</span>
+</div>
+<ul class="nav-links">
+<li><a href="#">Main</a></li>
+<li><a href="#">Forum</a></li>
+<li><a href="#">Market</a></li>
+<li><a href="#">Tickets</a></li>
+</ul>
+</nav>
+<section class="hero">
+<h1>Wyvern is the best<br><span>cheat services</span> out there</h1>
+<p>Unique software that provides great functionality and easy customization, with a fast and friendly support team.</p>
+<a href="#" class="btn">OUR PRODUCTS</a>
+</section>
+</body>
+</html>
