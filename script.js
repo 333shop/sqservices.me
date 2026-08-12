@@ -1,3 +1,6 @@
+/* ===== CONFIG ===== */
+const WORKER_URL = "https://twilight-block-37e2.julianisok2.workers.dev";
+
 /* ===== UTILITIES ===== */
 function generateId() {
   return Math.floor(10000 + Math.random() * 90000).toString();
@@ -80,14 +83,12 @@ function handleLogin(e) {
     return;
   }
 
-  // Demo: accept any credentials and create a session
   const existing = getUser();
   if (existing && existing.email === email) {
     window.location.href = 'dashboard.html';
     return;
   }
 
-  // Create a new demo user
   setUser({ name: email.split('@')[0], email });
   window.location.href = 'dashboard.html';
 }
@@ -119,13 +120,13 @@ function renderSitesList() {
     <div class="site-item">
       <div class="site-info">
         <h4>${escapeHtml(site.name)}</h4>
-        <a href="view.html?id=${site.id}" target="_blank">${site.url}</a>
+        <a href="${site.url}" target="_blank">${site.url}</a>
       </div>
       <div class="site-actions">
         <button class="icon-btn" title="Edit" onclick="editSite('${site.id}')">
           <i class="fas fa-pen"></i>
         </button>
-        <button class="icon-btn" title="Open" onclick="window.open('view.html?id=${site.id}', '_blank')">
+        <button class="icon-btn" title="Open" onclick="window.open('${site.url}', '_blank')">
           <i class="fas fa-external-link-alt"></i>
         </button>
         <button class="icon-btn danger" title="Delete" onclick="deleteSite('${site.id}')">
@@ -172,7 +173,6 @@ function initEditor() {
     }
   }
 
-  // File drop
   const drop = document.getElementById('file-drop');
   const fileInput = document.getElementById('file-input');
 
@@ -202,7 +202,7 @@ function handleFiles(files) {
   reader.readAsText(file);
 }
 
-function deploySite() {
+async function deploySite() {
   const name = document.getElementById('site-name').value.trim();
   const code = document.getElementById('code').value;
 
@@ -215,7 +215,6 @@ function deploySite() {
     return;
   }
 
-  // Show loading
   const overlay = document.getElementById('overlay');
   const content = document.getElementById('overlay-content');
   overlay.classList.add('active');
@@ -225,12 +224,25 @@ function deploySite() {
     <p>Setting up subdomain & SSL</p>
   `;
 
-  // Simulate deploy
-  setTimeout(() => {
-    const id = window._editId || generateId();
-    const subdomain = name.toLowerCase().replace(/[^a-z0-9]/g, '') + id;
-    const url = `https://${subdomain}.sqservices.me`;
+  const id = window._editId || generateId();
+  const subdomain = name.toLowerCase().replace(/[^a-z0-9]/g, '') + id;
+  const url = `https://${subdomain}.sqservices.me`;
 
+  try {
+    // Send to Cloudflare Worker
+    const res = await fetch(`${WORKER_URL}/api/deploy`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, name, code })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || 'Deploy failed');
+    }
+
+    // Also save locally so the dashboard still works
     const sites = getSites();
     const existingIdx = sites.findIndex(s => s.id === id);
 
@@ -250,7 +262,7 @@ function deploySite() {
     }
     saveSites(sites);
 
-    // Success
+    // Success screen
     content.innerHTML = `
       <div class="checkmark"><i class="fas fa-check"></i></div>
       <h2>Site is live!</h2>
@@ -260,7 +272,7 @@ function deploySite() {
         <button onclick="copyUrl()" title="Copy"><i class="fas fa-copy"></i></button>
       </div>
       <div class="overlay-actions">
-        <a href="view.html?id=${id}" target="_blank" class="btn-primary">
+        <a href="${url}" target="_blank" class="btn-primary">
           <i class="fas fa-external-link-alt"></i> Open Site
         </a>
         <a href="dashboard.html" class="btn-ghost">
@@ -271,7 +283,13 @@ function deploySite() {
         </button>
       </div>
     `;
-  }, 2200);
+  } catch (err) {
+    content.innerHTML = `
+      <h2 style="color:#f87171;">Deploy failed</h2>
+      <p>${err.message}</p>
+      <button class="btn-ghost" onclick="closeOverlay()">Try Again</button>
+    `;
+  }
 }
 
 function copyUrl() {
@@ -287,28 +305,6 @@ function closeOverlay() {
   document.getElementById('overlay').classList.remove('active');
 }
 
-/* ===== VIEW PAGE ===== */
-function initView() {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
-
-  if (!id) {
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#9a9ab0;font-family:system-ui;">Site not found.</div>';
-    return;
-  }
-
-  const site = getSiteById(id);
-  if (!site) {
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#9a9ab0;font-family:system-ui;">This site does not exist or has been deleted.</div>';
-    return;
-  }
-
-  // Render the user's HTML
-  document.open();
-  document.write(site.code);
-  document.close();
-}
-
 /* ===== INIT ===== */
 document.addEventListener('DOMContentLoaded', () => {
   const path = window.location.pathname;
@@ -317,7 +313,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initDashboard();
   } else if (path.includes('editor')) {
     initEditor();
-  } else if (path.includes('view')) {
-    initView();
   }
 });
