@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editor – sqservices.me</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+  <div class="bg-blur"></div>
+  <div class="noise"></div>
+
+  <div class="dashboard">
+    <header class="dash-header">
+      <a href="dashboard.html" class="logo" style="text-decoration:none;">sq<span>services</span>.me</a>
+      <div class="dash-user">
+        <a href="dashboard.html" class="btn-ghost" style="padding:0.4rem 0.9rem;font-size:0.85rem;">
+          <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+      </div>
+    </header>
+
+    <main class="dash-main">
+      <h1 class="section-title" id="editor-title">Create New Site</h1>
+      <p class="section-desc">Paste HTML, import a file, or write from scratch. Then deploy.</p>
+
+      <div class="editor-layout">
+        <div class="editor-panel">
+          <div class="editor-toolbar">
+            <span class="tab active"><i class="fas fa-code"></i> HTML</span>
+            <span style="margin-left:auto;font-size:0.8rem;color:var(--muted);">Live preview after deploy</span>
+          </div>
+          <div class="code-area">
+            <textarea id="code" placeholder="<!DOCTYPE html>
+<html>
+<head>
+  <title>My Site</title>
+  <style>
+    body { font-family: system-ui; background: #111; color: #eee; display: grid; place-items: center; min-height: 100vh; margin: 0; }
+    h1 { font-size: 2.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Hello from sqservices.me 🚀</h1>
+</body>
+</html>"></textarea>
+          </div>
+        </div>
+
+        <div class="side-panel">
+          <div class="side-card">
+            <h3><i class="fas fa-tag"></i> Site Name</h3>
+            <div class="form-group" style="margin-bottom:0;">
+              <input type="text" id="site-name" placeholder="my-awesome-site" maxlength="32">
+            </div>
+            <p style="font-size:0.8rem;color:var(--muted);margin-top:0.6rem;">
+              Becomes: <code style="color:var(--accent-2);">nameXXXXX.sqservices.me</code>
+            </p>
+          </div>
+
+          <div class="side-card">
+            <h3><i class="fas fa-file-import"></i> Import File</h3>
+            <div class="file-drop" id="file-drop">
+              <i class="fas fa-cloud-upload-alt"></i>
+              Drop HTML file here<br>or click to browse
+            </div>
+            <input type="file" id="file-input" accept=".html,.htm,.txt" style="display:none;">
+          </div>
+
+          <button class="btn-primary btn-block" id="deploy-btn" onclick="deploySite()" style="padding:1rem;">
+            <i class="fas fa-rocket"></i> Deploy Site
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Overlay -->
+  <div class="overlay" id="overlay">
+    <div class="overlay-content" id="overlay-content"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
