@@ -158,11 +158,57 @@ local PlayerTab = Window:CreateTab("Player")
 local MiscTab = Window:CreateTab("Misc")
         </div>
 
+        <h2>CreateButton (Mini)</h2>
+        <p>Clean mini buttons that don’t stretch across the whole page.</p>
+
+        <div class="code-block">
+HomeTab:CreateButton({
+    Name = "Click Me",
+    Callback = function()
+        print("Button clicked!")
+    end
+})
+
+HomeTab:CreateButton({
+    Name = "Another Button",
+    Callback = function()
+        print("Second button!")
+    end
+})
+        </div>
+
+        <h2>CreateSlider (Smooth)</h2>
+        <p>Clean, smooth, modern slider with live value display.</p>
+
+        <div class="code-block">
+HomeTab:CreateSlider({
+    Name = "WalkSpeed",
+    Min = 16,
+    Max = 100,
+    Default = 16,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
+    end
+})
+
+HomeTab:CreateSlider({
+    Name = "JumpPower",
+    Min = 50,
+    Max = 200,
+    Default = 50,
+    Callback = function(value)
+        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
+    end
+})
+        </div>
+
         <h2>Features</h2>
         <p>
             <span class="tag">Rayfield Style</span>
             <span class="tag">CreateWindow()</span>
             <span class="tag">CreateTab()</span>
+            <span class="tag">CreateButton()</span>
+            <span class="tag">CreateSlider()</span>
             <span class="tag">Smooth Dragging</span>
             <span class="tag">Clean Dark Theme</span>
             <span class="tag">Fully Customizable</span>
