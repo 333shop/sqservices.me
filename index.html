@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -76,6 +75,29 @@
             color: #a0b4d8;
             max-width: 380px;
             line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #3b7cff, #2a5fd4);
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            width: fit-content;
+            box-shadow: 0 4px 20px rgba(59, 124, 255, 0.35);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(59, 124, 255, 0.5);
+            background: linear-gradient(135deg, #4a8cff, #3b7cff);
         }
 
         /* ===== RIGHT SIDE (DOG) ===== */
@@ -86,7 +108,6 @@
             align-items: center;
         }
 
-        /* From Uiverse.io by Emmaline-ozi */
         .main {
             position: relative;
             width: 23.5vmax;
@@ -216,23 +237,24 @@
             background-color: #d7dbd2;
         }
 
+        /* ===== FIXED EYES ===== */
         .dog__eye-l,
         .dog__eye-r {
             position: absolute;
-            top: -0.9vmax;
-            width: 0.675vmax;
-            height: 0.375vmax;
+            top: 1.1vmax;
+            width: 0.65vmax;
+            height: 0.35vmax;
             border-radius: 50%;
             background-color: #1c3130;
             animation: eye 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
         }
 
         .dog__eye-l {
-            left: 27%;
+            left: 22%;
         }
 
         .dog__eye-r {
-            left: 65%;
+            left: 58%;
         }
 
         .dog__ear-l,
@@ -330,8 +352,6 @@
         .dog__fr-paw::before {
             background-color: #fffbe6;
         }
-
-        /*==============================*/
 
         @keyframes head {
             0%, 10%, 20%, 26%, 28%, 90%, 100% {
@@ -432,23 +452,22 @@
 
         @keyframes eye {
             0%, 30% {
-                width: 0.675vmax;
+                width: 0.65vmax;
                 height: 0.3vmax;
             }
             32%, 59%, 90%, 100% {
-                width: 0.525vmax;
-                height: 0.525vmax;
+                width: 0.5vmax;
+                height: 0.5vmax;
                 transform: translateY(0);
             }
             60%, 75% {
-                transform: translateY(-0.3vmax);
+                transform: translateY(-0.25vmax);
             }
             80%, 85% {
-                transform: translateY(0.15vmax);
+                transform: translateY(0.12vmax);
             }
         }
 
-        /* Responsive */
         @media (max-width: 900px) {
             .container {
                 flex-direction: column;
@@ -457,19 +476,18 @@
                 padding: 40px 20px;
                 gap: 30px;
             }
-
             .left {
                 align-items: center;
             }
-
             .divider {
                 margin: 18px auto 10px;
             }
-
             .company {
                 font-size: 2.2rem;
             }
-
+            .btn {
+                margin: 0 auto;
+            }
             .main {
                 width: 18vmax;
                 height: 18vmax;
@@ -479,15 +497,17 @@
 </head>
 <body>
     <div class="container">
-        <!-- LEFT SIDE -->
         <div class="left">
             <div class="company">sqservices<span>.me</span></div>
             <div class="library">Library</div>
             <div class="divider"></div>
             <p class="desc">Clean • Modern • Professional<br>Roblox UI components built for developers.</p>
+            
+            <a href="docs.html" class="btn">
+                Get Started →
+            </a>
         </div>
 
-        <!-- RIGHT SIDE - Animated Dog -->
         <div class="right">
             <div class="main">
                 <div class="dog">
