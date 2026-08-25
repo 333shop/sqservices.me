@@ -6,104 +6,146 @@
     <title>sqservices.me — Documentation</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #0a0f1f;
-            color: #e0e7ff;
+            background: #080c18;
+            color: #d8e2f8;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            line-height: 1.65;
         }
+
         .nav {
-            background: #0d1428;
-            border-bottom: 1px solid #1e2a4a;
-            padding: 16px 40px;
+            background: #0c1224;
+            border-bottom: 1px solid #1a2540;
+            padding: 14px 32px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
+
         .nav a {
             color: #8ba3d9;
             text-decoration: none;
             font-weight: 500;
+            font-size: 0.95rem;
             transition: color 0.2s;
         }
-        .nav a:hover { color: #4a8cff; }
+
+        .nav a:hover { color: #5b9bff; }
+
         .nav .logo {
             color: #fff;
             font-weight: 700;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
         }
-        .nav .logo span { color: #4a8cff; }
+
+        .nav .logo span { color: #5b9bff; }
+
         .container {
-            max-width: 900px;
+            max-width: 820px;
             margin: 0 auto;
-            padding: 50px 30px 100px;
+            padding: 48px 28px 80px;
         }
+
         h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+            font-size: 2.4rem;
             color: #fff;
             font-weight: 700;
+            margin-bottom: 6px;
         }
+
         .subtitle {
-            color: #8ba3d9;
-            font-size: 1.1rem;
-            margin-bottom: 45px;
+            color: #7d94c4;
+            font-size: 1.05rem;
+            margin-bottom: 40px;
         }
+
         h2 {
-            font-size: 1.4rem;
-            margin: 45px 0 16px;
-            color: #4a8cff;
-            border-bottom: 1px solid #1e2a4a;
-            padding-bottom: 8px;
+            font-size: 1.25rem;
+            margin: 42px 0 14px;
+            color: #5b9bff;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        p { margin-bottom: 16px; color: #b0c0e0; }
+
+        h2::before {
+            content: "";
+            width: 4px;
+            height: 18px;
+            background: #5b9bff;
+            border-radius: 2px;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: #a8b9d8;
+        }
+
         code {
-            background: #1a2744;
+            background: #151e36;
             color: #7eb6ff;
             padding: 2px 7px;
             border-radius: 5px;
-            font-size: 0.9em;
+            font-size: 0.88em;
+            font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
         }
+
         .code-block {
-            background: #0d1428;
-            border: 1px solid #1e2a4a;
+            background: #0c1224;
+            border: 1px solid #1a2540;
             border-radius: 12px;
-            padding: 22px;
+            padding: 20px 22px;
             overflow-x: auto;
-            margin: 18px 0;
-            font-family: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
-            font-size: 0.88rem;
+            margin: 16px 0 8px;
+            font-family: 'Cascadia Code', 'Fira Code', Consolas, monospace;
+            font-size: 0.86rem;
             line-height: 1.55;
-            color: #c9d7f5;
+            color: #c4d4f5;
         }
+
+        .highlight {
+            background: #111a32;
+            border: 1px solid #243356;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin: 18px 0;
+            color: #7eb6ff;
+            font-size: 0.95rem;
+        }
+
         .tag {
             display: inline-block;
-            background: #1a2744;
-            color: #4a8cff;
-            padding: 4px 11px;
+            background: #151e36;
+            color: #5b9bff;
+            padding: 4px 12px;
             border-radius: 6px;
             font-size: 0.8rem;
             margin: 0 6px 8px 0;
             font-weight: 500;
         }
-        .highlight {
-            background: #13203a;
-            border: 1px solid #2a3f6e;
-            border-radius: 10px;
-            padding: 16px 20px;
-            margin: 20px 0;
-        }
+
         .btn-back {
             display: inline-block;
-            margin-top: 50px;
-            color: #4a8cff;
+            margin-top: 48px;
+            color: #5b9bff;
             text-decoration: none;
             font-weight: 600;
-            font-size: 1.05rem;
+            font-size: 1rem;
             transition: color 0.2s;
         }
-        .btn-back:hover { color: #7eb6ff; }
+
+        .btn-back:hover { color: #8bb8ff; }
+
+        @media (max-width: 600px) {
+            .container { padding: 36px 18px 60px; }
+            h1 { font-size: 2rem; }
+            .nav { padding: 12px 18px; }
+        }
     </style>
 </head>
 <body>
@@ -116,7 +158,7 @@
         <h1>Documentation</h1>
         <p class="subtitle">Clean • Modern • Professional Roblox UI Library</p>
 
-        <h2>Usage</h2>
+        <h2>Quick Start</h2>
         <p>Paste this into a LocalScript:</p>
 
         <div class="code-block">
@@ -124,7 +166,9 @@ local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/333sh
 
 local Window = Library:CreateWindow({
     Title = "sqservices.me",
-    Size = UDim2.new(0, 520, 0, 340)
+    Size = UDim2.new(0, 520, 0, 360),
+    BackgroundColor = Color3.fromRGB(12, 16, 32),
+    -- BackgroundImage = "rbxassetid://123456789", -- optional custom image
 })
 
 local HomeTab = Window:CreateTab("Home")
@@ -133,24 +177,25 @@ local SettingsTab = Window:CreateTab("Settings")
         </div>
 
         <div class="highlight">
-            <p style="margin:0; color:#7eb6ff;">That’s all you need. Works exactly like Rayfield.</p>
+            That’s all you need. Works exactly like Rayfield.
         </div>
 
         <h2>CreateWindow Options</h2>
         <div class="code-block">
 Library:CreateWindow({
     Title = "sqservices.me",
-    Size = UDim2.new(0, 520, 0, 340),
+    Size = UDim2.new(0, 520, 0, 360),
     BackgroundColor = Color3.fromRGB(12, 16, 32),
+    AccentColor = Color3.fromRGB(40, 90, 180),
     TextColor = Color3.fromRGB(220, 230, 255),
     SubTextColor = Color3.fromRGB(140, 155, 190),
     CornerRadius = UDim.new(0, 10),
+    BackgroundImage = nil, -- or "rbxassetid://..." / any image URL
 })
         </div>
 
-        <h2>Adding Tabs</h2>
-        <p>Just call <code>CreateTab</code> as many times as you want:</p>
-
+        <h2>Tabs</h2>
+        <p>Call <code>CreateTab</code> as many times as you want:</p>
         <div class="code-block">
 local HomeTab = Window:CreateTab("Home")
 local VisualsTab = Window:CreateTab("Visuals")
@@ -158,9 +203,8 @@ local PlayerTab = Window:CreateTab("Player")
 local MiscTab = Window:CreateTab("Misc")
         </div>
 
-        <h2>CreateButton (Mini)</h2>
-        <p>Clean mini buttons that don’t stretch across the whole page.</p>
-
+        <h2>CreateButton</h2>
+        <p>Soft blended mini buttons.</p>
         <div class="code-block">
 HomeTab:CreateButton({
     Name = "Click Me",
@@ -168,18 +212,32 @@ HomeTab:CreateButton({
         print("Button clicked!")
     end
 })
+        </div>
 
-HomeTab:CreateButton({
-    Name = "Another Button",
-    Callback = function()
-        print("Second button!")
+        <h2>CreateToggle (Switch)</h2>
+        <div class="code-block">
+HomeTab:CreateToggle({
+    Name = "Enable ESP",
+    Default = false,
+    Callback = function(state)
+        print("ESP:", state)
     end
 })
         </div>
 
-        <h2>CreateSlider (Smooth)</h2>
-        <p>Clean, smooth, modern slider with live value display.</p>
+        <h2>CreateCheckbox</h2>
+        <div class="code-block">
+HomeTab:CreateCheckbox({
+    Name = "Auto Farm",
+    Default = true,
+    Callback = function(state)
+        print("Auto Farm:", state)
+    end
+})
+        </div>
 
+        <h2>CreateSlider</h2>
+        <p>Fully mobile-friendly smooth slider.</p>
         <div class="code-block">
 HomeTab:CreateSlider({
     Name = "WalkSpeed",
@@ -190,16 +248,6 @@ HomeTab:CreateSlider({
         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = value
     end
 })
-
-HomeTab:CreateSlider({
-    Name = "JumpPower",
-    Min = 50,
-    Max = 200,
-    Default = 50,
-    Callback = function(value)
-        game.Players.LocalPlayer.Character.Humanoid.JumpPower = value
-    end
-})
         </div>
 
         <h2>Features</h2>
@@ -208,10 +256,13 @@ HomeTab:CreateSlider({
             <span class="tag">CreateWindow()</span>
             <span class="tag">CreateTab()</span>
             <span class="tag">CreateButton()</span>
+            <span class="tag">CreateToggle()</span>
+            <span class="tag">CreateCheckbox()</span>
             <span class="tag">CreateSlider()</span>
+            <span class="tag">Custom Background</span>
+            <span class="tag">Mobile Sliders</span>
             <span class="tag">Smooth Dragging</span>
             <span class="tag">Clean Dark Theme</span>
-            <span class="tag">Fully Customizable</span>
         </p>
 
         <a href="index.html" class="btn-back">← Back to Home</a>
