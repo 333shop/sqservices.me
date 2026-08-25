@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +13,7 @@
 
         body {
             min-height: 100vh;
-            background: #0a0f1f;
+            background: #080c18;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
             align-items: center;
@@ -23,84 +24,84 @@
 
         .container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 1080px;
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 60px;
+            padding: 0 48px;
             gap: 40px;
         }
 
-        /* ===== LEFT SIDE ===== */
+        /* ===== LEFT ===== */
         .left {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 12px;
+            gap: 8px;
         }
 
         .company {
-            font-size: 2.8rem;
+            font-size: 2.7rem;
             font-weight: 700;
-            letter-spacing: -1px;
+            letter-spacing: -1.2px;
             color: #ffffff;
             line-height: 1.1;
         }
 
         .company span {
-            color: #4a8cff;
+            color: #5b9bff;
         }
 
         .library {
-            font-size: 1.35rem;
-            font-weight: 400;
-            color: #8ba3d9;
-            letter-spacing: 3px;
+            font-size: 1.15rem;
+            font-weight: 500;
+            color: #7d94c4;
+            letter-spacing: 4px;
             text-transform: uppercase;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         .divider {
-            width: 60px;
+            width: 48px;
             height: 3px;
-            background: linear-gradient(90deg, #4a8cff, transparent);
-            margin: 18px 0 10px;
+            background: linear-gradient(90deg, #5b9bff, transparent);
+            margin: 16px 0 12px;
             border-radius: 2px;
         }
 
         .desc {
             font-size: 1.05rem;
-            color: #a0b4d8;
-            max-width: 380px;
-            line-height: 1.6;
+            color: #9bb0d8;
+            max-width: 360px;
+            line-height: 1.65;
             margin-bottom: 28px;
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            background: linear-gradient(135deg, #3b7cff, #2a5fd4);
+            gap: 8px;
+            background: linear-gradient(135deg, #3d7fff, #2a5fd4);
             color: white;
-            font-size: 1.05rem;
+            font-size: 1rem;
             font-weight: 600;
-            padding: 14px 28px;
+            padding: 13px 26px;
             border-radius: 10px;
             text-decoration: none;
             transition: all 0.25s ease;
             width: fit-content;
-            box-shadow: 0 4px 20px rgba(59, 124, 255, 0.35);
+            box-shadow: 0 4px 18px rgba(61, 127, 255, 0.3);
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(59, 124, 255, 0.5);
-            background: linear-gradient(135deg, #4a8cff, #3b7cff);
+            box-shadow: 0 8px 26px rgba(61, 127, 255, 0.45);
+            background: linear-gradient(135deg, #4d8fff, #3d7fff);
         }
 
-        /* ===== RIGHT SIDE (DOG) ===== */
+        /* ===== RIGHT (SLEEPING CAT) ===== */
         .right {
             flex: 1;
             display: flex;
@@ -108,364 +109,160 @@
             align-items: center;
         }
 
-        .main {
+        .cat-scene {
             position: relative;
-            width: 23.5vmax;
-            height: 23.5vmax;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 280px;
+            height: 220px;
         }
 
-        .leg {
+        /* soft glow under cat */
+        .cat-glow {
             position: absolute;
-            bottom: 0;
-            width: 2vmax;
-            height: 2.125vmax;
-        }
-
-        .paw {
-            position: absolute;
-            bottom: 2px;
-            left: 0;
-            width: 1.95vmax;
-            height: 1.8vmax;
-            overflow: hidden;
-        }
-
-        .paw::before {
-            content: "";
-            position: absolute;
-            width: 5vmax;
-            height: 3vmax;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 40px;
+            background: radial-gradient(ellipse, rgba(120, 160, 255, 0.18), transparent 70%);
             border-radius: 50%;
+            filter: blur(8px);
         }
 
-        .top {
+        /* body */
+        .cat-body {
             position: absolute;
-            bottom: 0;
-            left: 0.75vmax;
-            height: 4.5vmax;
-            width: 2.625vmax;
-            border-top-left-radius: 1.425vmax;
-            border-top-right-radius: 1.425vmax;
-            transform-origin: bottom right;
-            transform: rotateZ(90deg) translateX(-0.1vmax) translateY(1.5vmax);
-            z-index: -1;
-            background-image: linear-gradient(70deg, transparent 20%, #deac80 20%);
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160px;
+            height: 90px;
+            background: #f0d5b8;
+            border-radius: 80px 80px 50px 50px;
+            box-shadow: inset -12px -8px 0 #e4c4a0;
         }
 
-        .dog {
-            position: relative;
-            width: 20vmax;
-            height: 8vmax;
-        }
-
-        .dog::before {
-            content: "";
+        /* head */
+        .cat-head {
             position: absolute;
-            bottom: -0.75vmax;
-            right: -0.15vmax;
-            width: 100%;
-            height: 1.5vmax;
-            background-color: #b5c18e;
-            border-radius: 50%;
-            z-index: -1000;
-            animation: shadow 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+            bottom: 95px;
+            left: 50%;
+            transform: translateX(-42%);
+            width: 95px;
+            height: 85px;
+            background: #f0d5b8;
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: inset -8px -6px 0 #e4c4a0;
+            z-index: 2;
         }
 
-        .dog__head {
+        /* ears */
+        .ear {
             position: absolute;
-            left: 4.5vmax;
-            bottom: 0;
-            width: 8vmax;
-            height: 5vmax;
-            border-top-left-radius: 4.05vmax;
-            border-top-right-radius: 4.05vmax;
-            border-bottom-right-radius: 3.3vmax;
-            border-bottom-left-radius: 3.3vmax;
-            background-color: #deac80;
-            animation: head 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+            top: -18px;
+            width: 32px;
+            height: 38px;
+            background: #f0d5b8;
+            border-radius: 50% 50% 0 0;
         }
 
-        .dog__head-c {
+        .ear-left {
+            left: 8px;
+            transform: rotate(-18deg);
+            box-shadow: inset -4px 0 0 #e4c4a0;
+        }
+
+        .ear-right {
+            right: 8px;
+            transform: rotate(18deg);
+            box-shadow: inset 4px 0 0 #e4c4a0;
+        }
+
+        .ear-inner {
             position: absolute;
-            left: 1.5vmax;
-            bottom: 0;
-            width: 9.75vmax;
-            height: 8.25vmax;
-            animation: head 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
-            z-index: -1;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 14px;
+            height: 18px;
+            background: #f8c4c4;
+            border-radius: 50% 50% 0 0;
         }
 
-        .dog__snout {
+        /* closed eyes (sleeping) */
+        .eye {
             position: absolute;
-            left: -1.5vmax;
-            bottom: 0;
-            width: 7.5vmax;
-            height: 3.75vmax;
-            border-top-right-radius: 3vmax;
-            border-bottom-right-radius: 3vmax;
-            border-bottom-left-radius: 4.5vmax;
-            background-color: #f7dcb9;
-            animation: snout 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+            top: 38px;
+            width: 18px;
+            height: 3px;
+            background: #5a4030;
+            border-radius: 4px;
         }
 
-        .dog__snout::before {
-            content: "";
+        .eye-left { left: 22px; }
+        .eye-right { right: 22px; }
+
+        /* nose */
+        .nose {
             position: absolute;
-            left: -0.1125vmax;
-            top: -0.15vmax;
-            width: 1.875vmax;
-            height: 1.125vmax;
-            border-top-right-radius: 3vmax;
-            border-bottom-right-radius: 3vmax;
-            border-bottom-left-radius: 4.5vmax;
-            background-color: #6c4e31;
-            animation: snout-b 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+            top: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 10px;
+            height: 7px;
+            background: #e89a9a;
+            border-radius: 50% 50% 40% 40%;
         }
 
-        .dog__nose {
+        /* whiskers */
+        .whisker {
             position: absolute;
-            top: -1.95vmax;
-            left: 40%;
-            width: 0.75vmax;
-            height: 2.4vmax;
-            border-radius: 0.525vmax;
-            transform-origin: bottom;
-            transform: rotateZ(10deg);
-            background-color: #d7dbd2;
+            top: 52px;
+            width: 28px;
+            height: 1.5px;
+            background: #c9a88a;
+            border-radius: 2px;
         }
 
-        /* ===== FIXED EYES ===== */
-        .dog__eye-l,
-        .dog__eye-r {
+        .whisker-l1 { left: -18px; transform: rotate(-8deg); }
+        .whisker-l2 { left: -20px; top: 58px; transform: rotate(6deg); }
+        .whisker-r1 { right: -18px; transform: rotate(8deg); }
+        .whisker-r2 { right: -20px; top: 58px; transform: rotate(-6deg); }
+
+        /* tail */
+        .tail {
             position: absolute;
-            top: 1.1vmax;
-            width: 0.65vmax;
-            height: 0.35vmax;
-            border-radius: 50%;
-            background-color: #1c3130;
-            animation: eye 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+            bottom: 55px;
+            right: 28px;
+            width: 70px;
+            height: 18px;
+            background: #f0d5b8;
+            border-radius: 20px;
+            transform-origin: left center;
+            animation: tail-sway 4s ease-in-out infinite;
+            box-shadow: inset 0 -4px 0 #e4c4a0;
         }
 
-        .dog__eye-l {
-            left: 22%;
-        }
-
-        .dog__eye-r {
-            left: 58%;
-        }
-
-        .dog__ear-l,
-        .dog__ear-r {
+        /* soft zzz */
+        .zzz {
             position: absolute;
-            width: 5vmax;
-            height: 3.3vmax;
-            border-top-left-radius: 3.3vmax;
-            border-top-right-radius: 3vmax;
-            border-bottom-right-radius: 5vmax;
-            border-bottom-left-radius: 5vmax;
-            background-color: #deac80;
+            top: 30px;
+            right: 40px;
+            font-size: 18px;
+            color: #7d94c4;
+            opacity: 0.7;
+            animation: float-z 3s ease-in-out infinite;
+            font-weight: 600;
+            letter-spacing: 2px;
         }
 
-        .dog__ear-l {
-            top: 1.5vmax;
-            left: 10vmax;
-            transform-origin: bottom left;
-            transform: rotateZ(-50deg);
-            z-index: -1;
-            animation: ear-l 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
+        @keyframes tail-sway {
+            0%, 100% { transform: rotate(-8deg); }
+            50% { transform: rotate(12deg); }
         }
 
-        .dog__ear-r {
-            top: 1.5vmax;
-            right: 3vmax;
-            transform-origin: bottom right;
-            transform: rotateZ(25deg);
-            z-index: -2;
-            animation: ear-r 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
-        }
-
-        .dog__body {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            position: absolute;
-            bottom: 0.3vmax;
-            left: 6vmax;
-            width: 18vmax;
-            height: 4vmax;
-            border-top-left-radius: 3vmax;
-            border-top-right-radius: 6vmax;
-            border-bottom-right-radius: 1.5vmax;
-            border-bottom-left-radius: 6vmax;
-            background-color: #914f1e;
-            z-index: -2;
-            animation: body 10s cubic-bezier(0.3, 0.41, 0.18, 1.01) infinite;
-        }
-
-        .dog__tail {
-            position: absolute;
-            top: 20px;
-            right: -1.5vmax;
-            height: 3vmax;
-            width: 4vmax;
-            background-color: #914f1e;
-            border-radius: 1.5vmax;
-        }
-
-        .dog__paws {
-            position: absolute;
-            bottom: 0;
-            left: 7.5vmax;
-            width: 10vmax;
-            height: 3vmax;
-        }
-
-        .dog__bl-leg {
-            left: -3vmax;
-            z-index: -10;
-        }
-
-        .dog__bl-paw::before {
-            background-color: #fffbe6;
-        }
-
-        .dog__bl-top {
-            background-image: linear-gradient(80deg, transparent 20%, #deac80 20%);
-        }
-
-        .dog__fl-leg {
-            z-index: 10;
-            left: 0;
-        }
-
-        .dog__fl-paw::before {
-            background-color: #fffbe6;
-        }
-
-        .dog__fr-leg {
-            right: 0;
-        }
-
-        .dog__fr-paw::before {
-            background-color: #fffbe6;
-        }
-
-        @keyframes head {
-            0%, 10%, 20%, 26%, 28%, 90%, 100% {
-                height: 8.25vmax;
-                bottom: 0;
-                transform-origin: bottom right;
-                transform: rotateZ(0);
-            }
-            5%, 15%, 22%, 24%, 30% {
-                height: 8.1vmax;
-            }
-            32%, 50% {
-                height: 8.25vmax;
-            }
-            55%, 60% {
-                bottom: 0.75vmax;
-                transform-origin: bottom right;
-                transform: rotateZ(0);
-            }
-            70%, 80% {
-                bottom: 0.75vmax;
-                transform-origin: bottom right;
-                transform: rotateZ(10deg);
-            }
-        }
-
-        @keyframes body {
-            0%, 10%, 20%, 26%, 28%, 32%, 100% {
-                height: 7.2vmax;
-            }
-            5%, 15%, 22%, 24%, 30% {
-                height: 7.05vmax;
-            }
-        }
-
-        @keyframes ear-l {
-            0%, 10%, 20%, 26%, 28%, 82%, 100% {
-                transform: rotateZ(-50deg);
-            }
-            5%, 15%, 22%, 24% {
-                transform: rotateZ(-48deg);
-            }
-            30%, 31% {
-                transform: rotateZ(-30deg);
-            }
-            32%, 80% {
-                transform: rotateZ(-60deg);
-            }
-        }
-
-        @keyframes ear-r {
-            0%, 10%, 20%, 26%, 28% {
-                transform: rotateZ(20deg);
-            }
-            5%, 15%, 22%, 24% {
-                transform: rotateZ(18deg);
-            }
-            30%, 31% {
-                transform: rotateZ(10deg);
-            }
-            32% {
-                transform: rotateZ(25deg);
-            }
-        }
-
-        @keyframes snout {
-            0%, 10%, 20%, 26%, 28%, 82%, 100% {
-                height: 3.75vmax;
-            }
-            5%, 15%, 22%, 24% {
-                height: 3.45vmax;
-            }
-        }
-
-        @keyframes snout-b {
-            0%, 10%, 20%, 26%, 28%, 98%, 100% {
-                width: 1.875vmax;
-            }
-            5%, 15%, 22%, 24% {
-                width: 1.8vmax;
-            }
-            34%, 98% {
-                width: 1.275vmax;
-            }
-        }
-
-        @keyframes shadow {
-            0%, 10%, 20%, 26%, 28%, 30%, 84%, 100% {
-                width: 99%;
-            }
-            5%, 15%, 22%, 24% {
-                width: 101%;
-            }
-            34%, 81% {
-                width: 96%;
-            }
-        }
-
-        @keyframes eye {
-            0%, 30% {
-                width: 0.65vmax;
-                height: 0.3vmax;
-            }
-            32%, 59%, 90%, 100% {
-                width: 0.5vmax;
-                height: 0.5vmax;
-                transform: translateY(0);
-            }
-            60%, 75% {
-                transform: translateY(-0.25vmax);
-            }
-            80%, 85% {
-                transform: translateY(0.12vmax);
-            }
+        @keyframes float-z {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.5; }
+            50% { transform: translateY(-12px) scale(1.1); opacity: 0.85; }
         }
 
         @media (max-width: 900px) {
@@ -473,25 +270,14 @@
                 flex-direction: column;
                 justify-content: center;
                 text-align: center;
-                padding: 40px 20px;
-                gap: 30px;
+                padding: 40px 24px;
+                gap: 36px;
             }
-            .left {
-                align-items: center;
-            }
-            .divider {
-                margin: 18px auto 10px;
-            }
-            .company {
-                font-size: 2.2rem;
-            }
-            .btn {
-                margin: 0 auto;
-            }
-            .main {
-                width: 18vmax;
-                height: 18vmax;
-            }
+            .left { align-items: center; }
+            .divider { margin: 16px auto 12px; }
+            .company { font-size: 2.2rem; }
+            .btn { margin: 0 auto; }
+            .cat-scene { transform: scale(0.85); }
         }
     </style>
 </head>
@@ -501,44 +287,26 @@
             <div class="company">sqservices<span>.me</span></div>
             <div class="library">Library</div>
             <div class="divider"></div>
-            <p class="desc">Clean • Modern • Professional<br>Roblox UI components built for developers.</p>
-            
-            <a href="docs.html" class="btn">
-                Get Started →
-            </a>
+            <p class="desc">Clean • Modern<br>my ui is built for developers.</p>
+            <a href="docs.html" class="btn">Get Started →</a>
         </div>
 
         <div class="right">
-            <div class="main">
-                <div class="dog">
-                    <div class="dog__paws">
-                        <div class="dog__bl-leg leg">
-                            <div class="dog__bl-paw paw"></div>
-                            <div class="dog__bl-top top"></div>
-                        </div>
-                        <div class="dog__fl-leg leg">
-                            <div class="dog__fl-paw paw"></div>
-                            <div class="dog__fl-top top"></div>
-                        </div>
-                        <div class="dog__fr-leg leg">
-                            <div class="dog__fr-paw paw"></div>
-                            <div class="dog__fr-top top"></div>
-                        </div>
-                    </div>
-                    <div class="dog__body">
-                        <div class="dog__tail"></div>
-                    </div>
-                    <div class="dog__head">
-                        <div class="dog__snout">
-                            <div class="dog__nose"></div>
-                        </div>
-                        <div class="dog__eye-l"></div>
-                        <div class="dog__eye-r"></div>
-                    </div>
-                    <div class="dog__head-c">
-                        <div class="dog__ear-l"></div>
-                        <div class="dog__ear-r"></div>
-                    </div>
+            <div class="cat-scene">
+                <div class="cat-glow"></div>
+                <div class="zzz">zzz</div>
+                <div class="tail"></div>
+                <div class="cat-body"></div>
+                <div class="cat-head">
+                    <div class="ear ear-left"><div class="ear-inner"></div></div>
+                    <div class="ear ear-right"><div class="ear-inner"></div></div>
+                    <div class="eye eye-left"></div>
+                    <div class="eye eye-right"></div>
+                    <div class="nose"></div>
+                    <div class="whisker whisker-l1"></div>
+                    <div class="whisker whisker-l2"></div>
+                    <div class="whisker whisker-r1"></div>
+                    <div class="whisker whisker-r2"></div>
                 </div>
             </div>
         </div>
