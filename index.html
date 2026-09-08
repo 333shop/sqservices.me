@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQ Downloaded</title>
+    <title>SQ Security Scanner</title>
     <style>
         * {
             margin: 0;
@@ -18,21 +18,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
             color: #e8eeff;
             position: relative;
+            padding: 40px 20px;
         }
 
-        /* Soft blue glow + blur background */
         body::before {
             content: '';
             position: absolute;
             inset: 0;
             background:
-                radial-gradient(circle at 30% 40%, rgba(61, 127, 255, 0.18), transparent 50%),
-                radial-gradient(circle at 70% 60%, rgba(40, 90, 180, 0.15), transparent 50%),
+                radial-gradient(circle at 25% 30%, rgba(61, 127, 255, 0.16), transparent 50%),
+                radial-gradient(circle at 75% 70%, rgba(40, 90, 180, 0.12), transparent 50%),
                 #080c18;
-            filter: blur(40px);
+            filter: blur(50px);
             z-index: 0;
         }
 
@@ -40,78 +39,24 @@
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 480px;
-            padding: 20px;
+            max-width: 720px;
         }
 
-        /* Glass card */
         .card {
-            background: rgba(12, 16, 32, 0.75);
+            background: rgba(12, 16, 32, 0.78);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
             border: 1px solid rgba(91, 155, 255, 0.15);
             border-radius: 20px;
-            padding: 32px 28px;
-            box-shadow:
-                0 20px 50px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(91, 155, 255, 0.08);
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 28px;
-            background: rgba(8, 12, 24, 0.6);
-            padding: 6px;
-            border-radius: 12px;
-        }
-
-        .tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px 0;
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #7d94c4;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            user-select: none;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #3d7fff, #2a5fd4);
-            color: #ffffff;
-            box-shadow: 0 4px 14px rgba(61, 127, 255, 0.35);
-        }
-
-        .tab:hover:not(.active) {
-            color: #b8c9f0;
-            background: rgba(61, 127, 255, 0.08);
-        }
-
-        /* Content panels */
-        .panel {
-            display: none;
-        }
-
-        .panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+            padding: 36px 32px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
         .title {
-            font-size: 1.55rem;
+            font-size: 1.7rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
+            text-align: center;
             margin-bottom: 6px;
-            color: #ffffff;
         }
 
         .title span {
@@ -119,40 +64,61 @@
         }
 
         .subtitle {
-            font-size: 0.9rem;
+            text-align: center;
             color: #7d94c4;
-            margin-bottom: 24px;
+            font-size: 0.92rem;
+            margin-bottom: 28px;
         }
 
-        /* Bubble input */
-        .input-group {
-            position: relative;
-            margin-bottom: 18px;
+        .import-area {
+            border: 1.5px dashed rgba(91, 155, 255, 0.3);
+            border-radius: 14px;
+            padding: 28px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.25s ease;
+            cursor: pointer;
+            background: rgba(8, 12, 24, 0.4);
         }
 
-        .input-group input {
+        .import-area:hover,
+        .import-area.dragover {
+            border-color: #5b9bff;
+            background: rgba(61, 127, 255, 0.06);
+        }
+
+        .import-area p {
+            color: #9bb0d8;
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+        }
+
+        .import-area span {
+            color: #5b9bff;
+            font-weight: 600;
+        }
+
+        textarea {
             width: 100%;
-            padding: 16px 18px;
+            height: 180px;
             background: rgba(8, 12, 24, 0.7);
             border: 1px solid rgba(91, 155, 255, 0.2);
             border-radius: 14px;
             color: #e8eeff;
-            font-size: 0.95rem;
+            padding: 16px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
             outline: none;
-            transition: all 0.25s ease;
+            margin-bottom: 18px;
+            transition: border-color 0.25s;
         }
 
-        .input-group input::placeholder {
-            color: #5a6f9a;
-        }
-
-        .input-group input:focus {
+        textarea:focus {
             border-color: #5b9bff;
-            box-shadow: 0 0 0 3px rgba(91, 155, 255, 0.15);
-            background: rgba(8, 12, 24, 0.9);
+            box-shadow: 0 0 0 3px rgba(91, 155, 255, 0.12);
         }
 
-        /* Download button */
         .btn {
             width: 100%;
             padding: 15px;
@@ -165,200 +131,312 @@
             cursor: pointer;
             transition: all 0.25s ease;
             box-shadow: 0 4px 18px rgba(61, 127, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 26px rgba(61, 127, 255, 0.45);
-            background: linear-gradient(135deg, #4d8fff, #3d7fff);
-        }
-
-        .btn:active {
-            transform: translateY(0);
         }
 
         .btn:disabled {
-            opacity: 0.6;
+            opacity: 0.55;
             cursor: not-allowed;
             transform: none;
         }
 
-        /* Status */
-        .status {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.95rem;
+        #results {
+            margin-top: 28px;
+            display: none;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .results-header h3 {
+            font-size: 1.15rem;
+        }
+
+        .badge {
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
             font-weight: 600;
-            min-height: 24px;
-            color: #5b9bff;
-            letter-spacing: 0.3px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
         }
 
-        .status.show {
-            opacity: 1;
-        }
+        .badge.critical { background: rgba(255, 70, 100, 0.15); color: #ff6b8a; }
+        .badge.high     { background: rgba(255, 140, 60, 0.15);  color: #ff9f4a; }
+        .badge.medium   { background: rgba(255, 200, 50, 0.15);  color: #ffd24a; }
+        .badge.low      { background: rgba(80, 200, 120, 0.15);  color: #5bff9b; }
+        .badge.info     { background: rgba(91, 155, 255, 0.15);  color: #5b9bff; }
 
-        .status.success {
-            color: #5bff9b;
-        }
-
-        .status.error {
-            color: #ff6b8a;
-        }
-
-        /* About panel */
-        .about-text {
-            font-size: 0.95rem;
-            color: #9bb0d8;
-            line-height: 1.65;
-        }
-
-        .about-text p {
+        .finding {
+            background: rgba(8, 12, 24, 0.6);
+            border: 1px solid rgba(91, 155, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px 18px;
             margin-bottom: 12px;
         }
 
-        .tag {
-            display: inline-block;
-            background: rgba(61, 127, 255, 0.12);
+        .finding-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .finding-title {
+            font-weight: 600;
+            font-size: 0.98rem;
+        }
+
+        .finding-desc {
+            color: #9bb0d8;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .finding-fix {
+            font-size: 0.85rem;
             color: #7eb6ff;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            margin-right: 6px;
-            margin-bottom: 6px;
+            background: rgba(61, 127, 255, 0.08);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+
+        .clean {
+            text-align: center;
+            padding: 30px;
+            color: #5bff9b;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        input[type="file"] {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="wrapper">
         <div class="card">
-            <!-- Tabs -->
-            <div class="tabs">
-                <div class="tab active" data-tab="downloader">Downloader</div>
-                <div class="tab" data-tab="about">About</div>
+            <div class="title">SQ <span>Security Scanner</span></div>
+            <div class="subtitle">Import code or file → scan for vulnerabilities</div>
+
+            <div class="import-area" id="dropZone">
+                <p>Drag & drop a file here or <span id="browseBtn">browse</span></p>
+                <p style="font-size:0.82rem;color:#5a6f9a;">Supports .html .js .css .php .txt and more</p>
+                <input type="file" id="fileInput" accept=".html,.htm,.js,.css,.php,.txt,.json,.xml,.py,.rb,.java">
             </div>
 
-            <!-- Downloader Panel -->
-            <div class="panel active" id="downloader">
-                <div class="title">SQ <span>Downloaded</span></div>
-                <div class="subtitle">Paste a direct video link and download instantly</div>
+            <textarea id="codeInput" placeholder="Or paste your code here..."></textarea>
 
-                <div class="input-group">
-                    <input
-                        type="url"
-                        id="videoUrl"
-                        placeholder="https://example.com/video.mp4"
-                        autocomplete="off"
-                        spellcheck="false"
-                    >
+            <button class="btn" id="scanBtn">Scan for Vulnerabilities</button>
+
+            <div id="results">
+                <div class="results-header">
+                    <h3>Scan Results</h3>
+                    <div id="summaryBadge"></div>
                 </div>
-
-                <button class="btn" id="downloadBtn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                        <polyline points="7 10 12 15 17 10"/>
-                        <line x1="12" y1="15" x2="12" y2="3"/>
-                    </svg>
-                    Download Video
-                </button>
-
-                <div class="status" id="status"></div>
-            </div>
-
-            <!-- About Panel -->
-            <div class="panel" id="about">
-                <div class="title">About</div>
-                <div class="subtitle">Clean • Modern • Dark Blue</div>
-                <div class="about-text">
-                    <p>Simple video downloader inspired by the <strong>sqservices.me</strong> aesthetic.</p>
-                    <p>Works with any direct video URL (mp4, webm, mov, etc.).</p>
-                    <p style="margin-top: 16px;">
-                        <span class="tag">Glassmorphism</span>
-                        <span class="tag">Blur Background</span>
-                        <span class="tag">Tabs</span>
-                        <span class="tag">Zero Dependencies</span>
-                    </p>
-                </div>
+                <div id="findingsList"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // Tab switching
-        const tabs = document.querySelectorAll('.tab');
-        const panels = document.querySelectorAll('.panel');
+        const dropZone   = document.getElementById('dropZone');
+        const fileInput  = document.getElementById('fileInput');
+        const browseBtn  = document.getElementById('browseBtn');
+        const codeInput  = document.getElementById('codeInput');
+        const scanBtn    = document.getElementById('scanBtn');
+        const results    = document.getElementById('results');
+        const findingsList = document.getElementById('findingsList');
+        const summaryBadge = document.getElementById('summaryBadge');
 
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                panels.forEach(p => p.classList.remove('active'));
+        // File handling
+        browseBtn.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('click', (e) => {
+            if (e.target === dropZone || e.target.tagName === 'P') fileInput.click();
+        });
 
-                tab.classList.add('active');
-                document.getElementById(tab.dataset.tab).classList.add('active');
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFile(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) handleFile(fileInput.files[0]);
+        });
+
+        function handleFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                codeInput.value = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        // Vulnerability patterns (static analysis)
+        const rules = [
+            {
+                id: 'eval',
+                title: 'Dangerous use of eval()',
+                severity: 'critical',
+                regex: /\beval\s*\(/gi,
+                desc: 'eval() can execute arbitrary code and is a major XSS / injection risk.',
+                fix: 'Never use eval(). Use JSON.parse() for data or safer alternatives.'
+            },
+            {
+                id: 'innerhtml',
+                title: 'Unsafe innerHTML assignment',
+                severity: 'high',
+                regex: /\.innerHTML\s*=/gi,
+                desc: 'Setting innerHTML with untrusted data can lead to XSS.',
+                fix: 'Use textContent or sanitize input with a library like DOMPurify.'
+            },
+            {
+                id: 'document-write',
+                title: 'document.write() usage',
+                severity: 'high',
+                regex: /document\.write\s*\(/gi,
+                desc: 'document.write can be exploited for XSS, especially with user input.',
+                fix: 'Replace with safer DOM methods (createElement, appendChild, etc.).'
+            },
+            {
+                id: 'hardcoded-secret',
+                title: 'Possible hardcoded secret / API key',
+                severity: 'critical',
+                regex: /(api[_-]?key|secret|password|token|auth)\s*[=:]\s*['"][^'"]{8,}['"]/gi,
+                desc: 'Hardcoded credentials or keys were detected in the code.',
+                fix: 'Move secrets to environment variables or a secure secrets manager. Never commit them.'
+            },
+            {
+                id: 'sql-concat',
+                title: 'Possible SQL injection (string concatenation)',
+                severity: 'critical',
+                regex: /(SELECT|INSERT|UPDATE|DELETE).{0,40}(\+|\$\{|`)/gi,
+                desc: 'Building SQL queries with string concatenation is dangerous.',
+                fix: 'Use parameterized queries / prepared statements instead.'
+            },
+            {
+                id: 'http-mixed',
+                title: 'Insecure HTTP resource',
+                severity: 'medium',
+                regex: /http:\/\/(?!localhost|127\.0\.0\.1)/gi,
+                desc: 'Loading resources over plain HTTP can lead to mixed content issues.',
+                fix: 'Serve all assets over HTTPS.'
+            },
+            {
+                id: 'target-blank',
+                title: 'Missing rel="noopener" on target="_blank"',
+                severity: 'medium',
+                regex: /target\s*=\s*['"]_blank['"](?![^>]*rel\s*=\s*['"][^'"]*noopener)/gi,
+                desc: 'Links with target="_blank" without rel="noopener" can be abused via window.opener.',
+                fix: 'Add rel="noopener noreferrer" to all target="_blank" links.'
+            },
+            {
+                id: 'localstorage-sensitive',
+                title: 'Sensitive data in localStorage',
+                severity: 'medium',
+                regex: /localStorage\.(setItem|getItem)\s*\(\s*['"][^'"]*(token|auth|password|secret|key)/gi,
+                desc: 'Storing sensitive data in localStorage is accessible to any XSS.',
+                fix: 'Prefer httpOnly cookies for authentication tokens.'
+            },
+            {
+                id: 'cors-wildcard',
+                title: 'Overly permissive CORS (Access-Control-Allow-Origin: *)',
+                severity: 'high',
+                regex: /Access-Control-Allow-Origin\s*[=:]\s*['"]?\*/gi,
+                desc: 'Allowing all origins can expose your API to any website.',
+                fix: 'Restrict Access-Control-Allow-Origin to trusted domains only.'
+            },
+            {
+                id: 'debug-enabled',
+                title: 'Debug / development flags left enabled',
+                severity: 'low',
+                regex: /(debug\s*=\s*true|NODE_ENV\s*=\s*['"]development['"])/gi,
+                desc: 'Debug mode or development environment appears to be enabled.',
+                fix: 'Ensure production builds disable debug flags and set NODE_ENV=production.'
+            }
+        ];
+
+        scanBtn.addEventListener('click', () => {
+            const code = codeInput.value.trim();
+            if (!code) {
+                alert('Please paste code or upload a file first.');
+                return;
+            }
+
+            const findings = [];
+
+            rules.forEach(rule => {
+                const matches = code.match(rule.regex);
+                if (matches) {
+                    findings.push({
+                        ...rule,
+                        count: matches.length
+                    });
+                }
             });
+
+            // Sort by severity
+            const order = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+            findings.sort((a, b) => order[a.severity] - order[b.severity]);
+
+            renderResults(findings);
         });
 
-        // Download logic
-        const input = document.getElementById('videoUrl');
-        const btn = document.getElementById('downloadBtn');
-        const status = document.getElementById('status');
+        function renderResults(findings) {
+            results.style.display = 'block';
+            findingsList.innerHTML = '';
 
-        function showStatus(text, type = '') {
-            status.textContent = text;
-            status.className = 'status show' + (type ? ' ' + type : '');
-        }
-
-        function downloadVideo() {
-            const url = input.value.trim();
-
-            if (!url) {
-                showStatus('Please paste a video link first', 'error');
+            if (findings.length === 0) {
+                findingsList.innerHTML = `<div class="clean">✓ No common vulnerabilities detected</div>`;
+                summaryBadge.innerHTML = `<span class="badge low">Clean</span>`;
                 return;
             }
 
-            try {
-                new URL(url); // basic validation
-            } catch {
-                showStatus('Invalid URL', 'error');
-                return;
+            const criticals = findings.filter(f => f.severity === 'critical').length;
+            const highs = findings.filter(f => f.severity === 'high').length;
+
+            if (criticals > 0) {
+                summaryBadge.innerHTML = `<span class="badge critical">${criticals} Critical</span>`;
+            } else if (highs > 0) {
+                summaryBadge.innerHTML = `<span class="badge high">${highs} High</span>`;
+            } else {
+                summaryBadge.innerHTML = `<span class="badge medium">${findings.length} Issues</span>`;
             }
 
-            btn.disabled = true;
-            showStatus('Preparing download...', '');
-
-            // Create temporary <a> to force download
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = ''; // let browser decide filename
-            a.target = '_blank';
-            a.rel = 'noopener';
-
-            // For cross-origin videos the browser may just open the file.
-            // This is the cleanest pure-frontend approach.
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-
-            setTimeout(() => {
-                showStatus('SQ Downloaded', 'success');
-                btn.disabled = false;
-            }, 600);
+            findings.forEach(f => {
+                const div = document.createElement('div');
+                div.className = 'finding';
+                div.innerHTML = `
+                    <div class="finding-top">
+                        <div class="finding-title">${f.title} ${f.count > 1 ? `(${f.count}×)` : ''}</div>
+                        <span class="badge ${f.severity}">${f.severity}</span>
+                    </div>
+                    <div class="finding-desc">${f.desc}</div>
+                    <div class="finding-fix"><strong>Fix:</strong> ${f.fix}</div>
+                `;
+                findingsList.appendChild(div);
+            });
         }
-
-        btn.addEventListener('click', downloadVideo);
-
-        // Enter key support
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                downloadVideo();
-            }
-        });
     </script>
 </body>
 </html>
