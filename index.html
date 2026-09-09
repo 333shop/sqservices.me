@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0f172a">
+    <meta name="description" content="sqservices is best elite app out there">
     <title>sqservices — Elite App</title>
 
-    <!-- Link the manifest -->
+    <!-- Manifest -->
     <link rel="manifest" href="manifest.json">
 
-    <!-- Optional icons (you can replace these later) -->
-    <link rel="icon" type="image/jpeg" sizes="192x192" href="IMG_7915.jpeg">
+    <!-- Icons (make sure these files exist in the repo) -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
@@ -186,31 +187,24 @@
         const buttonArea = document.getElementById('buttonArea');
         const resultText = document.getElementById('resultText');
 
-        // Capture the install prompt
+        // Capture Chrome install prompt
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
             installBtn.disabled = false;
         });
 
-        // Handle install button click
+        // Button click
         installBtn.addEventListener('click', async () => {
             if (deferredPrompt) {
-                // Show native Chrome install dialog
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-
-                if (outcome === 'accepted') {
-                    console.log('User accepted the install');
-                }
                 deferredPrompt = null;
             }
-
-            // Always transition to the final screen
             showResult();
         });
 
-        // If already installed
+        // When the app is successfully installed
         window.addEventListener('appinstalled', () => {
             showResult();
         });
@@ -224,9 +218,11 @@
             }, 380);
         }
 
-        // Disable button if not Chrome / not installable
-        if (!window.matchMedia('(display-mode: standalone)').matches) {
-            // Keep button enabled by default, Chrome will decide
+        // Register service worker (helps with installability)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(() => console.log('Service Worker registered'))
+                .catch(err => console.log('SW registration failed:', err));
         }
     </script>
 </body>
