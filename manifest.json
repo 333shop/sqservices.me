@@ -9,15 +9,15 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "IMG_7915.jpeg",
       "sizes": "192x192",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "IMG_7915.jpeg",
       "sizes": "512x512",
-      "type": "image/png",
+      "type": "image/jpeg",
       "purpose": "any maskable"
     }
   ]
