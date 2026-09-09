@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0f172a">
     <title>sqservices — Elite App</title>
+
+    <!-- Link the manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- ( icons) -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
         * {
             margin: 0;
@@ -32,22 +41,21 @@
             position: relative;
         }
 
-        /* Soft radial glow overlay for depth */
         body::before {
             content: '';
             position: absolute;
             inset: 0;
             background: radial-gradient(
                 ellipse at center,
-                rgba(59, 130, 246, 0.12) 0%,
+                rgba(59, 130, 246, 0.13) 0%,
                 transparent 70%
             );
             pointer-events: none;
         }
 
         @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
 
@@ -57,19 +65,19 @@
             padding: 2rem;
             max-width: 640px;
             width: 100%;
+            position: relative;
         }
 
         .main-text {
-            font-size: clamp(1.6rem, 4.5vw, 2.6rem);
+            font-size: clamp(1.6rem, 4.5vw, 2.55rem);
             font-weight: 700;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.025em;
             line-height: 1.25;
             background: linear-gradient(90deg, #93c5fd, #60a5fa, #3b82f6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 2.5rem;
-            text-shadow: 0 0 40px rgba(59, 130, 246, 0.25);
+            margin-bottom: 2.4rem;
             transition: opacity 0.4s ease, transform 0.4s ease;
         }
 
@@ -80,8 +88,8 @@
         .install-btn {
             display: inline-flex;
             align-items: center;
-            gap: 0.6rem;
-            padding: 0.95rem 2.1rem;
+            gap: 0.65rem;
+            padding: 1rem 2.2rem;
             font-size: 1.05rem;
             font-weight: 600;
             color: #0f172a;
@@ -90,17 +98,15 @@
             border-radius: 14px;
             cursor: pointer;
             box-shadow: 
-                0 4px 20px rgba(59, 130, 246, 0.45),
+                0 4px 22px rgba(59, 130, 246, 0.45),
                 0 0 0 1px rgba(255, 255, 255, 0.08);
             transition: all 0.25s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .install-btn:hover {
             transform: translateY(-2px);
             box-shadow: 
-                0 8px 28px rgba(59, 130, 246, 0.55),
+                0 8px 30px rgba(59, 130, 246, 0.55),
                 0 0 0 1px rgba(255, 255, 255, 0.12);
             background: linear-gradient(135deg, #93c5fd, #60a5fa);
         }
@@ -109,26 +115,26 @@
             transform: translateY(0);
         }
 
-        .install-btn svg {
-            width: 18px;
-            height: 18px;
-            flex-shrink: 0;
+        .install-btn:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .chrome-note {
-            margin-top: 1.4rem;
-            font-size: 0.85rem;
+            margin-top: 1.35rem;
+            font-size: 0.84rem;
             color: #94a3b8;
-            letter-spacing: 0.01em;
         }
 
-        /* Hidden state after install */
         .hidden {
             opacity: 0;
-            transform: translateY(12px);
+            transform: translateY(14px);
             pointer-events: none;
             position: absolute;
             visibility: hidden;
+            width: 100%;
+            left: 0;
         }
 
         .result-text {
@@ -140,7 +146,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             opacity: 0;
-            transform: translateY(16px);
+            transform: translateY(18px);
             transition: opacity 0.5s ease, transform 0.5s ease;
         }
 
@@ -157,11 +163,13 @@
         </h1>
 
         <div class="button-wrapper" id="buttonArea">
-            <button class="install-btn" id="installBtn" onclick="handleInstall()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 5v14M5 12h14"/>
+            <button class="install-btn" id="installBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
                 </svg>
-                Add as Chrome App
+                Install as Chrome Desktop App
             </button>
             <p class="chrome-note">Only supported on Google Chrome</p>
         </div>
@@ -172,19 +180,53 @@
     </div>
 
     <script>
-        function handleInstall() {
-            const mainText = document.getElementById('mainText');
-            const buttonArea = document.getElementById('buttonArea');
-            const resultText = document.getElementById('resultText');
+        let deferredPrompt = null;
+        const installBtn = document.getElementById('installBtn');
+        const mainText   = document.getElementById('mainText');
+        const buttonArea = document.getElementById('buttonArea');
+        const resultText = document.getElementById('resultText');
 
-            // Smooth fade out
+        // Capture the install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installBtn.disabled = false;
+        });
+
+        // Handle install button click
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show native Chrome install dialog
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+
+                if (outcome === 'accepted') {
+                    console.log('User accepted the install');
+                }
+                deferredPrompt = null;
+            }
+
+            // Always transition to the final screen
+            showResult();
+        });
+
+        // If already installed
+        window.addEventListener('appinstalled', () => {
+            showResult();
+        });
+
+        function showResult() {
             mainText.classList.add('hidden');
             buttonArea.classList.add('hidden');
 
-            
             setTimeout(() => {
                 resultText.classList.add('visible');
             }, 380);
+        }
+
+        // Disable button if not Chrome / not installable
+        if (!window.matchMedia('(display-mode: standalone)').matches) {
+            // Keep button enabled by default, Chrome will decide
         }
     </script>
 </body>
