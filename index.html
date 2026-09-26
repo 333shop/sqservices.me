@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Tickets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated gradient background layers -->
+  <div class="bg-layer"></div>
+  <div class="bg-fade"></div>
+
+  <!-- Pixel cat canvas (walks left ↔ right at bottom) -->
+  <canvas id="pixel-cat" width="64" height="48"></canvas>
+
+  <!-- Main app container -->
+  <div id="app">
+    <!-- ========== LOGIN / SIGNUP VIEW ========== -->
+    <section id="view-auth" class="view active">
+      <div class="card glass">
+        <div class="logo">
+          <span class="logo-icon">✦</span>
+          <h1>Support Portal</h1>
+        </div>
+        <p class="subtitle">Please login or sign up to continue</p>
+
+        <form id="auth-form" autocomplete="off">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your name" required minlength="2" maxlength="24" />
+          </div>
+          <div class="input-group">
+            <label for="email">Email <span class="optional">(optional)</span></label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" />
+          </div>
+          <button type="submit" class="btn primary" id="auth-btn">
+            <span>Continue</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+        <p class="hint">No account needed — just enter a name to open a ticket.</p>
+      </div>
+    </section>
+
+    <!-- ========== CREATE TICKET VIEW ========== -->
+    <section id="view-create" class="view">
+      <div class="card glass">
+        <div class="header-row">
+          <h2>Create a Ticket</h2>
+          <button class="btn ghost" id="logout-btn" title="Change name">✕</button>
+        </div>
+        <p class="subtitle">Tell us what you need help with. We'll get back to you shortly :)</p>
+
+        <form id="ticket-form">
+          <div class="input-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" placeholder="Brief summary of your issue" required maxlength="80" />
+          </div>
+          <div class="input-group">
+            <label for="description">Description</label>
+            <textarea id="description" name="description" rows="4" placeholder="Describe your problem in detail..." required maxlength="1000"></textarea>
+          </div>
+          <button type="submit" class="btn primary" id="create-btn">
+            <span>Open Ticket</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== CHAT / TICKET VIEW ========== -->
+    <section id="view-chat" class="view">
+      <div class="chat-card glass">
+        <div class="chat-header">
+          <div class="ticket-info">
+            <span class="status-dot"></span>
+            <div>
+              <h3 id="ticket-title">Ticket</h3>
+              <p id="ticket-id" class="ticket-meta">Connecting...</p>
+            </div>
+          </div>
+          <button class="btn ghost small" id="close-ticket-btn" title="Close ticket">Close</button>
+        </div>
+
+        <div id="messages" class="messages"></div>
+
+        <form id="message-form" class="message-form">
+          <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" maxlength="500" />
+          <button type="submit" class="btn primary send-btn" title="Send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast notifications -->
+  <div id="toast" class="toast"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
