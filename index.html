@@ -1,0 +1,331 @@
+==================
+hello add fexy_lol on discord for any tips for coding:)
+==================
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sqservices — Best UI for Your Cheats</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #0a0e1a 0%, #0d1b3d 40%, #122a5c 70%, #0a0e1a 100%);
+            color: #e0e8ff;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* subtle animated glow */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(40, 100, 220, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(30, 70, 180, 0.12) 0%, transparent 45%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        /* LEFT SIDE */
+        .left {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(40, 90, 200, 0.15);
+            border: 1px solid rgba(70, 130, 255, 0.25);
+            color: #8ab4ff;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 6px 14px;
+            border-radius: 50px;
+            width: fit-content;
+            letter-spacing: 0.3px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            background: #4d8cff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #4d8cff;
+        }
+
+        h1 {
+            font-size: clamp(2.4rem, 4.5vw, 3.4rem);
+            font-weight: 700;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #ffffff 0%, #a8c4ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h1 span {
+            color: #5b9aff;
+            -webkit-text-fill-color: #5b9aff;
+        }
+
+        .desc {
+            font-size: 1.15rem;
+            line-height: 1.7;
+            color: #a0b4d8;
+            max-width: 480px;
+        }
+
+        .desc strong {
+            color: #d0e0ff;
+            font-weight: 600;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .feature-tag {
+            background: rgba(30, 50, 100, 0.4);
+            border: 1px solid rgba(60, 100, 180, 0.3);
+            color: #9bb8e8;
+            font-size: 13px;
+            padding: 5px 12px;
+            border-radius: 6px;
+        }
+
+        .btn-next {
+            margin-top: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #2a6adf 0%, #1a4cb8 100%);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(40, 100, 220, 0.35);
+            text-decoration: none;
+            width: fit-content;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(40, 100, 220, 0.5);
+            background: linear-gradient(135deg, #3a7aef 0%, #2558c8 100%);
+        }
+
+        .btn-next:active {
+            transform: translateY(0);
+        }
+
+        .btn-next svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.25s ease;
+        }
+
+        .btn-next:hover svg {
+            transform: translateX(4px);
+        }
+
+        /* RIGHT SIDE - VIDEO PREVIEW */
+        .right {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+            aspect-ratio: 16 / 10;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #0c1428;
+            box-shadow: 
+                0 0 0 1px rgba(80, 130, 220, 0.25),
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(40, 100, 220, 0.15);
+        }
+
+        .video-wrapper::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            padding: 1px;
+            background: linear-gradient(135deg, rgba(90, 150, 255, 0.4), transparent 40%, transparent 60%, rgba(60, 110, 200, 0.3));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 18px;
+        }
+
+        /* placeholder when no video */
+        .video-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: linear-gradient(160deg, #0f1a30 0%, #152440 100%);
+            color: #6b8ec8;
+            font-size: 14px;
+            z-index: 1;
+        }
+
+        .video-placeholder svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.6;
+        }
+
+        /* responsive */
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                gap: 50px;
+                text-align: center;
+            }
+
+            .left {
+                align-items: center;
+            }
+
+            .desc {
+                max-width: 100%;
+            }
+
+            .badge {
+                margin: 0 auto;
+            }
+
+            .features {
+                justify-content: center;
+            }
+
+            .btn-next {
+                margin: 12px auto 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LEFT -->
+        <div class="left">
+            <div class="badge">UI Library • v2.5</div>
+
+            <h1>
+                <span>sqservices</span> is the best UI build for your cheats
+            </h1>
+
+            <p class="desc">
+                You can add <strong>key systems</strong>, <strong>switches</strong>, <strong>sliders</strong> and <strong>MORE!!!</strong><br>
+                Clean • Modern • Dark Blue
+            </p>
+
+            <div class="features">
+                <span class="feature-tag">Key System</span>
+                <span class="feature-tag">Toggles</span>
+                <span class="feature-tag">Sliders</span>
+                <span class="feature-tag">Buttons</span>
+                <span class="feature-tag">Tabs</span>
+                <span class="feature-tag">Smooth Animations</span>
+            </div>
+
+            <a href="docs.html" class="btn-next">
+                Click Next to get the loading string
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+
+        <!-- RIGHT - VIDEO PREVIEW -->
+        <div class="right">
+            <div class="video-wrapper">
+                <!-- 
+                    REPLACE the src below with your video file.
+                    Example: src="preview.mp4"
+                -->
+                <video autoplay muted loop playsinline>
+                    <source src="YOUR_VIDEO_HERE.mp4" type="video/mp4">
+                    <!-- fallback if no video -->
+                </video>
+
+                <!-- This placeholder shows only if the video fails to load -->
+                <div class="video-placeholder" id="placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="2" y="4" width="20" height="16" rx="3"/>
+                        <path d="M10 9l5 3-5 3V9z"/>
+                    </svg>
+                    <span>Add your preview video here</span>
+                    <span style="font-size:12px;opacity:0.7;">Replace YOUR_VIDEO_HERE.mp4</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Hide placeholder when video actually plays
+        const video = document.querySelector('video');
+        const placeholder = document.getElementById('placeholder');
+
+        video.addEventListener('loadeddata', () => {
+            if (video.readyState >= 2) {
+                placeholder.style.display = 'none';
+            }
+        });
+
+        video.addEventListener('error', () => {
+            placeholder.style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
