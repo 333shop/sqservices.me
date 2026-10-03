@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +22,6 @@
             justify-content: center;
         }
 
-        /* subtle animated glow */
         body::before {
             content: '';
             position: fixed;
@@ -159,14 +158,14 @@
             transform: translateX(4px);
         }
 
-        /* RIGHT SIDE - VIDEO PREVIEW */
+        /* RIGHT SIDE - GIF PREVIEW */
         .right {
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .video-wrapper {
+        .preview-wrapper {
             position: relative;
             width: 100%;
             max-width: 480px;
@@ -180,13 +179,14 @@
                 0 0 60px rgba(40, 100, 220, 0.15);
         }
 
-        .video-wrapper::before {
+        /* smooth gradient border */
+        .preview-wrapper::before {
             content: '';
             position: absolute;
             inset: 0;
             border-radius: 18px;
             padding: 1px;
-            background: linear-gradient(135deg, rgba(90, 150, 255, 0.4), transparent 40%, transparent 60%, rgba(60, 110, 200, 0.3));
+            background: linear-gradient(135deg, rgba(90, 150, 255, 0.45), transparent 40%, transparent 60%, rgba(60, 110, 200, 0.35));
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
@@ -194,7 +194,7 @@
             z-index: 2;
         }
 
-        .video-wrapper video {
+        .preview-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -202,8 +202,8 @@
             border-radius: 18px;
         }
 
-        /* placeholder when no video */
-        .video-placeholder {
+        /* placeholder shown only if GIF fails to load */
+        .preview-placeholder {
             position: absolute;
             inset: 0;
             display: flex;
@@ -217,7 +217,7 @@
             z-index: 1;
         }
 
-        .video-placeholder svg {
+        .preview-placeholder svg {
             width: 48px;
             height: 48px;
             opacity: 0.6;
@@ -285,45 +285,32 @@
             </a>
         </div>
 
-        <!-- RIGHT - VIDEO PREVIEW -->
+        <!-- RIGHT - GIF PREVIEW -->
         <div class="right">
-            <div class="video-wrapper">
+            <div class="preview-wrapper">
                 <!-- 
-                    REPLACE the src below with your video file.
-                    Example: src="IMG_7916.gif"
+                    PUT YOUR GIF HERE
+                    Example: src="preview.gif"
+                    or a full URL: src="https://i.imgur.com/yourgif.gif"
                 -->
-                <video autoplay muted loop playsinline>
-                    <source src="YOUR_VIDEO_HERE.gif" type="video/gif">
-                    <!-- fallback if no video -->
-                </video>
+                <img 
+                    src="YOUR_GIF_HERE.gif" 
+                    alt="UI Preview"
+                    onerror="this.style.display='none'; document.getElementById('placeholder').style.display='flex';"
+                    onload="document.getElementById('placeholder').style.display='none';"
+                >
 
-                <!-- This placeholder shows only if the video fails to load -->
-                <div class="video-placeholder" id="placeholder">
+                <!-- Placeholder (shows only if GIF is missing / broken) -->
+                <div class="preview-placeholder" id="placeholder">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                         <rect x="2" y="4" width="20" height="16" rx="3"/>
                         <path d="M10 9l5 3-5 3V9z"/>
                     </svg>
-                    <span>Add your preview video here</span>
-                    <span style="font-size:12px;opacity:0.7;">Replace YOUR_VIDEO_HERE.mp4</span>
+                    <span>Add your GIF here</span>
+                    <span style="font-size:12px;opacity:0.7;">Replace YOUR_GIF_HERE.gif</span>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        // Hide placeholder when video actually plays
-        const video = document.querySelector('video');
-        const placeholder = document.getElementById('placeholder');
-
-        video.addEventListener('loadeddata', () => {
-            if (video.readyState >= 2) {
-                placeholder.style.display = 'none';
-            }
-        });
-
-        video.addEventListener('error', () => {
-            placeholder.style.display = 'flex';
-        });
-    </script>
 </body>
 </html>
