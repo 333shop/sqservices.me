@@ -1,5 +1,12 @@
+--[[
+    sqservices.me
+    Run it directly. Settings live in the returned table, e.g.
+        local sq = loadstring(game:HttpGet("..."))()
+        sq.Settings.MaxDistance = 800
+        sq.Window.SetAccent(Color3.fromRGB(170, 70, 255))
+        sq.Destroy()
+]]
 
-    
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
