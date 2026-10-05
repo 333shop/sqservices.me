@@ -1,5 +1,10 @@
 --[[
-    sqservices.me
+    sqservices.me  •  ESP only
+    - Glass UI (S logo, hide button, time/IP pill, recolorable)
+    - Working ESP on other players' bodies:
+        Box, Name, Distance, Health bar, Body Chams (Highlight, visible through walls)
+    - 3D model preview panel (tap Box / Name / Distance / Health on it to toggle)
+
     Run it directly. Settings live in the returned table, e.g.
         local sq = loadstring(game:HttpGet("..."))()
         sq.Settings.MaxDistance = 800
