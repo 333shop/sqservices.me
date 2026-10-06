@@ -97,8 +97,8 @@ pre{background:var(--code);color:#D7E0FF;border-radius:14px;padding:18px;overflo
 
 <script>
 // ====== 1. PASTE YOUR SUPABASE VALUES HERE (Project Settings > API) ======
-const SUPABASE_URL = "https://fgiudtvqrbflpnkjudir.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnaXVkdHZxcmJmbHBua2p1ZGlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTcwMjMsImV4cCI6MjEwNjgzMzAyM30.TApgxrIAPQTNNKGUw1YGb-QI7x3sEAq763um0sUETcM";
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
 // =========================================================================
 
 const $ = id => document.getElementById(id);
@@ -140,7 +140,7 @@ async function start() {
   $("who").textContent = session.user.email;
   const { data: prof } = await sb.from("profiles").select("api_key").single();
   $("key").textContent = prof ? prof.api_key : "Key not ready. Refresh in a moment.";
-  const { data: games, error } = await sb.from("games").select("id,place_id,name,updated_at").order("updated_at", { ascending: false });
+  const { data: games, error } = await sb.from("games").select("id,place_id,name,updated_at,runs").order("updated_at", { ascending: false });
   $("grid").innerHTML = "";
   if (error) return $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load games: ' + error.message.replace(/</g, "&lt;") + "</div>";
   if (!games.length) $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">No games yet. Run script.lua in your game to import one.</div>';
@@ -150,7 +150,7 @@ async function start() {
     const img = document.createElement("img"); img.alt = ""; img.src = thumb(g.place_id); img.onerror = () => img.style.visibility = "hidden";
     const meta = document.createElement("div"); meta.className = "meta";
     const t = document.createElement("b"); t.textContent = g.name;
-    const sp = document.createElement("span"); sp.textContent = "Updated " + new Date(g.updated_at).toLocaleDateString();
+    const sp = document.createElement("span"); sp.textContent = "Used " + g.runs + (g.runs === 1 ? " time" : " times") + ", last " + new Date(g.updated_at).toLocaleDateString();
     meta.append(t, sp); b.append(img, meta);
     b.onclick = () => openGame(g);
     $("grid").appendChild(b);
@@ -162,8 +162,9 @@ async function openGame(g) {
   $("gName").textContent = g.name; $("gImg").src = thumb(g.place_id); $("code").textContent = "Loading...";
   $("files").innerHTML = "";
   const { data } = await sb.from("games").select("files").eq("id", g.id).single();
-  $("code").textContent = "Select a file";
-  (data?.files || []).forEach(f => {
+  const list = data?.files || [];
+  $("code").textContent = list.length ? "Select a file" : "No files for this game yet. Files appear when you import your own game from Studio with script.lua.";
+  list.forEach(f => {
     const b = document.createElement("button");
     b.textContent = f.path;
     b.onclick = () => { document.querySelectorAll(".files .on").forEach(x => x.classList.remove("on")); b.classList.add("on"); $("code").textContent = f.content; };
