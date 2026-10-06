@@ -12,9 +12,20 @@ const hash = (pw, salt) => crypto.scryptSync(pw, salt, 32).toString("hex");
 
 const app = express();
 app.use(express.json({ limit: "8mb" }));
-app.use(express.static(__dirname, { index: "index.html", extensions: ["html"] }));
+// CORS so the page can live on a different domain than the server (optional)
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", process.env.ALLOW_ORIGIN || "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-api-key");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+// Only the public/ folder is served, so db.json and server.js are never exposed
+app.use(express.static(path.join(__dirname, "public")));
 
-const sessions = {}; // token -> username
+const SESS_FILE = path.join(__dirname, "sessions.json");
+const sessions = fs.existsSync(SESS_FILE) ? JSON.parse(fs.readFileSync(SESS_FILE, "utf8")) : {};
+const saveSessions = () => fs.writeFileSync(SESS_FILE, JSON.stringify(sessions));
 const auth = (req, res, next) => {
   const user = sessions[(req.headers.authorization || "").replace("Bearer ", "")];
   if (!user) return res.status(401).json({ error: "Please log in again." });
@@ -29,7 +40,7 @@ app.post("/api/signup", (req, res) => {
   const salt = rand(16);
   db.users[username.toLowerCase()] = { username, salt, hash: hash(password, salt), apiKey: "gv_" + rand(20) };
   save();
-  const token = rand(); sessions[token] = username.toLowerCase();
+  const token = rand(); sessions[token] = username.toLowerCase(); saveSessions();
   res.json({ token });
 });
 
@@ -37,7 +48,7 @@ app.post("/api/login", (req, res) => {
   const { username, password } = req.body || {};
   const u = db.users[(username || "").toLowerCase()];
   if (!u || hash(password || "", u.salt) !== u.hash) return res.status(401).json({ error: "Wrong username or password." });
-  const token = rand(); sessions[token] = username.toLowerCase();
+  const token = rand(); sessions[token] = username.toLowerCase(); saveSessions();
   res.json({ token });
 });
 
@@ -74,4 +85,4 @@ app.post("/api/ingest", async (req, res) => {
   res.json({ ok: true, id: rec.id });
 });
 
-app.listen(process.env.PORT || 3000, () => console.log("GameVault running on http://localhost:3000"));
+app.listen(process.env.PORT || 3000, () => console.log("SQ Services running on http://localhost:3000"));
