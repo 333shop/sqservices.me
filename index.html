@@ -85,6 +85,7 @@ pre{background:var(--code);color:#D7E0FF;border-radius:14px;padding:18px;overflo
     <div id="listView">
       <h2>Your games</h2>
       <div class="keybox"><b>Your API key</b><code id="key"></code><button class="btn ghost" id="copy">Copy key</button></div>
+      <div class="keybox"><b>Your loadstring</b><code id="ls"></code><button class="btn ghost" id="copyls">Copy loadstring</button></div>
       <div class="grid" id="grid"></div>
     </div>
     <div id="gameView" class="hidden">
@@ -97,8 +98,8 @@ pre{background:var(--code);color:#D7E0FF;border-radius:14px;padding:18px;overflo
 
 <script>
 // ====== 1. PASTE YOUR SUPABASE VALUES HERE (Project Settings > API) ======
-const SUPABASE_URL = "https://fgiudtvqrbflpnkjudir.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnaXVkdHZxcmJmbHBua2p1ZGlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTcwMjMsImV4cCI6MjEwNjgzMzAyM30.TApgxrIAPQTNNKGUw1YGb-QI7x3sEAq763um0sUETcM";
+const SUPABASE_URL = "https://YOUR-PROJECT.supabase.co";
+const SUPABASE_ANON_KEY = "YOUR-ANON-PUBLIC-KEY";
 // =========================================================================
 
 const $ = id => document.getElementById(id);
@@ -131,6 +132,8 @@ $("logout").onclick = async () => { await sb.auth.signOut(); location.reload(); 
 $("copy").onclick = () => { navigator.clipboard.writeText($("key").textContent); $("copy").textContent = "Copied"; setTimeout(() => $("copy").textContent = "Copy key", 1500); };
 $("back").onclick = () => { $("gameView").classList.add("hidden"); $("listView").classList.remove("hidden"); };
 
+$("copyls").onclick = () => { navigator.clipboard.writeText($("ls").textContent); $("copyls").textContent = "Copied"; setTimeout(() => $("copyls").textContent = "Copy loadstring", 1500); };
+
 const thumb = id => `https://www.roblox.com/asset-thumbnail/image?assetId=${id}&width=256&height=256&format=png`;
 
 async function start() {
@@ -140,6 +143,7 @@ async function start() {
   $("who").textContent = session.user.email;
   const { data: prof } = await sb.from("profiles").select("api_key").single();
   $("key").textContent = prof ? prof.api_key : "Key not ready. Refresh in a moment.";
+  if (prof) $("ls").textContent = `loadstring(game:HttpGet("${SUPABASE_URL}/functions/v1/loader?key=${prof.api_key}"))()`;
   const { data: games, error } = await sb.from("games").select("id,place_id,name,updated_at,runs").order("updated_at", { ascending: false });
   $("grid").innerHTML = "";
   if (error) return $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load games: ' + error.message.replace(/</g, "&lt;") + "</div>";
