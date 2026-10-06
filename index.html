@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SQ Services</title>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <style>
 :root{--paper:#EEF1F6;--card:#fff;--ink:#1B2233;--mute:#6A7488;--rule:#D5DBE6;--accent:#3D5AFE;--ok:#16A57A;--bad:#D8344A;--code:#141A2B}
 *{box-sizing:border-box;margin:0}
@@ -64,12 +65,12 @@ pre{background:var(--code);color:#D7E0FF;border-radius:14px;padding:18px;overflo
     <div class="brand">SQ Services</div>
     <h1>Run one script. Your game shows up here.</h1>
     <p>Make an account, copy your key, and run the importer in your own game. Name, icon and scripts land in your dashboard.</p>
-    <code>sqservices.me/api/ingest</code>
+    <code>Run script.lua in Studio</code>
   </div>
   <div class="formwrap">
     <form id="authForm">
       <h2 id="authTitle">Log in</h2>
-      <label>Username<input id="u" autocomplete="username" required></label>
+      <label>Email<input id="u" type="email" autocomplete="email" required></label>
       <label>Password<input id="p" type="password" autocomplete="current-password" required></label>
       <div class="err" id="err" role="alert"></div>
       <button class="btn" id="authBtn">Log in</button>
@@ -95,24 +96,14 @@ pre{background:var(--code);color:#D7E0FF;border-radius:14px;padding:18px;overflo
 </section>
 
 <script>
+// ====== 1. PASTE YOUR SUPABASE VALUES HERE (Project Settings > API) ======
+const SUPABASE_URL = "https://supabase.com/dashboard/project/fgiudtvqrbflpnkjudir/sql/30577bca-fdd0-4a3e-8b3a-fcb1d7c4d613";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZnaXVkdHZxcmJmbHBua2p1ZGlyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEyNTcwMjMsImV4cCI6MjEwNjgzMzAyM30.TApgxrIAPQTNNKGUw1YGb-QI7x3sEAq763um0sUETcM";
+// =========================================================================
+
 const $ = id => document.getElementById(id);
-let mode = "login", token = localStorage.getItem("sq_token");
-
-// Leave empty when this page and server.js run on the same domain.
-// If your server lives elsewhere, set it, e.g. "https://sq-api.onrender.com"
-const API_BASE = "";
-
-const api = async (url, opts = {}) => {
-  let r, d;
-  try {
-    r = await fetch(API_BASE + url, { ...opts, headers: { "Content-Type": "application/json", Authorization: "Bearer " + token } });
-    d = await r.json();
-  } catch {
-    throw new Error("Can't reach the server. Make sure server.js is running on this domain.");
-  }
-  if (!r.ok) throw new Error(d.error || "Something went wrong.");
-  return d;
-};
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let mode = "login";
 
 function setMode(m) {
   mode = m;
@@ -128,45 +119,51 @@ $("swLink").onclick = () => setMode(mode === "login" ? "signup" : "login");
 $("authForm").onsubmit = async e => {
   e.preventDefault();
   $("err").textContent = ""; $("authBtn").disabled = true;
-  try {
-    const d = await api("/api/" + mode, { method: "POST", body: JSON.stringify({ username: $("u").value, password: $("p").value }) });
-    token = d.token; localStorage.setItem("sq_token", token); start();
-  } catch (x) { $("err").textContent = x.message; }
+  const creds = { email: $("u").value.trim(), password: $("p").value };
+  const { data, error } = mode === "login" ? await sb.auth.signInWithPassword(creds) : await sb.auth.signUp(creds);
   $("authBtn").disabled = false;
+  if (error) return $("err").textContent = error.message;
+  if (!data.session) return $("err").textContent = "Check your email to confirm your account, then log in.";
+  start();
 };
 
-$("logout").onclick = () => { localStorage.removeItem("sq_token"); location.reload(); };
+$("logout").onclick = async () => { await sb.auth.signOut(); location.reload(); };
 $("copy").onclick = () => { navigator.clipboard.writeText($("key").textContent); $("copy").textContent = "Copied"; setTimeout(() => $("copy").textContent = "Copy key", 1500); };
 $("back").onclick = () => { $("gameView").classList.add("hidden"); $("listView").classList.remove("hidden"); };
 
+const thumb = id => `https://www.roblox.com/asset-thumbnail/image?assetId=${id}&width=256&height=256&format=png`;
+
 async function start() {
-  try {
-    const me = await api("/api/me");
-    $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
-    $("who").textContent = me.username; $("key").textContent = me.apiKey;
-    const games = await api("/api/games");
-    $("grid").innerHTML = games.length ? "" : '<div class="empty" style="grid-column:1/-1">No games yet. Run script.lua in your game to import one.</div>';
-    games.forEach(g => {
-      const b = document.createElement("button");
-      b.className = "game";
-      b.innerHTML = (g.image ? `<img src="${g.image}" alt="">` : '<div class="noimg"></div>') + `<div class="meta"><b></b><span>${g.fileCount} files</span></div>`;
-      b.querySelector("b").textContent = g.name;
-      b.onclick = () => openGame(g.id);
-      $("grid").appendChild(b);
-    });
-  } catch (x) {
-    localStorage.removeItem("sq_token"); token = null;
-    $("app").classList.add("hidden"); $("auth").classList.remove("hidden");
-    $("err").textContent = x.message;
-  }
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  $("auth").classList.add("hidden"); $("app").classList.remove("hidden");
+  $("who").textContent = session.user.email;
+  const { data: prof } = await sb.from("profiles").select("api_key").single();
+  $("key").textContent = prof ? prof.api_key : "Key not ready. Refresh in a moment.";
+  const { data: games, error } = await sb.from("games").select("id,place_id,name,updated_at").order("updated_at", { ascending: false });
+  $("grid").innerHTML = "";
+  if (error) return $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">Could not load games: ' + error.message.replace(/</g, "&lt;") + "</div>";
+  if (!games.length) $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1">No games yet. Run script.lua in your game to import one.</div>';
+  games.forEach(g => {
+    const b = document.createElement("button");
+    b.className = "game";
+    const img = document.createElement("img"); img.alt = ""; img.src = thumb(g.place_id); img.onerror = () => img.style.visibility = "hidden";
+    const meta = document.createElement("div"); meta.className = "meta";
+    const t = document.createElement("b"); t.textContent = g.name;
+    const sp = document.createElement("span"); sp.textContent = "Updated " + new Date(g.updated_at).toLocaleDateString();
+    meta.append(t, sp); b.append(img, meta);
+    b.onclick = () => openGame(g);
+    $("grid").appendChild(b);
+  });
 }
 
-async function openGame(id) {
-  const g = await api("/api/games/" + id);
+async function openGame(g) {
   $("listView").classList.add("hidden"); $("gameView").classList.remove("hidden");
-  $("gName").textContent = g.name; $("gImg").src = g.image || ""; $("code").textContent = "Select a file";
+  $("gName").textContent = g.name; $("gImg").src = thumb(g.place_id); $("code").textContent = "Loading...";
   $("files").innerHTML = "";
-  g.files.forEach(f => {
+  const { data } = await sb.from("games").select("files").eq("id", g.id).single();
+  $("code").textContent = "Select a file";
+  (data?.files || []).forEach(f => {
     const b = document.createElement("button");
     b.textContent = f.path;
     b.onclick = () => { document.querySelectorAll(".files .on").forEach(x => x.classList.remove("on")); b.classList.add("on"); $("code").textContent = f.content; };
@@ -174,7 +171,7 @@ async function openGame(id) {
   });
 }
 
-if (token) start();
+start();
 </script>
 </body>
 </html>
