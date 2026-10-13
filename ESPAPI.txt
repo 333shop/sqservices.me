@@ -1,0 +1,524 @@
+--[[
+    sqservices.me | ESP Suite v2
+    No Drawing API needed: everything is rendered with GUI objects,
+    so it works on any executor that can show your UI.
+    Toggle UI: RightShift
+]]
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/333shop/sqservicesui/main/sqservicesui.lua"))()
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+----------------------------------------------------------------
+-- SETTINGS
+----------------------------------------------------------------
+local S = {
+    Enabled = false,
+    Box = false,
+    BoxMode = 1,          -- 1 = 2D Box, 2 = Corner Box, 3 = 3D Box
+    BoxFill = false,
+    Name = false,
+    Distance = false,
+    Health = false,
+    Tool = false,
+    Tracer = false,
+    Skeleton = false,
+    HeadDot = false,
+    Chams = false,
+    Arrows = false,
+    NPCs = false,
+    TeamCheck = false,
+    TeamColor = false,
+    Rainbow = false,
+    MaxDistance = 1500,
+    TextSize = 13,
+    R = 255, G = 255, B = 255,
+    TracerOrigin = "Bottom",
+}
+local BoxModes = {"2D Box", "Corner Box", "3D Box"}
+
+local Entries = {}
+local Unloaded = false
+
+----------------------------------------------------------------
+-- GUI ROOT
+----------------------------------------------------------------
+local ESPGui = Instance.new("ScreenGui")
+ESPGui.Name = "sqservicesESP"
+ESPGui.ResetOnSpawn = false
+ESPGui.IgnoreGuiInset = true
+ESPGui.DisplayOrder = 500
+ESPGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ESPGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+
+local function mk(class, props, parent)
+    local o = Instance.new(class)
+    for k, v in pairs(props) do o[k] = v end
+    o.Parent = parent
+    return o
+end
+
+local function newRect(parent)
+    return mk("Frame", {BorderSizePixel = 0, Visible = false, BackgroundColor3 = Color3.new(1, 1, 1)}, parent)
+end
+
+local function newLine(parent)
+    return mk("Frame", {
+        BorderSizePixel = 0, Visible = false, AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = Color3.new(1, 1, 1),
+    }, parent)
+end
+
+local function newText(parent, anchorY)
+    return mk("TextLabel", {
+        BackgroundTransparency = 1, Visible = false, AnchorPoint = Vector2.new(0.5, anchorY),
+        Size = UDim2.fromOffset(220, 16), Font = Enum.Font.GothamMedium, TextSize = 13,
+        TextColor3 = Color3.new(1, 1, 1), TextStrokeTransparency = 0.2,
+    }, parent)
+end
+
+local function setLine(f, a, b, thickness, color)
+    local d = b - a
+    f.Size = UDim2.fromOffset(d.Magnitude, thickness or 1)
+    f.Position = UDim2.fromOffset((a.X + b.X) / 2, (a.Y + b.Y) / 2)
+    f.Rotation = math.deg(math.atan2(d.Y, d.X))
+    f.BackgroundColor3 = color
+    f.Visible = true
+end
+
+----------------------------------------------------------------
+-- SKELETON + 3D BOX DATA
+----------------------------------------------------------------
+local R15 = {
+    {"Head","UpperTorso"},{"UpperTorso","LowerTorso"},
+    {"UpperTorso","LeftUpperArm"},{"LeftUpperArm","LeftLowerArm"},{"LeftLowerArm","LeftHand"},
+    {"UpperTorso","RightUpperArm"},{"RightUpperArm","RightLowerArm"},{"RightLowerArm","RightHand"},
+    {"LowerTorso","LeftUpperLeg"},{"LeftUpperLeg","LeftLowerLeg"},{"LeftLowerLeg","LeftFoot"},
+    {"LowerTorso","RightUpperLeg"},{"RightUpperLeg","RightLowerLeg"},{"RightLowerLeg","RightFoot"},
+}
+local R6 = {
+    {"Head","Torso"},{"Torso","Left Arm"},{"Torso","Right Arm"},
+    {"Torso","Left Leg"},{"Torso","Right Leg"},
+}
+
+local Edges3D = {}
+for a = 0, 7 do
+    for _, bit in ipairs({1, 2, 4}) do
+        if bit32.band(a, bit) == 0 then
+            table.insert(Edges3D, {a + 1, a + bit + 1})
+        end
+    end
+end
+
+local function corner3D(cf, a)
+    local x = bit32.band(a, 4) > 0 and 2 or -2
+    local y = bit32.band(a, 2) > 0 and 2.5 or -3
+    local z = bit32.band(a, 1) > 0 and 1 or -1
+    return cf * Vector3.new(x, y, z)
+end
+
+----------------------------------------------------------------
+-- ENTRY CREATION
+----------------------------------------------------------------
+local function makeEntry(isPlayer)
+    local holder = mk("Frame", {
+        Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, Visible = false,
+    }, ESPGui)
+
+    local o = {}
+    o.Fill = newRect(holder)
+    o.Fill.BackgroundTransparency = 0.85
+
+    o.Box = newRect(holder)
+    o.Box.BackgroundTransparency = 1
+    o.BoxStroke = mk("UIStroke", {Thickness = 1.5, LineJoinMode = Enum.LineJoinMode.Miter}, o.Box)
+
+    o.Corners = {}
+    for i = 1, 8 do o.Corners[i] = newRect(holder) end
+
+    o.Edges = {}
+    for i = 1, 12 do o.Edges[i] = newLine(holder) end
+
+    o.Name = newText(holder, 1)
+    o.Dist = newText(holder, 0)
+    o.Tool = newText(holder, 0)
+
+    o.HBack = newRect(holder)
+    o.HBack.BackgroundColor3 = Color3.new(0, 0, 0)
+    o.HFill = newRect(holder)
+    o.HFill.AnchorPoint = Vector2.new(0, 1)
+
+    o.Tracer = newLine(holder)
+
+    o.Head = newRect(holder)
+    o.Head.AnchorPoint = Vector2.new(0.5, 0.5)
+    o.Head.BackgroundTransparency = 1
+    mk("UICorner", {CornerRadius = UDim.new(1, 0)}, o.Head)
+    o.HeadStroke = mk("UIStroke", {Thickness = 1.5}, o.Head)
+
+    o.Arrow = mk("TextLabel", {
+        BackgroundTransparency = 1, Visible = false, AnchorPoint = Vector2.new(0.5, 0.5),
+        Size = UDim2.fromOffset(26, 26), Font = Enum.Font.GothamBold, TextSize = 24,
+        Text = "▲", TextStrokeTransparency = 0.3,
+    }, holder)
+
+    o.Skel = {}
+    for i = 1, 14 do o.Skel[i] = newLine(holder) end
+
+    return {Holder = holder, Obj = o, Player = isPlayer, State = "hidden"}
+end
+
+local function addEntry(key, isPlayer)
+    if Entries[key] then return end
+    local e = makeEntry(isPlayer)
+    e.Player = isPlayer and key or nil
+    Entries[key] = e
+end
+
+local function removeEntry(key)
+    local e = Entries[key]
+    if not e then return end
+    e.Holder:Destroy()
+    if e.Highlight then e.Highlight:Destroy() end
+    Entries[key] = nil
+end
+
+local function hideChildren(holder)
+    for _, c in ipairs(holder:GetChildren()) do
+        if c:IsA("GuiObject") then c.Visible = false end
+    end
+end
+
+local function getColor(e)
+    if S.Rainbow then
+        return Color3.fromHSV((tick() % 5) / 5, 1, 1)
+    end
+    if S.TeamColor and e.Player and e.Player.Team then
+        return e.Player.TeamColor.Color
+    end
+    return Color3.fromRGB(S.R, S.G, S.B)
+end
+
+----------------------------------------------------------------
+-- RENDER LOOP
+----------------------------------------------------------------
+local Connection = RunService.RenderStepped:Connect(function()
+    if Unloaded then return end
+    local cam = workspace.CurrentCamera
+    if not cam then return end
+    local vp = cam.ViewportSize
+
+    for key, e in pairs(Entries) do
+        local model
+        if e.Player then model = key.Character else model = key end
+
+        local ok = S.Enabled and model ~= nil and model.Parent ~= nil
+        local hrp, hum, head
+        if ok then
+            hrp = model:FindFirstChild("HumanoidRootPart")
+            hum = model:FindFirstChildOfClass("Humanoid")
+            head = model:FindFirstChild("Head")
+            ok = (hrp and hum and head and hum.Health > 0) and true or false
+        end
+        if ok and not e.Player and not S.NPCs then ok = false end
+        if ok and e.Player and S.TeamCheck and key.Team ~= nil and key.Team == LocalPlayer.Team then ok = false end
+
+        local dist = 0
+        if ok then
+            dist = (cam.CFrame.Position - hrp.Position).Magnitude
+            if dist > S.MaxDistance then ok = false end
+        end
+
+        if not ok then
+            if e.State ~= "hidden" then
+                e.Holder.Visible = false
+                if e.Highlight then e.Highlight.Enabled = false end
+                e.State = "hidden"
+            end
+            if not e.Player and (not model or not model.Parent) then
+                removeEntry(key)
+            end
+        else
+            local o = e.Obj
+            local color = getColor(e)
+            e.Holder.Visible = true
+
+            -- Chams
+            if S.Chams then
+                if not e.Highlight or e.Highlight.Parent ~= model then
+                    if e.Highlight then e.Highlight:Destroy() end
+                    e.Highlight = mk("Highlight", {
+                        DepthMode = Enum.HighlightDepthMode.AlwaysOnTop, FillTransparency = 0.5,
+                    }, model)
+                end
+                e.Highlight.FillColor = color
+                e.Highlight.OutlineColor = color
+                e.Highlight.Enabled = true
+            elseif e.Highlight then
+                e.Highlight.Enabled = false
+            end
+
+            local rootPos, onScreen = cam:WorldToViewportPoint(hrp.Position)
+
+            if onScreen and rootPos.Z > 0 then
+                e.State = "on"
+                o.Arrow.Visible = false
+
+                local top = cam:WorldToViewportPoint(head.Position + Vector3.new(0, head.Size.Y / 2 + 0.2, 0))
+                local bottom = cam:WorldToViewportPoint(hrp.Position - Vector3.new(0, 3, 0))
+                local height = math.max(math.abs(top.Y - bottom.Y), 4)
+                local width = height * 0.6
+                local x = rootPos.X - width / 2
+                local y = top.Y
+
+                -- Box (3 models)
+                o.Box.Visible = false
+                o.Fill.Visible = false
+                for _, c in ipairs(o.Corners) do c.Visible = false end
+                for _, l in ipairs(o.Edges) do l.Visible = false end
+
+                if S.Box then
+                    if S.BoxMode == 1 then
+                        o.Box.Position = UDim2.fromOffset(x, y)
+                        o.Box.Size = UDim2.fromOffset(width, height)
+                        o.BoxStroke.Color = color
+                        o.Box.Visible = true
+                    elseif S.BoxMode == 2 then
+                        local cl = math.max(math.min(width, height) * 0.3, 4)
+                        local t = 2
+                        local defs = {
+                            {x, y, cl, t}, {x, y, t, cl},
+                            {x + width - cl, y, cl, t}, {x + width - t, y, t, cl},
+                            {x, y + height - t, cl, t}, {x, y + height - cl, t, cl},
+                            {x + width - cl, y + height - t, cl, t}, {x + width - t, y + height - cl, t, cl},
+                        }
+                        for i, d in ipairs(defs) do
+                            local c = o.Corners[i]
+                            c.Position = UDim2.fromOffset(d[1], d[2])
+                            c.Size = UDim2.fromOffset(d[3], d[4])
+                            c.BackgroundColor3 = color
+                            c.Visible = true
+                        end
+                    else
+                        local cf = hrp.CFrame
+                        local pts, valid = {}, true
+                        for i = 0, 7 do
+                            local v = cam:WorldToViewportPoint(corner3D(cf, i))
+                            if v.Z <= 0 then valid = false break end
+                            pts[i + 1] = Vector2.new(v.X, v.Y)
+                        end
+                        if valid then
+                            for i, ed in ipairs(Edges3D) do
+                                setLine(o.Edges[i], pts[ed[1]], pts[ed[2]], 1.5, color)
+                            end
+                        end
+                    end
+                end
+
+                if S.BoxFill and S.BoxMode ~= 3 then
+                    o.Fill.Position = UDim2.fromOffset(x, y)
+                    o.Fill.Size = UDim2.fromOffset(width, height)
+                    o.Fill.BackgroundColor3 = color
+                    o.Fill.Visible = true
+                end
+
+                -- Name
+                o.Name.Text = e.Player and key.DisplayName or model.Name
+                o.Name.TextSize = S.TextSize
+                o.Name.TextColor3 = color
+                o.Name.Position = UDim2.fromOffset(rootPos.X, y - 2)
+                o.Name.Visible = S.Name
+
+                -- Distance
+                o.Dist.Text = string.format("[%d studs]", dist)
+                o.Dist.TextSize = S.TextSize
+                o.Dist.TextColor3 = Color3.fromRGB(225, 225, 225)
+                o.Dist.Position = UDim2.fromOffset(rootPos.X, y + height + 2)
+                o.Dist.Visible = S.Distance
+
+                -- Tool
+                local tool = model:FindFirstChildOfClass("Tool")
+                o.Tool.Text = tool and tool.Name or "No tool"
+                o.Tool.TextSize = S.TextSize
+                o.Tool.TextColor3 = Color3.fromRGB(255, 205, 90)
+                o.Tool.Position = UDim2.fromOffset(rootPos.X, y + height + 2 + (S.Distance and S.TextSize + 2 or 0))
+                o.Tool.Visible = S.Tool
+
+                -- Health bar
+                local pct = math.clamp(hum.Health / math.max(hum.MaxHealth, 1), 0, 1)
+                o.HBack.Position = UDim2.fromOffset(x - 7, y - 1)
+                o.HBack.Size = UDim2.fromOffset(4, height + 2)
+                o.HBack.Visible = S.Health
+                o.HFill.Position = UDim2.fromOffset(x - 6, y + height)
+                o.HFill.Size = UDim2.fromOffset(2, math.max(height * pct, 1))
+                o.HFill.BackgroundColor3 = Color3.fromRGB(255, 0, 0):Lerp(Color3.fromRGB(0, 255, 0), pct)
+                o.HFill.Visible = S.Health
+
+                -- Tracer
+                if S.Tracer then
+                    local origin
+                    if S.TracerOrigin == "Bottom" then
+                        origin = Vector2.new(vp.X / 2, vp.Y)
+                    elseif S.TracerOrigin == "Center" then
+                        origin = vp / 2
+                    else
+                        origin = UserInputService:GetMouseLocation()
+                    end
+                    setLine(o.Tracer, origin, Vector2.new(rootPos.X, y + height), 1.5, color)
+                else
+                    o.Tracer.Visible = false
+                end
+
+                -- Head dot
+                if S.HeadDot then
+                    local hp = cam:WorldToViewportPoint(head.Position)
+                    local r = math.clamp(height / 9, 2, 25)
+                    o.Head.Position = UDim2.fromOffset(hp.X, hp.Y)
+                    o.Head.Size = UDim2.fromOffset(r * 2, r * 2)
+                    o.HeadStroke.Color = color
+                    o.Head.Visible = true
+                else
+                    o.Head.Visible = false
+                end
+
+                -- Skeleton
+                for _, l in ipairs(o.Skel) do l.Visible = false end
+                if S.Skeleton then
+                    local joints = model:FindFirstChild("UpperTorso") and R15 or R6
+                    for i, pair in ipairs(joints) do
+                        local a, b = model:FindFirstChild(pair[1]), model:FindFirstChild(pair[2])
+                        if a and b then
+                            local pa = cam:WorldToViewportPoint(a.Position)
+                            local pb = cam:WorldToViewportPoint(b.Position)
+                            if pa.Z > 0 and pb.Z > 0 then
+                                setLine(o.Skel[i], Vector2.new(pa.X, pa.Y), Vector2.new(pb.X, pb.Y), 1.5, color)
+                            end
+                        end
+                    end
+                end
+            else
+                -- Off-screen
+                if e.State ~= "off" then
+                    hideChildren(e.Holder)
+                    e.State = "off"
+                end
+                if S.Arrows then
+                    local rel = cam.CFrame:PointToObjectSpace(hrp.Position)
+                    local dir = Vector2.new(rel.X, rel.Z)
+                    if dir.Magnitude > 0.001 then
+                        dir = dir.Unit
+                        local p = vp / 2 + dir * math.min(vp.X, vp.Y) * 0.4
+                        o.Arrow.Position = UDim2.fromOffset(p.X, p.Y)
+                        o.Arrow.Rotation = math.deg(math.atan2(dir.X, -dir.Y))
+                        o.Arrow.TextColor3 = color
+                        o.Arrow.Visible = true
+                    end
+                else
+                    o.Arrow.Visible = false
+                end
+            end
+        end
+    end
+end)
+
+----------------------------------------------------------------
+-- PLAYER / NPC TRACKING
+----------------------------------------------------------------
+for _, p in ipairs(Players:GetPlayers()) do
+    if p ~= LocalPlayer then addEntry(p, true) end
+end
+Players.PlayerAdded:Connect(function(p)
+    if p ~= LocalPlayer then addEntry(p, true) end
+end)
+Players.PlayerRemoving:Connect(function(p)
+    removeEntry(p)
+end)
+
+task.spawn(function()
+    while not Unloaded do
+        if S.NPCs then
+            for _, d in ipairs(workspace:GetDescendants()) do
+                if d:IsA("Humanoid") then
+                    local m = d.Parent
+                    if m and m:IsA("Model") and not Players:GetPlayerFromCharacter(m) and m ~= LocalPlayer.Character then
+                        addEntry(m, false)
+                    end
+                end
+            end
+        end
+        task.wait(3)
+    end
+end)
+
+----------------------------------------------------------------
+-- UI
+----------------------------------------------------------------
+local Window = Library:CreateWindow({
+    Title = "sqservices.me | ESP",
+    Size = UDim2.new(0, 520, 0, 400),
+})
+
+local Main = Window:CreateTab("Main")
+Main:CreateToggle({Name = "Enable ESP", Callback = function(v) S.Enabled = v end})
+Main:CreateToggle({Name = "Team Check (hide teammates)", Callback = function(v) S.TeamCheck = v end})
+Main:CreateToggle({Name = "NPC ESP", Callback = function(v) S.NPCs = v end})
+Main:CreateSlider({Name = "Max Distance", Min = 100, Max = 5000, Default = 1500, Callback = function(v) S.MaxDistance = v end})
+
+local Visuals = Window:CreateTab("Visuals")
+Visuals:CreateToggle({Name = "Box ESP", Callback = function(v) S.Box = v end})
+
+local boxBtn
+boxBtn = Visuals:CreateButton({
+    Name = "Box Model: 2D Box",
+    Callback = function()
+        S.BoxMode = (S.BoxMode % #BoxModes) + 1
+        boxBtn.Text = "Box Model: " .. BoxModes[S.BoxMode]
+    end,
+})
+boxBtn.Size = UDim2.new(0, 170, 0, 30)
+
+Visuals:CreateToggle({Name = "Box Fill (2D / Corner)", Callback = function(v) S.BoxFill = v end})
+Visuals:CreateToggle({Name = "Name ESP", Callback = function(v) S.Name = v end})
+Visuals:CreateToggle({Name = "Distance ESP", Callback = function(v) S.Distance = v end})
+Visuals:CreateToggle({Name = "Health Bar", Callback = function(v) S.Health = v end})
+Visuals:CreateToggle({Name = "Tool / Weapon ESP", Callback = function(v) S.Tool = v end})
+Visuals:CreateToggle({Name = "Tracers", Callback = function(v) S.Tracer = v end})
+Visuals:CreateToggle({Name = "Skeleton ESP", Callback = function(v) S.Skeleton = v end})
+Visuals:CreateToggle({Name = "Head Dot", Callback = function(v) S.HeadDot = v end})
+Visuals:CreateToggle({Name = "Chams (Highlight)", Callback = function(v) S.Chams = v end})
+Visuals:CreateToggle({Name = "Off-screen Arrows", Callback = function(v) S.Arrows = v end})
+
+local Colors = Window:CreateTab("Colors")
+Colors:CreateToggle({Name = "Use Team Colors", Callback = function(v) S.TeamColor = v end})
+Colors:CreateToggle({Name = "Rainbow", Callback = function(v) S.Rainbow = v end})
+Colors:CreateSlider({Name = "Red", Min = 0, Max = 255, Default = 255, Callback = function(v) S.R = v end})
+Colors:CreateSlider({Name = "Green", Min = 0, Max = 255, Default = 255, Callback = function(v) S.G = v end})
+Colors:CreateSlider({Name = "Blue", Min = 0, Max = 255, Default = 255, Callback = function(v) S.B = v end})
+
+local Misc = Window:CreateTab("Misc")
+Misc:CreateSlider({Name = "Text Size", Min = 10, Max = 24, Default = 13, Callback = function(v) S.TextSize = v end})
+
+local originBtn
+originBtn = Misc:CreateButton({
+    Name = "Tracer: Bottom",
+    Callback = function()
+        local order = {"Bottom", "Center", "Mouse"}
+        local idx = table.find(order, S.TracerOrigin) or 1
+        S.TracerOrigin = order[(idx % #order) + 1]
+        originBtn.Text = "Tracer: " .. S.TracerOrigin
+    end,
+})
+
+Misc:CreateButton({
+    Name = "Unload ESP",
+    Callback = function()
+        Unloaded = true
+        Connection:Disconnect()
+        for key in pairs(Entries) do removeEntry(key) end
+        ESPGui:Destroy()
+        Window.ScreenGui:Destroy()
+    end,
+})
