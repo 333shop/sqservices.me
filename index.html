@@ -1,175 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cheats</title>
-  <style>
-    :root {
-      --orange: #ff5500;
-      --orange-light: #ff7a00;
-      --ink: #1a0a00;
-      --white: #fff;
-      --cream: #fff8f0;
-      --radius-box: 32px;
-    }
-
-    *,
-    *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    html {
-      background: #000;
-    }
-
-    body {
-      min-height: 100vh;
-      min-height: 100dvh;
-      background: linear-gradient(105deg, var(--orange-light) 0%, var(--orange) 35%, var(--ink) 70%, #000 100%);
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      color: var(--white);
-      display: flex;
-      overflow-x: hidden;
-    }
-
-    /* ---------- Left: headline + button ---------- */
-    .left {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-      gap: 32px;
-      padding: 40px 6% 40px 8%;
-    }
-
-    .left h1 {
-      max-width: 14ch;
-      font-size: clamp(2.25rem, 4.5vw, 3.75rem);
-      font-weight: 700;
-      line-height: 1.1;
-      letter-spacing: -0.02em;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    .next-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px 40px;
-      border-radius: 50px;
-      background: var(--white);
-      color: var(--orange);
-      font-size: 1.15rem;
-      font-weight: 600;
-      text-decoration: none;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-    }
-
-    .next-btn:hover {
-      transform: translateY(-3px);
-      background: var(--cream);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-    }
-
-    .next-btn:active {
-      transform: translateY(0);
-    }
-
-    .next-btn:focus-visible {
-      outline: 3px solid var(--white);
-      outline-offset: 4px;
-    }
-
-    /* ---------- Right: showcase box ---------- */
-    .right {
-      flex: 1.25;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 6% 40px 2%;
-    }
-
-    .logo-box {
-      position: relative;
-      width: min(100%, 640px);
-      padding: clamp(20px, 3vw, 40px);
-      border-radius: var(--radius-box);
-      background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      -webkit-backdrop-filter: blur(14px);
-      backdrop-filter: blur(14px);
-      box-shadow:
-        0 30px 80px rgba(0, 0, 0, 0.55),
-        0 0 0 8px rgba(255, 255, 255, 0.03),
-        0 0 90px rgba(255, 122, 0, 0.25);
-      transition: transform 0.35s ease, box-shadow 0.35s ease;
-    }
-
-    .logo-box:hover {
-      transform: translateY(-6px) scale(1.015);
-      box-shadow:
-        0 40px 100px rgba(0, 0, 0, 0.6),
-        0 0 0 8px rgba(255, 255, 255, 0.05),
-        0 0 120px rgba(255, 122, 0, 0.4);
-    }
-
-    .logo-box img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border-radius: 20px;
-    }
-
-    /* ---------- Mobile / tablet ---------- */
-    @media (max-width: 860px) {
-      body {
-        flex-direction: column;
-      }
-
-      .left {
-        align-items: center;
-        text-align: center;
-        padding: 48px 24px 16px;
-        gap: 24px;
-      }
-
-      .left h1 {
-        max-width: 18ch;
-      }
-
-      .right {
-        flex: none;
-        padding: 16px 20px 48px;
-      }
-
-      .logo-box {
-        width: min(100%, 520px);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        transition: none !important;
-      }
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>sqservices.me</title>
+<style>
+:root{--bg:#e9ecef;--bar:#f8f9fa;--ink:#1c2024;--mute:#68717a;--line:#cfd4d9;--acc:#2563eb;--tab:#dde1e5;--tabon:#f8f9fa;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121416;--bar:#1e2124;--ink:#e6e8ea;--mute:#8b949c;--line:#30363b;--acc:#6ea0ff;--tab:#17191b;--tabon:#1e2124}}
+:root[data-theme="dark"]{--bg:#121416;--bar:#1e2124;--ink:#e6e8ea;--mute:#8b949c;--line:#30363b;--acc:#6ea0ff;--tab:#17191b;--tabon:#1e2124}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
+#tabs{display:flex;align-items:flex-end;gap:2px;padding:6px 6px 0;overflow-x:auto;background:var(--bg)}
+.tab{display:flex;align-items:center;gap:6px;min-width:110px;max-width:190px;padding:7px 8px 7px 12px;background:var(--tab);border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap;color:var(--mute)}
+.tab.on{background:var(--tabon);color:var(--ink)}
+.tab span{flex:1;overflow:hidden;text-overflow:ellipsis}
+.tab b{font-weight:400;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center}
+.tab b:hover{background:var(--line)}
+#new{border:0;background:none;color:var(--ink);font-size:20px;padding:0 10px;cursor:pointer}
+#bar{display:flex;align-items:center;gap:4px;padding:6px;background:var(--bar);border-bottom:1px solid var(--line)}
+#bar button{border:0;background:none;color:var(--ink);font-size:17px;width:34px;height:34px;border-radius:8px;cursor:pointer}
+#bar button:hover:not(:disabled){background:var(--line)}
+#bar button:disabled{opacity:.3;cursor:default}
+#addr{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit}
+#addr:focus{outline:2px solid var(--acc);border-color:transparent}
+button:focus-visible{outline:2px solid var(--acc)}
+#note{display:none;padding:6px 12px;background:var(--bar);border-bottom:1px solid var(--line);color:var(--mute);font-size:12px}
+#note a{color:var(--acc);cursor:pointer;text-decoration:underline}
+#view{flex:1;position:relative;min-height:0;background:#fff}
+iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}
+iframe.on{display:block}
+</style>
 </head>
 <body>
-  <main class="left">
-    <h1>Click next to see all the cheats</h1>
-    <a href="cheats.html" class="next-btn">Next →</a>
-  </main>
-
-  <section class="right" aria-label="Showcase">
-    <div class="logo-box">
-      <img src="logo.gif" alt="Logo">
-    </div>
-  </section>
+<div id="tabs"></div>
+<div id="bar"><span id="mark" style="display:flex;padding:0 4px"></span>
+ <button id="back" title="Back" aria-label="Back">&#8592;</button>
+ <button id="fwd" title="Forward" aria-label="Forward">&#8594;</button>
+ <button id="reload" title="Reload" aria-label="Reload">&#8635;</button>
+ <button id="home" title="Home" aria-label="Home">&#8962;</button>
+ <input id="addr" type="text" placeholder="Search or enter address" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Address">
+ <button id="ext" title="Open in a real browser tab" aria-label="Open in a real browser tab">&#8599;</button>
+</div>
+<div id="note">Some sites refuse to load inside other pages. If this page is blank, <a id="extlink">open it in a new tab</a>.</div>
+<div id="view"></div>
+<script>
+var HOME='about:home';
+function logo(s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 64 64" role="img" aria-label="sqservices.me"><rect width="64" height="64" rx="16" fill="#1d4ed8"/><circle cx="29" cy="30" r="11" fill="none" stroke="#fff" stroke-width="6"/><path d="M38 39l11 11" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="43" y="12" width="9" height="9" rx="2.5" fill="#93c5fd"/></svg>'}
+var recents=[],qcount=0,lastQ=null;
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\x22/g,'&#34;')}
+function recentHtml(){if(!recents.length)return '';return '<div class="r">Recent searches</div><div class="l">'+recents.map(function(q){return '<a href="#" onclick="parent.postMessage({go:decodeURIComponent(\''+encodeURIComponent(q).replace(/\x27/g,'%27')+'\')},\'*\');return false">'+esc(q)+'</a>'}).join('')+'</div>'}
+function homeDoc(){return '<!DOCTYPE html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:system-ui,sans-serif;margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#f6f7f8;color:#1c2024}@media(prefers-color-scheme:dark){body{background:#17191b;color:#e6e8ea}input,a{background:#222629!important;color:inherit!important;border-color:#363c41!important}}h1{font-size:34px;margin:0;font-weight:600;letter-spacing:-.5px}.brand{display:flex;align-items:center;gap:14px}.r{font-size:13px;opacity:.7;margin-top:-8px}form{width:min(480px,90vw)}input{width:100%;padding:12px 18px;font-size:16px;border:1px solid #cfd4d9;border-radius:999px;background:#fff}.l{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px}a{padding:9px 16px;border:1px solid #cfd4d9;border-radius:10px;background:#fff;color:#1c2024;text-decoration:none;font-size:14px}</style><div class="brand">'+logo(52)+'<h1>sqservices<span style="opacity:.5">.me</span></h1></div><form onsubmit="parent.postMessage({go:this.q.value},\'*\');return false"><input name="q" placeholder="Search or enter address" autofocus></form><div class="l">'+
+['wikipedia.org','archive.org','openstreetmap.org','example.com','news.ycombinator.com','developer.mozilla.org'].map(function(s){return '<a href="#" onclick="parent.postMessage({go:\''+s+'\'},\'*\');return false">'+s+'</a>'}).join('')+'</div>'+recentHtml();}
+var tabs=[],cur=null,id=0;
+var $=function(x){return document.getElementById(x)};
+function norm(v){
+  v=v.trim().replace(/^(https?:\/\/)?sqservices\.me\/?/i,'');if(!v)return HOME;
+  if(v===HOME)return HOME;
+  if(/^[a-z]+:\/\//i.test(v))return v;
+  if(/^[^\s]+\.[a-z]{2,}(\/|$|\?|:)/i.test(v)||/^localhost(:|\/|$)/.test(v))return 'https://'+v;
+  lastQ=v;return 'https://duckduckgo.com/?q='+encodeURIComponent(v);
+}
+function newTab(u){
+  var t={id:++id,hist:[],i:-1,title:'New tab',f:document.createElement('iframe')};
+  t.f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-modals');
+  t.f.setAttribute('referrerpolicy','no-referrer');
+  $('view').appendChild(t.f);tabs.push(t);select(t);go(t,u||HOME);
+}
+function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'search'}
+function go(t,v,keep){
+  lastQ=null;var u=norm(v),q=lastQ,n=0;
+  if(q){n=++qcount;recents=[q].concat(recents.filter(function(x){return x!==q})).slice(0,8)}
+  var d=u===HOME?'':'sqservices.me/'+(q?slug(q)+'/'+n:u.replace(/^https?:\/\//,'').replace(/\/$/,''));
+  if(!keep){t.hist=t.hist.slice(0,t.i+1);t.disp=(t.disp||[]).slice(0,t.i+1);t.hist.push(u);t.disp.push(d);t.i=t.hist.length-1}
+  load(t,u);
+  if(q){t.title=q;render()}
+}
+function load(t,u){
+  if(u===HOME){t.f.removeAttribute('src');t.f.srcdoc=homeDoc();t.title='New tab'}
+  else{t.f.removeAttribute('srcdoc');t.f.src=u;try{t.title=new URL(u).hostname}catch(e){t.title=u}}
+  render();
+}
+function select(t){cur=t;render()}
+function close(t){
+  var k=tabs.indexOf(t);tabs.splice(k,1);t.f.remove();
+  if(!tabs.length){newTab();return}
+  if(cur===t)cur=tabs[Math.min(k,tabs.length-1)];render();
+}
+function url(t){return t.hist[t.i]||HOME}
+function render(){
+  var h=$('tabs');h.innerHTML='';
+  tabs.forEach(function(t){
+    var d=document.createElement('div');d.className='tab'+(t===cur?' on':'');
+    var s=document.createElement('span');s.textContent=t.title;
+    var x=document.createElement('b');x.textContent='\u00d7';x.title='Close tab';
+    x.onclick=function(e){e.stopPropagation();close(t)};
+    d.onclick=function(){select(t)};d.append(s,x);h.appendChild(d);
+    t.f.classList.toggle('on',t===cur);
+  });
+  var n=document.createElement('button');n.id='new';n.textContent='+';n.title='New tab';n.setAttribute('aria-label','New tab');n.onclick=function(){newTab()};h.appendChild(n);
+  if(!cur)return;
+  var u=url(cur);
+  var dd=(cur.disp||[])[cur.i]||'';$('addr').value=dd;try{history.replaceState(null,'',dd?'#/'+dd.replace('sqservices.me/',''):location.pathname+location.search)}catch(e){}
+  $('back').disabled=cur.i<=0;$('fwd').disabled=cur.i>=cur.hist.length-1;
+  $('note').style.display=u===HOME?'none':'block';
+  document.title=cur.title+' - sqservices.me';
+}
+$('addr').addEventListener('keydown',function(e){if(e.key==='Enter'){if(this.value===(cur.disp||[])[cur.i])load(cur,url(cur));else go(cur,this.value);this.blur()}});
+$('addr').addEventListener('focus',function(){this.select()});
+$('back').onclick=function(){if(cur.i>0){cur.i--;load(cur,url(cur))}};
+$('fwd').onclick=function(){if(cur.i<cur.hist.length-1){cur.i++;load(cur,url(cur))}};
+$('reload').onclick=function(){load(cur,url(cur))};
+$('home').onclick=function(){go(cur,HOME)};
+function ext(){var u=url(cur);if(u!==HOME)window.open(u,'_blank','noopener')}
+$('ext').onclick=ext;$('extlink').onclick=ext;
+window.addEventListener('message',function(e){if(cur&&e.source===cur.f.contentWindow&&e.data&&typeof e.data.go==='string')go(cur,e.data.go)});
+document.addEventListener('keydown',function(e){
+  var m=e.ctrlKey||e.metaKey;
+  if(m&&e.key==='t'){e.preventDefault();newTab()}
+  if(m&&e.key==='w'){e.preventDefault();close(cur)}
+  if(m&&e.key==='l'){e.preventDefault();$('addr').focus()}
+});
+$('mark').innerHTML=logo(28);newTab();
+</script>
 </body>
 </html>
