@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="rating" content="adult">
 <meta name="rating" content="RTA-5042-1996-1400-1577-RTA">
-<title>Your Site - Adult Video Tube</title>
+<title>sqservices.me - Adult Videos</title>
 <script>
   // If this visitor already confirmed, hide the gate before the page paints (no flash).
   try { if (localStorage.getItem("age-ok") === "1") document.documentElement.classList.add("verified"); } catch (e) {}
@@ -186,6 +186,56 @@
   footer a { margin: 0 10px; }
   footer a:hover { color: var(--text); }
 
+  /* ---------- Videos + player ---------- */
+  .vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .vcard { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; text-align: left; color: inherit; padding: 0; display: block; width: 100%; transition: transform .15s ease, border-color .15s ease; }
+  .vcard:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .vthumb { aspect-ratio: 16 / 9; background: linear-gradient(135deg, #3a2a66, #1c1430); display: grid; place-items: center; position: relative; }
+  .vthumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .vthumb .play { position: relative; width: 48px; height: 48px; border-radius: 50%; background: rgba(0,0,0,.55); display: grid; place-items: center; font-size: 1.1rem; color: var(--accent); }
+  .vtitle { padding: 10px 12px 12px; font-weight: 600; }
+
+  #player { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 16px; background: rgba(8, 5, 16, .88); }
+  #player[hidden] { display: none; }
+  .pbox { width: 100%; max-width: 960px; }
+  .pbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .pbar h3 { margin: 0; font-size: 1.05rem; }
+  .pclose { background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 16px; font-weight: 600; }
+  .pclose:hover { border-color: var(--accent); }
+  .pframe { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: var(--radius); overflow: hidden; }
+  .pframe iframe, .pframe video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  .sechead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 40px 0 14px; }
+  .sechead h2 { margin: 0; font-size: 1.25rem; }
+  .addbtn { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 10px; padding: 10px 18px; font-weight: 700; }
+  .addbtn:hover { background: #ffd57e; }
+  .vwrap { position: relative; }
+  .vdel { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 50%; border: 0; background: rgba(0,0,0,.65); color: var(--text); font-size: 1.1rem; line-height: 1; opacity: 0; transition: opacity .15s ease; }
+  .vwrap:hover .vdel, .vdel:focus-visible { opacity: 1; }
+  @media (hover: none) { .vdel { opacity: 1; } }
+  .vdel:hover { background: #c0392b; }
+
+  #adder { position: fixed; inset: 0; z-index: 900; display: grid; place-items: center; padding: 16px; background: rgba(8, 5, 16, .88); overflow-y: auto; }
+  #adder[hidden] { display: none; }
+  .abox { width: 100%; max-width: 480px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 24px; }
+  .abox h3 { margin: 0 0 16px; font-size: 1.2rem; }
+  .abox label { display: block; margin: 0 0 14px; font-weight: 600; font-size: .92rem; }
+  .abox label small { display: block; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .abox input[type="text"], .abox input[type="url"] { width: 100%; margin-top: 6px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; color: var(--text); font-size: 1rem; padding: 10px 12px; }
+  .abox input[type="file"] { margin-top: 6px; color: var(--muted); max-width: 100%; }
+  .abox input:focus { outline: 0; border-color: var(--accent); }
+  .aerr { color: #ff7b7b; min-height: 22px; margin: 0 0 8px; font-size: .92rem; }
+  .arow { display: flex; gap: 10px; }
+  .arow .btn { margin: 0; }
+
+  .fsearch { display: flex; gap: 8px; flex: 1; max-width: 420px; min-width: 220px; }
+  .fsearch input { flex: 1; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; color: var(--text); font-size: 1rem; padding: 10px 16px; }
+  .fsearch input:focus { outline: 0; border-color: var(--accent); }
+  .dur { position: absolute; right: 8px; bottom: 8px; background: rgba(0,0,0,.7); border-radius: 6px; padding: 2px 7px; font-size: .78rem; font-weight: 600; }
+  .fmsg { color: var(--muted); margin: 10px 0; min-height: 22px; }
+  .more { display: block; margin: 20px auto 0; min-width: 200px; background: var(--panel-2); color: var(--text); border: 1px solid var(--line); border-radius: 12px; padding: 12px 20px; font-weight: 700; }
+  .more:hover { border-color: var(--accent); }
+
   @media (prefers-reduced-motion: reduce) {
     #gate, #app, .btn, .tile, .gate-card { transition: none !important; animation: none !important; }
     html { scroll-behavior: auto; }
@@ -207,15 +257,49 @@
   </div>
 </div>
 
+<div id="player" role="dialog" aria-modal="true" aria-label="Video player" hidden>
+  <div class="pbox">
+    <div class="pbar"><h3 id="ptitle"></h3><button type="button" class="pclose" id="pclose">Close</button></div>
+    <div class="pframe" id="pframe"></div>
+  </div>
+</div>
+
+<div id="adder" role="dialog" aria-modal="true" aria-labelledby="adder-title" hidden>
+  <div class="abox">
+    <h3 id="adder-title">Add a video</h3>
+    <label>Title
+      <input type="text" id="a-title" maxlength="120" autocomplete="off">
+    </label>
+    <label>Video link
+      <input type="url" id="a-link" placeholder="https://" autocomplete="off">
+      <small>YouTube, Vimeo, Dailymotion, Twitch, Streamable, Pornhub, or a direct .mp4 / .webm link.</small>
+    </label>
+    <label>Thumbnail link (optional)
+      <input type="url" id="a-thumb" placeholder="https://" autocomplete="off">
+      <small>Use an image you own or are licensed to use.</small>
+    </label>
+    <label>Or upload a thumbnail (optional)
+      <input type="file" id="a-file" accept="image/*">
+    </label>
+    <p class="aerr" id="a-err" role="alert"></p>
+    <div class="arow">
+      <button type="button" class="btn btn-enter" id="a-save">Save video</button>
+      <button type="button" class="btn btn-leave" id="a-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
   <header>
     <div class="bar">
-      <a href="#top" class="logo">Your<span>Site</span></a>
+      <a href="#top" class="logo">sq<span>services</span>.me</a>
       <div class="search">
         <input id="search" type="search" placeholder="Search categories" autocomplete="off" aria-label="Search categories">
       </div>
       <nav aria-label="Main">
         <a href="#top" class="on">Home</a>
+        <a href="#feed">Trending</a>
+        <a href="#videos">My videos</a>
         <a href="#categories">Categories</a>
         <a href="#az">A-Z</a>
       </nav>
@@ -227,19 +311,31 @@
     <div class="grid" id="grid"></div>
     <div class="empty" id="empty" hidden>No categories match that search.</div>
 
+    <div class="sechead" id="feed">
+      <h2>Trending videos</h2>
+      <form class="fsearch" id="fform"><input type="search" id="fq" placeholder="Search videos" aria-label="Search videos" autocomplete="off"><button type="submit" class="addbtn">Search</button></form>
+    </div>
+    <div class="vgrid" id="fgrid"></div>
+    <div class="fmsg" id="fmsg" role="status"></div>
+    <button type="button" class="more" id="fmore" hidden>Load more</button>
+
+    <div class="sechead" id="videos"><h2>My videos</h2><button type="button" class="addbtn" id="addbtn">+ Add video</button></div>
+    <div class="vgrid" id="vgrid"></div>
+    <div class="empty" id="vempty" hidden>No videos yet. Press "Add video" to put your first one here.</div>
+
     <h2 class="sec" id="az">All categories A-Z</h2>
     <div class="az-jump" id="jump"></div>
     <div id="azlist"></div>
 
     <section class="about">
       <h3>Welcome</h3>
-      <p>Browse the full collection by category, or use the search bar to jump straight to what you want. Replace this text, the site name and the category tiles with your own content.</p>
+      <p>Browse the full collection by category, or use the search bar to jump straight to what you want. Add your own videos and thumbnails in the VIDEOS list near the bottom of this file.</p>
     </section>
   </main>
 
   <footer>
     <a href="#top">Terms</a><a href="#top">Privacy</a><a href="#top">DMCA</a><a href="#top">2257</a>
-    <p>This site is labeled with RTA. &copy; 2026 Your Site</p>
+    <p>This site is labeled with RTA. &copy; 2026 sqservices.me</p>
   </footer>
 </div>
 
@@ -280,6 +376,7 @@
       try { localStorage.setItem("age-ok", "1"); } catch (e) {}
     }
     unlock();
+    startFeed();
     if (reduceMotion) { gate.hidden = true; return; }
     gate.classList.add("closing");
     setTimeout(function () { gate.hidden = true; }, 300);
@@ -329,6 +426,286 @@
     });
     empty.hidden = shown > 0;
   });
+
+  // ---------- Videos ----------
+  // Videos you add with the "Add video" button are saved in this browser (localStorage).
+  var STORE_KEY = "sq-videos";
+  function loadVideos() {
+    try { var v = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); return Array.isArray(v) ? v : []; }
+    catch (e) { return []; }
+  }
+  function saveVideos() {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(VIDEOS)); return true; }
+    catch (e) { return false; }
+  }
+  var VIDEOS = loadVideos();
+
+  // Turns a pasted link into something the player can show
+  function parseLink(raw) {
+    var u;
+    try { u = new URL(raw.trim()); } catch (e) { return null; }
+    if (u.protocol !== "https:" && u.protocol !== "http:") return null;
+    var host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+    var path = u.pathname, m;
+
+    if (host === "youtube.com" || host === "youtu.be") {
+      var id = host === "youtu.be" ? path.slice(1).split("/")[0] : u.searchParams.get("v");
+      if (!id && (m = path.match(/^\/(embed|shorts|live)\/([\w-]{6,})/))) id = m[2];
+      if (id) return { type: "iframe", src: "https://www.youtube.com/embed/" + id + "?autoplay=1&rel=0", thumb: "https://img.youtube.com/vi/" + id + "/hqdefault.jpg" };
+    }
+    if ((host === "vimeo.com" || host === "player.vimeo.com") && (m = path.match(/(\d{5,})/)))
+      return { type: "iframe", src: "https://player.vimeo.com/video/" + m[1] + "?autoplay=1" };
+    if (host === "dailymotion.com" && (m = path.match(/\/video\/([a-zA-Z0-9]+)/)))
+      return { type: "iframe", src: "https://www.dailymotion.com/embed/video/" + m[1] + "?autoplay=1" };
+    if (host === "dai.ly" && path.length > 1)
+      return { type: "iframe", src: "https://www.dailymotion.com/embed/video/" + path.slice(1) + "?autoplay=1" };
+    if (host === "streamable.com") {
+      var sid = path.replace("/e/", "/").split("/").filter(Boolean)[0];
+      if (sid) return { type: "iframe", src: "https://streamable.com/e/" + sid };
+    }
+    if (host === "twitch.tv") {
+      var parent = location.hostname || "localhost";
+      if ((m = path.match(/\/videos\/(\d+)/))) return { type: "iframe", src: "https://player.twitch.tv/?video=" + m[1] + "&parent=" + parent };
+      if ((m = path.match(/\/clip\/([\w-]+)/))) return { type: "iframe", src: "https://clips.twitch.tv/embed?clip=" + m[1] + "&parent=" + parent };
+    }
+    // Pornhub (adult). Also handles links copied from Google (%3F and %3D).
+    if (host === "pornhub.com" || host.endsWith(".pornhub.com")) {
+      var key = raw.match(/viewkey(?:=|%3D)([a-z0-9]+)/i) || path.match(/\/embed\/([a-z0-9]+)/i);
+      if (key) return { type: "iframe", src: "https://www.pornhub.com/embed/" + key[1] };
+    }
+    if (/\.(mp4|webm|ogg|ogv|mov|m4v)$/i.test(path)) return { type: "video", src: u.href };
+    return null;
+  }
+
+  var vgrid = document.getElementById("vgrid");
+  var vempty = document.getElementById("vempty");
+  var player = document.getElementById("player");
+  var pframe = document.getElementById("pframe");
+  var adder = document.getElementById("adder");
+  var lastCard = null;
+
+  function openPlayer(v, card) {
+    lastCard = card;
+    document.getElementById("ptitle").textContent = v.title;
+    pframe.innerHTML = "";
+    var el;
+    if (v.type === "video") {
+      el = document.createElement("video");
+      el.src = v.src; el.controls = true; el.autoplay = true; el.playsInline = true;
+    } else {
+      el = document.createElement("iframe");
+      el.src = v.src;
+      el.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media";
+      el.allowFullscreen = true;
+      el.title = v.title;
+    }
+    pframe.appendChild(el);
+    player.hidden = false;
+    document.body.classList.add("locked");
+    document.getElementById("pclose").focus();
+  }
+
+  function closePlayer() {
+    player.hidden = true;
+    pframe.innerHTML = "";   // stops playback
+    document.body.classList.remove("locked");
+    if (lastCard) lastCard.focus();
+  }
+
+  document.getElementById("pclose").addEventListener("click", closePlayer);
+  player.addEventListener("click", function (e) { if (e.target === player) closePlayer(); });
+
+  function renderVideos() {
+    vgrid.innerHTML = "";
+    VIDEOS.forEach(function (v, i) {
+      var wrap = document.createElement("div");
+      wrap.className = "vwrap";
+
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "vcard";
+      var t = document.createElement("div");
+      t.className = "vthumb";
+      if (v.thumb) {
+        var img = document.createElement("img");
+        img.src = v.thumb; img.alt = ""; img.loading = "lazy";
+        img.addEventListener("error", function () { img.remove(); });
+        t.appendChild(img);
+      }
+      var pl = document.createElement("div"); pl.className = "play"; pl.textContent = "\u25B6"; t.appendChild(pl);
+      var ti = document.createElement("div"); ti.className = "vtitle"; ti.textContent = v.title;
+      b.appendChild(t); b.appendChild(ti);
+      b.addEventListener("click", function () { openPlayer(v, b); });
+
+      var del = document.createElement("button");
+      del.type = "button";
+      del.className = "vdel";
+      del.textContent = "\u00d7";
+      del.setAttribute("aria-label", "Remove " + v.title);
+      del.addEventListener("click", function () {
+        VIDEOS.splice(i, 1);
+        saveVideos();
+        renderVideos();
+      });
+
+      wrap.appendChild(b);
+      wrap.appendChild(del);
+      vgrid.appendChild(wrap);
+    });
+    vempty.hidden = VIDEOS.length > 0;
+  }
+
+  // ---------- Add-video form ----------
+  var aTitle = document.getElementById("a-title");
+  var aLink = document.getElementById("a-link");
+  var aThumb = document.getElementById("a-thumb");
+  var aFile = document.getElementById("a-file");
+  var aErr = document.getElementById("a-err");
+
+  function openAdder() {
+    aTitle.value = ""; aLink.value = ""; aThumb.value = ""; aFile.value = ""; aErr.textContent = "";
+    adder.hidden = false;
+    document.body.classList.add("locked");
+    aTitle.focus();
+  }
+  function closeAdder() {
+    adder.hidden = true;
+    document.body.classList.remove("locked");
+    document.getElementById("addbtn").focus();
+  }
+
+  // Shrinks an uploaded image so it fits in browser storage
+  function fileToThumb(file, done) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var w = Math.min(480, img.width), h = Math.round(img.height * (w / img.width));
+        var c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        done(c.toDataURL("image/jpeg", 0.8));
+      };
+      img.onerror = function () { done(null); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { done(null); };
+    reader.readAsDataURL(file);
+  }
+
+  function saveNew() {
+    var title = aTitle.value.trim();
+    if (!title) { aErr.textContent = "Add a title."; aTitle.focus(); return; }
+    var parsed = parseLink(aLink.value);
+    if (!parsed) { aErr.textContent = "That link is not supported. Use a YouTube, Vimeo, Dailymotion, Twitch, Streamable or Pornhub link, or a direct .mp4 link."; aLink.focus(); return; }
+
+    function finish(thumb) {
+      VIDEOS.unshift({ title: title, type: parsed.type, src: parsed.src, thumb: thumb || parsed.thumb || "" });
+      if (!saveVideos()) {
+        VIDEOS.shift();
+        aErr.textContent = "Could not save. Browser storage is full or blocked.";
+        return;
+      }
+      renderVideos();
+      closeAdder();
+    }
+
+    if (aFile.files && aFile.files[0]) {
+      fileToThumb(aFile.files[0], function (data) {
+        if (!data) { aErr.textContent = "That image could not be read."; return; }
+        finish(data);
+      });
+    } else {
+      var t = aThumb.value.trim();
+      if (t && !/^https?:\/\//i.test(t)) { aErr.textContent = "The thumbnail link must start with https://"; aThumb.focus(); return; }
+      finish(t);
+    }
+  }
+
+  document.getElementById("addbtn").addEventListener("click", openAdder);
+  document.getElementById("a-cancel").addEventListener("click", closeAdder);
+  document.getElementById("a-save").addEventListener("click", saveNew);
+  adder.addEventListener("click", function (e) { if (e.target === adder) closeAdder(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    if (!player.hidden) closePlayer();
+    else if (!adder.hidden) closeAdder();
+  });
+
+  renderVideos();
+
+  // ---------- Trending feed (pulled from the video feed through feed.php) ----------
+  var FEED_URL = "feed.php";
+  var fgrid = document.getElementById("fgrid");
+  var fmsg = document.getElementById("fmsg");
+  var fmore = document.getElementById("fmore");
+  var fq = document.getElementById("fq");
+  var fpage = 1, fquery = "", floading = false, feedStarted = false;
+
+  function fmtDuration(d) {
+    if (!d) return "";
+    return /^\d+:\d+/.test(d) ? d : "";
+  }
+
+  function addFeedCard(v) {
+    if (!v || !/^[a-z0-9]+$/i.test(v.video_id || "")) return;
+    var title = v.title || "Video";
+    var b = document.createElement("button");
+    b.type = "button";
+    b.className = "vcard";
+    var t = document.createElement("div");
+    t.className = "vthumb";
+    var thumb = v.default_thumb || v.thumb || "";
+    if (/^https:\/\//i.test(thumb)) {
+      var img = document.createElement("img");
+      img.src = thumb; img.alt = ""; img.loading = "lazy";
+      img.addEventListener("error", function () { img.remove(); });
+      t.appendChild(img);
+    }
+    var pl = document.createElement("div"); pl.className = "play"; pl.textContent = "\u25B6"; t.appendChild(pl);
+    var d = fmtDuration(v.duration);
+    if (d) { var du = document.createElement("div"); du.className = "dur"; du.textContent = d; t.appendChild(du); }
+    var ti = document.createElement("div"); ti.className = "vtitle"; ti.textContent = title;
+    b.appendChild(t); b.appendChild(ti);
+    b.addEventListener("click", function () {
+      openPlayer({ title: title, type: "iframe", src: "https://www.pornhub.com/embed/" + v.video_id }, b);
+    });
+    fgrid.appendChild(b);
+  }
+
+  function loadFeed(reset) {
+    if (floading) return;
+    floading = true;
+    if (reset) { fpage = 1; fgrid.innerHTML = ""; fmore.hidden = true; }
+    fmsg.textContent = "Loading videos...";
+    fetch(FEED_URL + "?search=" + encodeURIComponent(fquery) + "&page=" + fpage)
+      .then(function (r) { if (!r.ok) throw new Error("bad status"); return r.json(); })
+      .then(function (data) {
+        var list = (data && data.videos) || [];
+        list.forEach(function (item) { addFeedCard(item.video || item); });
+        fmsg.textContent = (!list.length && fpage === 1) ? "No videos found. Try a different search." : "";
+        fmore.hidden = !list.length;
+        fpage++;
+      })
+      .catch(function () {
+        fmsg.textContent = "Could not load videos. Make sure feed.php is uploaded next to this page on a server that runs PHP.";
+      })
+      .then(function () { floading = false; });
+  }
+
+  function startFeed() {
+    if (feedStarted) return;
+    feedStarted = true;
+    loadFeed(true);
+  }
+
+  document.getElementById("fform").addEventListener("submit", function (e) {
+    e.preventDefault();
+    fquery = fq.value.trim();
+    loadFeed(true);
+  });
+  fmore.addEventListener("click", function () { loadFeed(false); });
+  if (verified()) startFeed();
 
   // ---------- A-Z list ----------
   var sorted = CATEGORIES.slice().sort(function (a, b) { return a.localeCompare(b); });
