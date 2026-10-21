@@ -1,128 +1,260 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>sqservices.me</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Browser</title>
 <style>
-:root{--bg:#e9ecef;--bar:#f8f9fa;--ink:#1c2024;--mute:#68717a;--line:#cfd4d9;--acc:#2563eb;--tab:#dde1e5;--tabon:#f8f9fa;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121416;--bar:#1e2124;--ink:#e6e8ea;--mute:#8b949c;--line:#30363b;--acc:#6ea0ff;--tab:#17191b;--tabon:#1e2124}}
-:root[data-theme="dark"]{--bg:#121416;--bar:#1e2124;--ink:#e6e8ea;--mute:#8b949c;--line:#30363b;--acc:#6ea0ff;--tab:#17191b;--tabon:#1e2124}
-*{box-sizing:border-box}
-html,body{height:100%;margin:0}
-body{display:flex;flex-direction:column;background:var(--bg);color:var(--ink);font:14px system-ui,-apple-system,"Segoe UI",sans-serif}
-#tabs{display:flex;align-items:flex-end;gap:2px;padding:6px 6px 0;overflow-x:auto;background:var(--bg)}
-.tab{display:flex;align-items:center;gap:6px;min-width:110px;max-width:190px;padding:7px 8px 7px 12px;background:var(--tab);border-radius:9px 9px 0 0;cursor:pointer;white-space:nowrap;color:var(--mute)}
-.tab.on{background:var(--tabon);color:var(--ink)}
-.tab span{flex:1;overflow:hidden;text-overflow:ellipsis}
-.tab b{font-weight:400;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center}
-.tab b:hover{background:var(--line)}
-#new{border:0;background:none;color:var(--ink);font-size:20px;padding:0 10px;cursor:pointer}
-#bar{display:flex;align-items:center;gap:4px;padding:6px;background:var(--bar);border-bottom:1px solid var(--line)}
-#bar button{border:0;background:none;color:var(--ink);font-size:17px;width:34px;height:34px;border-radius:8px;cursor:pointer}
-#bar button:hover:not(:disabled){background:var(--line)}
-#bar button:disabled{opacity:.3;cursor:default}
-#addr{flex:1;min-width:0;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:8px 16px;font:inherit}
-#addr:focus{outline:2px solid var(--acc);border-color:transparent}
-button:focus-visible{outline:2px solid var(--acc)}
-#note{display:none;padding:6px 12px;background:var(--bar);border-bottom:1px solid var(--line);color:var(--mute);font-size:12px}
-#note a{color:var(--acc);cursor:pointer;text-decoration:underline}
-#view{flex:1;position:relative;min-height:0;background:#fff}
-iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff;display:none}
-iframe.on{display:block}
+  :root {
+    --bg: #12141a;
+    --tabbar: #1a1d25;
+    --tab: #232733;
+    --tab-active: #2f3547;
+    --line: #333a4a;
+    --text: #eceef2;
+    --muted: #8b93a1;
+    --accent: #4da3ff;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  .tabs {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    background: var(--tabbar);
+    padding: 8px 8px 0;
+    overflow-x: auto;
+  }
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 120px;
+    max-width: 200px;
+    background: var(--tab);
+    border: 0;
+    border-radius: 8px 8px 0 0;
+    padding: 8px 10px;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .tab.active { background: var(--tab-active); color: var(--text); }
+  .tab .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left; }
+  .tab .close { border: 0; background: transparent; color: var(--muted); padding: 0 4px; border-radius: 4px; }
+  .tab .close:hover { background: rgba(255,255,255,.12); color: var(--text); }
+  .newtab { border: 0; background: transparent; color: var(--muted); font-size: 1.3rem; padding: 4px 12px; border-radius: 8px; }
+  .newtab:hover { background: var(--tab); color: var(--text); }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--tab-active);
+    padding: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .toolbar .nav {
+    border: 0;
+    background: transparent;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 1.05rem;
+  }
+  .toolbar .nav:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+  .toolbar .nav:disabled { color: #555c6b; cursor: default; }
+  .address {
+    flex: 1;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    color: var(--text);
+    font-size: .95rem;
+    padding: 8px 16px;
+  }
+  .address:focus { border-color: var(--accent); outline: 0; }
+
+  .viewport { position: relative; flex: 1; background: #fff; }
+  .viewport iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #fff; }
+  .viewport iframe[hidden] { display: none; }
+
+  .home {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    padding: 24px;
+    text-align: center;
+  }
+  .home[hidden] { display: none; }
+  .home h1 { margin: 0 0 8px; font-size: 1.6rem; }
+  .home p { margin: 0; color: var(--muted); max-width: 420px; }
+  .note { color: var(--muted); font-size: .8rem; margin-top: 16px; }
+  .note a { color: var(--accent); }
 </style>
 </head>
 <body>
-<div id="tabs"></div>
-<div id="bar"><span id="mark" style="display:flex;padding:0 4px"></span>
- <button id="back" title="Back" aria-label="Back">&#8592;</button>
- <button id="fwd" title="Forward" aria-label="Forward">&#8594;</button>
- <button id="reload" title="Reload" aria-label="Reload">&#8635;</button>
- <button id="home" title="Home" aria-label="Home">&#8962;</button>
- <input id="addr" type="text" placeholder="Search or enter address" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Address">
- <button id="ext" title="Open in a real browser tab" aria-label="Open in a real browser tab">&#8599;</button>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="toolbar">
+  <button class="nav" id="back" title="Back" aria-label="Back">&#8592;</button>
+  <button class="nav" id="forward" title="Forward" aria-label="Forward">&#8594;</button>
+  <button class="nav" id="reload" title="Reload" aria-label="Reload">&#8635;</button>
+  <input class="address" id="address" type="text" placeholder="Enter a website link" autocomplete="off" spellcheck="false" aria-label="Website link">
+  <button class="nav" id="external" title="Open in a new window" aria-label="Open in a new window">&#8599;</button>
 </div>
-<div id="note">Some sites refuse to load inside other pages. If this page is blank, <a id="extlink">open it in a new tab</a>.</div>
-<div id="view"></div>
+
+<div class="viewport" id="viewport">
+  <div class="home" id="home">
+    <div>
+      <h1>My Browser</h1>
+      <p>Type a website link in the bar above and press Enter.</p>
+      <p class="note">Some websites refuse to load inside other pages. If a page stays blank, use the arrow button to open it in a new window.</p>
+    </div>
+  </div>
+</div>
+
 <script>
-var HOME='about:home';
-function logo(s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 64 64" role="img" aria-label="sqservices.me"><rect width="64" height="64" rx="16" fill="#1d4ed8"/><circle cx="29" cy="30" r="11" fill="none" stroke="#fff" stroke-width="6"/><path d="M38 39l11 11" stroke="#fff" stroke-width="6" stroke-linecap="round"/><rect x="43" y="12" width="9" height="9" rx="2.5" fill="#93c5fd"/></svg>'}
-var recents=[],qcount=0,lastQ=null;
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\x22/g,'&#34;')}
-function recentHtml(){if(!recents.length)return '';return '<div class="r">Recent searches</div><div class="l">'+recents.map(function(q){return '<a href="#" onclick="parent.postMessage({go:decodeURIComponent(\''+encodeURIComponent(q).replace(/\x27/g,'%27')+'\')},\'*\');return false">'+esc(q)+'</a>'}).join('')+'</div>'}
-function homeDoc(){return '<!DOCTYPE html><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{font-family:system-ui,sans-serif;margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;background:#f6f7f8;color:#1c2024}@media(prefers-color-scheme:dark){body{background:#17191b;color:#e6e8ea}input,a{background:#222629!important;color:inherit!important;border-color:#363c41!important}}h1{font-size:34px;margin:0;font-weight:600;letter-spacing:-.5px}.brand{display:flex;align-items:center;gap:14px}.r{font-size:13px;opacity:.7;margin-top:-8px}form{width:min(480px,90vw)}input{width:100%;padding:12px 18px;font-size:16px;border:1px solid #cfd4d9;border-radius:999px;background:#fff}.l{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;max-width:520px}a{padding:9px 16px;border:1px solid #cfd4d9;border-radius:10px;background:#fff;color:#1c2024;text-decoration:none;font-size:14px}</style><div class="brand">'+logo(52)+'<h1>sqservices<span style="opacity:.5">.me</span></h1></div><form onsubmit="parent.postMessage({go:this.q.value},\'*\');return false"><input name="q" placeholder="Search or enter address" autofocus></form><div class="l">'+
-['wikipedia.org','archive.org','openstreetmap.org','example.com','news.ycombinator.com','developer.mozilla.org'].map(function(s){return '<a href="#" onclick="parent.postMessage({go:\''+s+'\'},\'*\');return false">'+s+'</a>'}).join('')+'</div>'+recentHtml();}
-var tabs=[],cur=null,id=0;
-var $=function(x){return document.getElementById(x)};
-function norm(v){
-  v=v.trim().replace(/^(https?:\/\/)?sqservices\.me\/?/i,'');if(!v)return HOME;
-  if(v===HOME)return HOME;
-  if(/^[a-z]+:\/\//i.test(v))return v;
-  if(/^[^\s]+\.[a-z]{2,}(\/|$|\?|:)/i.test(v)||/^localhost(:|\/|$)/.test(v))return 'https://'+v;
-  lastQ=v;return 'https://duckduckgo.com/?q='+encodeURIComponent(v);
-}
-function newTab(u){
-  var t={id:++id,hist:[],i:-1,title:'New tab',f:document.createElement('iframe')};
-  t.f.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-modals');
-  t.f.setAttribute('referrerpolicy','no-referrer');
-  $('view').appendChild(t.f);tabs.push(t);select(t);go(t,u||HOME);
-}
-function slug(s){return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'search'}
-function go(t,v,keep){
-  lastQ=null;var u=norm(v),q=lastQ,n=0;
-  if(q){n=++qcount;recents=[q].concat(recents.filter(function(x){return x!==q})).slice(0,8)}
-  var d=u===HOME?'':'sqservices.me/'+(q?slug(q)+'/'+n:u.replace(/^https?:\/\//,'').replace(/\/$/,''));
-  if(!keep){t.hist=t.hist.slice(0,t.i+1);t.disp=(t.disp||[]).slice(0,t.i+1);t.hist.push(u);t.disp.push(d);t.i=t.hist.length-1}
-  load(t,u);
-  if(q){t.title=q;render()}
-}
-function load(t,u){
-  if(u===HOME){t.f.removeAttribute('src');t.f.srcdoc=homeDoc();t.title='New tab'}
-  else{t.f.removeAttribute('srcdoc');t.f.src=u;try{t.title=new URL(u).hostname}catch(e){t.title=u}}
-  render();
-}
-function select(t){cur=t;render()}
-function close(t){
-  var k=tabs.indexOf(t);tabs.splice(k,1);t.f.remove();
-  if(!tabs.length){newTab();return}
-  if(cur===t)cur=tabs[Math.min(k,tabs.length-1)];render();
-}
-function url(t){return t.hist[t.i]||HOME}
-function render(){
-  var h=$('tabs');h.innerHTML='';
-  tabs.forEach(function(t){
-    var d=document.createElement('div');d.className='tab'+(t===cur?' on':'');
-    var s=document.createElement('span');s.textContent=t.title;
-    var x=document.createElement('b');x.textContent='\u00d7';x.title='Close tab';
-    x.onclick=function(e){e.stopPropagation();close(t)};
-    d.onclick=function(){select(t)};d.append(s,x);h.appendChild(d);
-    t.f.classList.toggle('on',t===cur);
+  const tabsEl = document.getElementById("tabs");
+  const addressEl = document.getElementById("address");
+  const viewport = document.getElementById("viewport");
+  const home = document.getElementById("home");
+  const backBtn = document.getElementById("back");
+  const forwardBtn = document.getElementById("forward");
+
+  let tabs = [];
+  let activeId = null;
+  let nextId = 1;
+
+  function normalize(raw) {
+    let v = raw.trim();
+    if (!v) return null;
+    if (!/^https?:\/\//i.test(v)) v = "https://" + v;
+    try {
+      const u = new URL(v);
+      if (!u.hostname.includes(".") && u.hostname !== "localhost") return null;
+      return u.href;
+    } catch (e) { return null; }
+  }
+
+  function getTab(id) { return tabs.find(function (t) { return t.id === id; }); }
+
+  function newTab(url) {
+    const iframe = document.createElement("iframe");
+    iframe.hidden = true;
+    iframe.title = "Website";
+    iframe.allow = "fullscreen; autoplay; clipboard-write; encrypted-media; picture-in-picture";
+    iframe.setAttribute("allowfullscreen", "");
+    viewport.appendChild(iframe);
+    const tab = { id: nextId++, title: "New tab", history: [], index: -1, iframe: iframe };
+    tabs.push(tab);
+    switchTab(tab.id);
+    if (url) navigate(tab, url);
+    return tab;
+  }
+
+  function closeTab(id) {
+    const i = tabs.findIndex(function (t) { return t.id === id; });
+    if (i === -1) return;
+    tabs[i].iframe.remove();
+    tabs.splice(i, 1);
+    if (!tabs.length) { newTab(); return; }
+    if (activeId === id) switchTab(tabs[Math.max(0, i - 1)].id);
+    else render();
+  }
+
+  function switchTab(id) {
+    activeId = id;
+    render();
+    const t = getTab(id);
+    if (!t.history.length) addressEl.focus();
+  }
+
+  function navigate(tab, url, fromHistory) {
+    if (!fromHistory) {
+      tab.history = tab.history.slice(0, tab.index + 1);
+      tab.history.push(url);
+      tab.index = tab.history.length - 1;
+    }
+    tab.iframe.src = url;
+    try { tab.title = new URL(url).hostname.replace(/^www\./, ""); } catch (e) { tab.title = url; }
+    render();
+  }
+
+  function render() {
+    tabsEl.innerHTML = "";
+    tabs.forEach(function (t) {
+      const el = document.createElement("div");
+      el.className = "tab" + (t.id === activeId ? " active" : "");
+      el.setAttribute("role", "button");
+      el.tabIndex = 0;
+      const title = document.createElement("span");
+      title.className = "title";
+      title.textContent = t.title;
+      const close = document.createElement("button");
+      close.className = "close";
+      close.textContent = "\u00d7";
+      close.setAttribute("aria-label", "Close tab");
+      close.addEventListener("click", function (e) { e.stopPropagation(); closeTab(t.id); });
+      el.appendChild(title);
+      el.appendChild(close);
+      el.addEventListener("click", function () { switchTab(t.id); });
+      el.addEventListener("keydown", function (e) { if (e.key === "Enter") switchTab(t.id); });
+      tabsEl.appendChild(el);
+    });
+    const add = document.createElement("button");
+    add.className = "newtab";
+    add.textContent = "+";
+    add.setAttribute("aria-label", "New tab");
+    add.addEventListener("click", function () { newTab(); });
+    tabsEl.appendChild(add);
+
+    const active = getTab(activeId);
+    tabs.forEach(function (t) { t.iframe.hidden = t !== active || !t.history.length; });
+    home.hidden = !!(active && active.history.length);
+    addressEl.value = active && active.history.length ? active.history[active.index] : "";
+    backBtn.disabled = !active || active.index <= 0;
+    forwardBtn.disabled = !active || active.index >= active.history.length - 1;
+  }
+
+  addressEl.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+    const url = normalize(addressEl.value);
+    if (!url) { addressEl.select(); return; }
+    navigate(getTab(activeId), url);
   });
-  var n=document.createElement('button');n.id='new';n.textContent='+';n.title='New tab';n.setAttribute('aria-label','New tab');n.onclick=function(){newTab()};h.appendChild(n);
-  if(!cur)return;
-  var u=url(cur);
-  var dd=(cur.disp||[])[cur.i]||'';$('addr').value=dd;try{history.replaceState(null,'',dd?'#/'+dd.replace('sqservices.me/',''):location.pathname+location.search)}catch(e){}
-  $('back').disabled=cur.i<=0;$('fwd').disabled=cur.i>=cur.hist.length-1;
-  $('note').style.display=u===HOME?'none':'block';
-  document.title=cur.title+' - sqservices.me';
-}
-$('addr').addEventListener('keydown',function(e){if(e.key==='Enter'){if(this.value===(cur.disp||[])[cur.i])load(cur,url(cur));else go(cur,this.value);this.blur()}});
-$('addr').addEventListener('focus',function(){this.select()});
-$('back').onclick=function(){if(cur.i>0){cur.i--;load(cur,url(cur))}};
-$('fwd').onclick=function(){if(cur.i<cur.hist.length-1){cur.i++;load(cur,url(cur))}};
-$('reload').onclick=function(){load(cur,url(cur))};
-$('home').onclick=function(){go(cur,HOME)};
-function ext(){var u=url(cur);if(u!==HOME)window.open(u,'_blank','noopener')}
-$('ext').onclick=ext;$('extlink').onclick=ext;
-window.addEventListener('message',function(e){if(cur&&e.source===cur.f.contentWindow&&e.data&&typeof e.data.go==='string')go(cur,e.data.go)});
-document.addEventListener('keydown',function(e){
-  var m=e.ctrlKey||e.metaKey;
-  if(m&&e.key==='t'){e.preventDefault();newTab()}
-  if(m&&e.key==='w'){e.preventDefault();close(cur)}
-  if(m&&e.key==='l'){e.preventDefault();$('addr').focus()}
-});
-$('mark').innerHTML=logo(28);newTab();
+
+  backBtn.addEventListener("click", function () {
+    const t = getTab(activeId);
+    if (t.index > 0) { t.index--; navigate(t, t.history[t.index], true); }
+  });
+  forwardBtn.addEventListener("click", function () {
+    const t = getTab(activeId);
+    if (t.index < t.history.length - 1) { t.index++; navigate(t, t.history[t.index], true); }
+  });
+  document.getElementById("reload").addEventListener("click", function () {
+    const t = getTab(activeId);
+    if (t.history.length) t.iframe.src = t.history[t.index];
+  });
+  document.getElementById("external").addEventListener("click", function () {
+    const t = getTab(activeId);
+    if (t.history.length) window.open(t.history[t.index], "_blank", "noopener");
+  });
+
+  newTab();
 </script>
 </body>
 </html>
