@@ -108,7 +108,7 @@
   </div>
 
   <p class="supported">
-    Works with YouTube, Vimeo, Dailymotion, Twitch, Streamable, and direct video files (.mp4, .webm, .ogg, .mov).
+    Works with YouTube, Vimeo, Dailymotion, Twitch, Streamable, Pornhub (adults only), direct video files (.mp4, .webm, .ogg, .mov), and .php links that serve a video.
     Some sites block embedding, so those links will not play.
   </p>
 </main>
@@ -178,9 +178,22 @@
       if (id) return { type: "iframe", src: "https://streamable.com/e/" + id };
     }
 
+    // Pornhub (adult site). Also handles links copied from Google results,
+    // where the "?" and "=" are encoded as %3F and %3D.
+    if (host === "pornhub.com" || host.endsWith(".pornhub.com")) {
+      const key = raw.match(/viewkey(?:=|%3D)([a-z0-9]+)/i) || path.match(/\/embed\/([a-z0-9]+)/i);
+      if (key) return { type: "iframe", src: "https://www.pornhub.com/embed/" + key[1] };
+    }
+
     // Direct video files
     if (/\.(mp4|webm|ogg|ogv|mov|m4v)$/i.test(path)) {
       return { type: "video", src: u.href };
+    }
+
+    // PHP links (like video.php?id=12). Try it as a video stream first,
+    // and if the browser cannot play it, load the page itself instead.
+    if (/\.php$/i.test(path)) {
+      return { type: "video", src: u.href, fallback: u.href };
     }
 
     return null;
@@ -196,6 +209,11 @@
       el.autoplay = true;
       el.playsInline = true;
       el.addEventListener("error", function () {
+        if (result.fallback) {
+          show({ type: "iframe", src: result.fallback });
+          setMessage("That link is a web page, so it is loaded as a page instead of a video file.");
+          return;
+        }
         setMessage("That video file could not be loaded. Check the link or try another one.", true);
       });
     } else {
